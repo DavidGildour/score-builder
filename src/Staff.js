@@ -75,16 +75,16 @@ class Staff extends React.Component {
                     },
                 ],
             },
-            {
-                notes: [
-                    {
-                        clef: props.clef,
-                        keys: ['c/4'],
-                        duration: 'w',
-                        modifiers: [''],
-                    },
-                ],
-            },
+            // {
+            //     notes: [
+            //         {
+            //             clef: props.clef,
+            //             keys: ['c/4'],
+            //             duration: 'w',
+            //             modifiers: [''],
+            //         },
+            //     ],
+            // },
         ];
     }
 
@@ -141,16 +141,21 @@ class Staff extends React.Component {
         )
 
     renderStaff = () => {
-        let beatsNum = this.props.beatsNum;
-        let beatsType = this.props.beatsType;
+        const beatsNum = this.props.beatsNum;
+        const beatsType = this.props.beatsType;
 
         for (const voice of this.voices) {
             const lackingDuration = this.voiceDurationIsVaild(voice);
             if (lackingDuration > 0) {
                 this.populateVoiceWithRests(voice, lackingDuration);
             } else if (lackingDuration < 0) {
-                beatsNum = 4;
-                beatsType = 4;
+                // This is a quick bug fix, definetely meant for REFACTORING
+                while (this.voiceDurationIsVaild(voice) < 0) {
+                    voice.notes.pop();
+                }
+                while (this.voiceDurationIsVaild(voice) > 0) {
+                    this.populateVoiceWithRests(voice, this.voiceDurationIsVaild(voice));
+                }
             }
         }
 
@@ -192,14 +197,14 @@ class Staff extends React.Component {
     }
 
     render() {
-        const message = 'Everything OK.';
+        let message = 'Everything OK.';
 
-        // for (const voice of this.voices) {
-        //     if (this.voiceDurationIsVaild(voice) !== 0) {
-        //         message = 'Invalid voice duration!';
-        //         break;
-        //     }
-        // }
+        for (const voice of this.voices) {
+            if (this.voiceDurationIsVaild(voice) !== 0) {
+                message = 'Invalid voice duration!';
+                break;
+            }
+        }
 
         return (
             <div>
