@@ -104,9 +104,7 @@ class Staff extends React.Component {
         let remainingDuration = lackingDuration;
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote)) {
-                if (duration > remainingDuration) {
-                    remainingDuration -= 0;
-                } else {
+                if (duration <= remainingDuration) {
                     remainingDuration -= duration;
                     voice.notes.push({
                         clef: this.props.clef,

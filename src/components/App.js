@@ -7,12 +7,6 @@ import Control from './Control';
 import store from '../store';
 
 class App extends Component {
-    // constructor() {
-    //     super();
-    //     // store.subscribe(this.render);
-    //     console.log(store.getState(), 'wut');
-    // }
-
     componentDidMount() {
         // 测试 devServer 的代理功能
         // fetch('/api/category')
@@ -24,6 +18,7 @@ class App extends Component {
 
     changeHandler = (name, val) => {
         store.dispatch({ type: 'SET_FIELD', field: name, value: val });
+        this.forceUpdate();
     }
 
     render() {
