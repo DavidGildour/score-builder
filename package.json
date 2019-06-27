@@ -3,6 +3,7 @@
     "dependencies": {
         "react": "^16.8.6",
         "react-dom": "^16.8.6",
+        "redux-starter-kit": "^0.5.1",
         "vexflow": "^1.2.89"
     },
     "version": "0.1.0",
