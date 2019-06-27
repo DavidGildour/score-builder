@@ -2,18 +2,11 @@
 import React, { Component } from 'react';
 
 import './App.css';
+import store from '../store';
 import Staff from './Staff';
 import Control from './Control';
 
 class App extends Component {
-    state = {
-        message: '',
-        clef: 'treble',
-        beatsNum: '4',
-        beatsType: '4',
-        keySig: 'C',
-    };
-
     componentDidMount() {
         // 测试 devServer 的代理功能
         // fetch('/api/category')
@@ -21,27 +14,24 @@ class App extends Component {
         //     .then(res => console.log('here here', res));
     }
 
-    parseTimeSig = () => `${this.state.beatsNum}/${this.state.beatsType}`
+    parseTimeSig = () => `${store.beatsNum}/${store.beatsType}`
 
     changeHandler = (name, val) => {
-        this.setState({
-            [name]: val,
-        });
-        this.forceUpdate();
+        store.dispatch({ type: 'SET_FIELD', field: name, value: val });
     }
 
     render() {
         return (
             <div className="App">
                 <Staff
-                    clef={this.state.clef}
+                    clef={store.clef}
                     timeSig={this.parseTimeSig()}
-                    keySig={this.state.keySig}
-                    beatsNum={parseInt(this.state.beatsNum, 10)}
-                    beatsType={parseInt(this.state.beatsType, 10)} />
+                    keySig={store.keySig}
+                    beatsNum={parseInt(store.beatsNum, 10)}
+                    beatsType={parseInt(store.beatsType, 10)} />
                 <Control update={this.changeHandler.bind(this)} />
                 <div className="message">
-                    {this.state.message}
+                    {store.message}
                 </div>
             </div>
         );
