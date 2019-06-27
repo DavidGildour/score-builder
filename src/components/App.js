@@ -14,8 +14,6 @@ class App extends Component {
         //     .then(res => console.log('here here', res));
     }
 
-    parseTimeSig = () => `${store.getState().beatsNum}/${store.getState().beatsType}`
-
     changeHandler = (name, val) => {
         store.dispatch({ type: 'SET_FIELD', field: name, value: val });
         this.forceUpdate();
@@ -27,14 +25,11 @@ class App extends Component {
             <div className="App">
                 <Staff
                     clef={state.clef}
-                    timeSig={this.parseTimeSig()}
+                    timeSig={`${state.beatsNum}/${state.beatsType}`}
                     keySig={state.keySig}
                     beatsNum={parseInt(state.beatsNum, 10)}
                     beatsType={parseInt(state.beatsType, 10)} />
                 <Control update={this.changeHandler.bind(this)} />
-                <div className="message">
-                    {state.message}
-                </div>
             </div>
         );
     }

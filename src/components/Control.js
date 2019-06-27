@@ -7,6 +7,7 @@ class Control extends React.Component {
         clef: 'treble',
         beatsNum: '4',
         beatsType: '4',
+        keySig: 'C',
     };
 
     changeHandler = (event) => {
@@ -85,7 +86,7 @@ class Control extends React.Component {
                                     <option value="Eb">Eb major/C minor</option>
                                     <option value="Bb">Bb major/G minor</option>
                                     <option value="F">F major/D minor</option>
-                                    <option value="C" defaultValue>C major/A minor</option>
+                                    <option value="C">C major/A minor</option>
                                     <option value="G">G major/E minor</option>
                                     <option value="D">D major/B minor</option>
                                     <option value="A">A major/F# minor</option>
