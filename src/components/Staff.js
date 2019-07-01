@@ -3,6 +3,7 @@ import Vex from 'vexflow';
 
 import { connect } from 'react-redux';
 import './Staff.css';
+import { Cb, Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, Fsh, Csh } from './mappings/keyMappings';
 
 const VF = Vex.Flow;
 

@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { setStaveField, addNoteToStave, deleteNoteFromStave } from '../redux/actions';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote } from './ControlFields'; 
 
+import { noteToDuration, durationToNote } from './mappings/durationMappings';
+
 import './Control.css';
 
 const getRandInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -14,38 +16,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave };
-
-const durationToNote = {
-    1.5: 'wd',
-    1: 'w',
-    0.75: 'hd',
-    0.5: 'h',
-    0.375: 'qd',
-    0.25: 'q',
-    0.1875: '8d',
-    0.125: '8',
-    0.09375: '16d',
-    0.0625: '16',
-    0.046875: '32d',
-    0.03125: '32',
-    0.015625: '64',
-};
-
-const noteToDuration = {
-    wd: 1.5,
-    w: 1,
-    hd: 0.75,
-    h: 0.5,
-    qd: 0.375,
-    q: 0.25,
-    '8d': 0.1875,
-    8: 0.125,
-    '16d': 0.09375,
-    16: 0.0625,
-    '32d': 0.046875,
-    32: 0.03125,
-    64: 0.015625,
-};
 
 class Control extends React.Component {
     state = {
