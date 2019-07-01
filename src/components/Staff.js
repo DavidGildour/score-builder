@@ -53,12 +53,17 @@ class Staff extends React.Component {
 
         const context = this.renderer.getContext();
 
-        context.clear();
-
         const voices = this.mapVoices(beatsNum, beatsType);
 
-        this.formatter.joinVoices(voices).format(voices, this.staveWidth);
+        try {
+            this.formatter.joinVoices(voices).format(voices, this.staveWidth);
+        } catch {
+            console.log("Voice invalid, notes:");
+            console.table(this.props.voices[0].notes);
+            return;
+        }
 
+        context.clear();
         this.stave.setContext(context).draw();
         voices.forEach(v => v.draw(context, this.stave));
     }
