@@ -5,19 +5,21 @@ import Staff from './Staff';
 import Control from './Control';
 
 class App extends Component {
-    componentDidMount() {
-        // 测试 devServer 的代理功能
-        // fetch('/api/category')
-        //     .then(resp => resp.json())
-        //     .then(res => console.log('here here', res));
-    }
+    state = {
+            x: 0,
+            y: 0,
+        }
 
     render() {
         return (
-            <div className="App">
-                <Staff id="0" />
+            <div id="main" className="App"  onMouseMove={e => this.setState({x: e.pageX, y: e.pageY})}>
+                <Staff />
                 <Control
                     id="0" />
+                <div>
+                    X: {this.state.x}&nbsp;
+                    Y: {this.state.y}
+                </div>
             </div>
         );
     }

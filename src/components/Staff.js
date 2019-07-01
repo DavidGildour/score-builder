@@ -99,10 +99,20 @@ class Staff extends React.Component {
             console.table(this.props.voices[0].notes);
             return;
         }
-
         context.clear();
+
+        const staveGroup = context.openGroup();
+
         this.stave.setContext(context).draw();
         voices.forEach(v => v.draw(context, this.stave));
+
+        context.closeGroup();
+        let lines = [];
+        for (const [i, elem] of staveGroup.childNodes.entries()) {
+            if (i >= 5) break;
+            lines.push(elem);
+            console.log(elem.getBoundingClientRect());
+        }
     }
 
     componentDidMount() {
