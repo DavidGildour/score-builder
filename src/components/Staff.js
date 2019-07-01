@@ -18,28 +18,64 @@ class Staff extends React.Component {
         this.renderer = null;
         this.stave = null;
         this.formatter = new VF.Formatter();
-        this.staveWidth = 700;
+        this.staveWidth = 1200;
+    }
+
+    mapNote = (note) => {
+        const key = this.props.keySig;
+        const mods = note.modifiers.slice();
+        let mapping;
+        switch (key) {
+            case 'Cb': mapping = Cb; break;
+            case 'Gb': mapping = Gb; break;
+            case 'Db': mapping = Db; break;
+            case 'Ab': mapping = Ab; break;
+            case 'Eb': mapping = Eb; break;
+            case 'Bb': mapping = Bb; break;
+            case 'F': mapping = F; break;
+            case 'C': mapping = C; break;
+            case 'G': mapping = G; break;
+            case 'D': mapping = D; break;
+            case 'A': mapping = A; break;
+            case 'E': mapping = E; break;
+            case 'B': mapping = B; break;
+            case 'F#': mapping = Fsh; break;
+            case 'C#': mapping = Csh; break;
+            default: mapping = C;
+        }
+
+        for (const [i, pitch] of note.keys.entries()) {
+            const symbol = pitch[0];
+            const accidental = mapping[symbol.toUpperCase()];
+            if (accidental) {
+                if (mods[i] !== '') mods[i] = mods[i].replace(accidental, '');
+                else mods[i] = 'n';
+            }
+        }
+
+        // initializing a single note to ba added to the voice
+        const staveNote = new VF.StaveNote(note);
+        // checking if this note has any accidentals/modifiers attached to it (see note.modifiers)
+        if (mods.length > 0) {
+            for (const [i, mod] of mods.entries()) {
+                // applying according modifiers
+                if (note.duration.includes('r')) { // rests do not need accidentals
+                    if (mod.includes('.')) staveNote.addDot(i);
+                } else {
+                    if (mod === '.') staveNote.addDot(i);
+                    else if (mod.includes('.')) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', ''))).addDot(i);
+                    else if (mod) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', '')));
+                }
+            }
+        }
+        return staveNote;
     }
 
     mapVoices = (beatsNum, beatsType) => this.props.voices
         // mapping this object's voices array to an array of VF voices
         .map(voice => new VF.Voice({ num_beats: beatsNum, beat_value: beatsType })
             // adding notes from these voices inner array 'notes'
-            .addTickables(voice.notes.map((note) => {
-                // initializing a single note to ba added to the voice
-                const staveNote = new VF.StaveNote(note);
-                // checking if this note has any accidentals/modifiers attached to it (see note.modifiers)
-                if (note.modifiers.length > 0) {
-                    for (const [i, mod] of note.modifiers.entries()) {
-                        // applying according modifiers
-                        if (mod === '.') staveNote.addDot(i);
-                        else if (mod.includes('.')) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', ''))).addDot(i);
-                        else if (mod) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', '')));
-                    }
-                }
-                return staveNote;
-            })),
-        )
+            .addTickables(voice.notes.map(this.mapNote)))
 
     renderStaff = () => {
         const beatsNum = this.props.beatsNum;
@@ -74,7 +110,7 @@ class Staff extends React.Component {
 
         this.renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
-        this.renderer.resize(800, 200);
+        this.renderer.resize(1500, 200);
 
         this.renderStaff();
     }
@@ -90,13 +126,8 @@ class Staff extends React.Component {
     }
 
     render() {
-        const message = 'Everything OK.';
-
         return (
             <div>
-                <div className="message">
-                    {message}
-                </div>
                 <div ref={this.ref} className="mainField" />
             </div>
         );
