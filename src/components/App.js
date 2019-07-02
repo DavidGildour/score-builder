@@ -32,9 +32,7 @@ class App extends Component {
     render() {
         return (
             <div id="main" className="App" onMouseMove={this.handleMouseMove}>
-                <StaffContainer
-                    note={this.state.note}
-                    id="0" />
+                <StaffContainer id="0" />
                 <div>
                     X: {this.state.x}&nbsp;
                     Y: {this.state.y}&nbsp;

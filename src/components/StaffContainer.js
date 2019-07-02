@@ -7,6 +7,7 @@ import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration } from './ControlFields'; 
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
+import { clefMapping } from './mappings/clefMappings';
 
 import './Control.css';
 
@@ -21,6 +22,7 @@ const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave 
 class StaffContainer extends React.Component {
     state = {
         error: false,
+        note: null,
         id: this.props.id,
         clef: this.props.staves[this.props.id].clef,
         beatsNum: this.props.staves[this.props.id].beatsNum,
@@ -67,7 +69,7 @@ class StaffContainer extends React.Component {
 
     cutMeasure = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
-        const notes = this.props.staves[0].voices[voiceId].notes.slice();
+        const notes = this.props.staves[this.state.id].voices[voiceId].notes.slice();
 
         while (remainingDuration < 0) {
             console.log(remainingDuration);
@@ -90,9 +92,9 @@ class StaffContainer extends React.Component {
         if (name === 'beatsNum') beatsNum = value;
         else beatsType = value;
 
-        for (const voice of this.props.staves[0].voices) {
+        for (const voice of this.props.staves[this.state.id].voices) {
             const lackingDuration = this.voiceDurationIsValid(voice, beatsNum, beatsType);
-            const voiceId = this.props.staves[0].voices.indexOf(voice);
+            const voiceId = this.props.staves[this.state.id].voices.indexOf(voice);
             if (lackingDuration > 0) {
                 this.populateVoiceWithRests(voiceId, lackingDuration);
             } else if (lackingDuration < 0) {
@@ -134,7 +136,7 @@ class StaffContainer extends React.Component {
         if (duration >= noteToDuration[this.state.duration]) {
             const newNote = {
                 clef: this.state.clef,
-                keys: [this.props.note],
+                keys: [this.state.note],
                 duration: this.state.duration,
                 modifiers: [(this.state.duration.includes('d') ? '.' : '')],
             }
@@ -174,8 +176,6 @@ class StaffContainer extends React.Component {
             upperIndex = i; // index
         }
 
-        console.log(duration, upperIndex);
-
         const noteDuration = durationsReversed[getRandInt(0, upperIndex)];
         const accidental = accidentals[getRandInt(0, accidentals.length)];
         const symbol = `${pitches[getRandInt(0, pitches.length)]}${accidental}/${getRandInt(4,6)}`;
@@ -188,8 +188,6 @@ class StaffContainer extends React.Component {
             modifiers: [modifiers],
         };
 
-        console.log('Added note: ', newNote);
-
         duration -= noteToDuration[noteDuration];
         this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: 0 });
         this.populateVoiceWithRests(0, duration);   
@@ -198,7 +196,7 @@ class StaffContainer extends React.Component {
     removeNote = (e) => {
         e.preventDefault();
 
-        const notes = this.props.staves[0].voices[0].notes.slice();
+        const notes = this.props.staves[this.state.id].voices[0].notes.slice();
         let note;
         for (const n of notes.slice().reverse()) {
             if (!n.duration.includes('r')) {
@@ -217,10 +215,28 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(0, duration);
     }
 
+    handleMouseMove = (e) => {
+        const curY = e.pageY;
+        let note;
+
+        if (curY <= 140) note = clefMapping[this.state.clef][0];
+        else if (curY > 140 && curY <= 146 ) note = clefMapping[this.state.clef][1];
+        else if (curY > 146 && curY <= 150 ) note = clefMapping[this.state.clef][2];
+        else if (curY > 150 && curY <= 156 ) note = clefMapping[this.state.clef][3];
+        else if (curY > 156 && curY <= 160 ) note = clefMapping[this.state.clef][4];
+        else if (curY > 160 && curY <= 166 ) note = clefMapping[this.state.clef][5];
+        else if (curY > 166 && curY <= 170 ) note = clefMapping[this.state.clef][6];
+        else if (curY > 170 && curY <= 176 ) note = clefMapping[this.state.clef][7];
+        else if (curY > 176 && curY <= 180 ) note = clefMapping[this.state.clef][8];
+        else if (curY > 180 ) note = clefMapping[this.state.clef][9];
+
+        this.setState({note: note})
+    }
+
     render() {
         return (
             <div>
-                <div onClick={this.addNote}>
+                <div onClick={this.addNote} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" note={this.state.note} />
                 </div>
                 <h3>Options:</h3>

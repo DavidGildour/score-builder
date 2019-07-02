@@ -11,7 +11,7 @@ export const ClefOptions = (props) => (
             <option value="soprano">Soprano clef</option>
             <option value="mezzo-soprano">Mezzo Soprano clef</option>
             <option value="baritone-c">Baritone (C) clef</option>
-            <option value="baritone-f">Bariton (F) clef</option>
+            <option value="baritone-f">Baritone (F) clef</option>
             <option value="subbass">Subbass clef</option>
             <option value="french">French clef</option>
         </select>
