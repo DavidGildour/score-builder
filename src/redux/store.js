@@ -153,6 +153,23 @@ const store = configureStore({
                             },
                         ],
                     },
+                    {       
+                        id: '1',
+                        notes: [
+                            {
+                                clef: 'treble',
+                                keys: ['d/4'],
+                                duration: 'wdr',
+                                modifiers: ['.'],
+                            },
+                            {
+                                clef: 'treble',
+                                keys: ['d/4'],
+                                duration: 'qr',
+                                modifiers: [''],
+                            },
+                        ],
+                    },
                 ],
             },
         ],
