@@ -41,6 +41,24 @@ const rootReducer = (state = {}, action) => {
                 }),
             };
         }
+        case 'ADD_VOICE_TO_STAVE': {
+            const { staveId } = action.payload;
+            return {
+                ...state,
+                staves: state.staves.map((stave, index) => {
+                    if (index.toString() === staveId) {
+                        return {
+                            ...stave,
+                            voices: stave.voices.concat({
+                                id: stave.voices.length.toString(),
+                                notes: [],
+                            }),
+                        };
+                    }
+                    return stave;
+                }),
+            };
+        }
         default: return state;
     }
 };

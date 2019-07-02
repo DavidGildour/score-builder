@@ -2,9 +2,9 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
-import { setStaveField, addNoteToStave, deleteNoteFromStave } from '../redux/actions';
+import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices } from './ControlFields'; 
+import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddVoice } from './ControlFields'; 
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -17,7 +17,7 @@ const mapStateToProps = state => ({
     staves: state.staves,
 });
 
-const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave };
+const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave };
 
 class StaffContainer extends React.Component {
     state = {
@@ -210,6 +210,16 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(this.state.currentVoice, duration);
     }
 
+    addVoice = (e) => {
+        if (this.props.staves[this.state.id].voices.length === 4) return;
+
+        const { value } = e.target;
+
+        this.props.addVoiceToStave({ staveId: this.state.id });
+
+        this.populateVoiceWithRests(value, this.state.beatsNum * (1 / this.state.beatsType))
+    }
+
     handleMouseMove = (e) => {
         const curY = e.pageY;
         let note;
@@ -253,6 +263,7 @@ class StaffContainer extends React.Component {
                             </td>
                             <td rowSpan="3">
                                 <Voices voices={this.props.staves[this.state.id].voices} currentVoice={this.state.currentVoice} onChange={this.changeHandler} />
+                                <AddVoice onClick={this.addVoice} newVoiceId={this.props.staves[this.state.id].voices.length} />
                             </td>
                         </tr>
                         <tr>

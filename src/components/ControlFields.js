@@ -147,3 +147,9 @@ export const Voices = (props) => (
         ))}
     </div>
 );
+
+export const AddVoice = (props) => (
+    <button name="addVoice" value={props.newVoiceId} onClick={props.onClick}>
+        Add voice
+    </button>
+);
