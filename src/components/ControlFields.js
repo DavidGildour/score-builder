@@ -57,6 +57,73 @@ export const KeyOptions = (props) => (
         </select>
 );
 
+export const NoteDuration = (props) => (
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="radio" name="duration" value="wd" id="wd" onChange={props.onChange} checked={props.duration === "wd"} />
+                    <label htmlFor="wd"> Dotted wholenote</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
+                    <label htmlFor="w"> Wholenote</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="hd" id="hd" onChange={props.onChange} checked={props.duration === "hd"} />
+                    <label htmlFor="hd"> Dotted halfnote</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
+                    <label htmlFor="h">  Halfnote</label><br />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="duration" value="qd" id="qd" onChange={props.onChange} checked={props.duration === "qd"} />
+                    <label htmlFor="qd"> Dotted quarternote</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
+                    <label htmlFor="q"> Quarternote</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="8d" id="8d" onChange={props.onChange} checked={props.duration === "8d"} />
+                    <label htmlFor="8d"> Dotted eight</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
+                    <label htmlFor="8"> Eightnote</label><br />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="duration" value="16d" id="16d" onChange={props.onChange} checked={props.duration === "16d"} />
+                    <label htmlFor="16d"> Dotted sixteenth</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
+                    <label htmlFor="16"> Sixteenth</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="32d" id="32d" onChange={props.onChange} checked={props.duration === "32d"} />
+                    <label htmlFor="32d"> Dotted thirtysecond</label>
+                </td>
+                <td>
+                    <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
+                    <label htmlFor="32"> Thirtysecond</label><br />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
+                    <label htmlFor="64"> Sixtyfourth (like somebody uses it)</label>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+);
+
 
 export const AddNote = (props) => (
         <button onClick={props.onSubmit}>Add random note</button>
