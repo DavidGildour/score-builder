@@ -115,7 +115,7 @@ export const NoteDuration = (props) => (
                 </td>
             </tr>
             <tr>
-                <td colspan="4">
+                <td colSpan="4">
                     <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
                     <label htmlFor="64"> Sixtyfourth (like somebody uses it)</label>
                 </td>

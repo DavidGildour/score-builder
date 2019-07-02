@@ -86,7 +86,7 @@ class Staff extends React.Component {
 
         this.stave = new VF.Stave(10, 90, this.staveWidth)
                             .setClef(this.props.staves[this.id].clef)
-                            .setTimeSignature(`${this.props.staves[this.id].beatsNum}/${this.props.staves[this.id].beatsType}`)
+                            .setTimeSignature(`${beatsNum}/${beatsType}`)
                             .addModifier(new VF.KeySignature(this.props.staves[this.id].keySig));
 
         const context = this.renderer.getContext();

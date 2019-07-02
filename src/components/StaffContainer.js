@@ -47,7 +47,7 @@ class StaffContainer extends React.Component {
                         duration: `${durationToNote[duration]}r`,
                         modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
                     };
-                    console.log('should populate');
+                    console.log('should populate voice:', voiceId);
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
                     break;
                 }
@@ -94,7 +94,7 @@ class StaffContainer extends React.Component {
 
         for (const voice of this.props.staves[this.state.id].voices) {
             const lackingDuration = this.voiceDurationIsValid(voice, beatsNum, beatsType);
-            const voiceId = this.props.staves[this.state.id].voices.indexOf(voice);
+            const voiceId = voice.id;
             if (lackingDuration > 0) {
                 this.populateVoiceWithRests(voiceId, lackingDuration);
             } else if (lackingDuration < 0) {
@@ -246,7 +246,7 @@ class StaffContainer extends React.Component {
                             <td>
                                 <AddNote onSubmit={this.addRandomNote} />
                             </td>
-                            <td rowspan="3">
+                            <td rowSpan="3">
                                 <NoteDuration onChange={this.changeHandler} duration={this.state.duration} />
                             </td>
                         </tr>
