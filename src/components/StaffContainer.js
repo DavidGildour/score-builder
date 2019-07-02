@@ -117,11 +117,11 @@ class StaffContainer extends React.Component {
         if (name !== 'duration') this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
-    addNote = (_e) => {
-        const notes = this.props.staves[0].voices[0].notes.slice(); // TODO: change hardcoded stave and voice values
+    computeDuration = () => {
+        const notes = this.props.staves[this.state.id].voices[0].notes.slice(); // TODO: change hardcoded voice value
         const revNotes = notes.slice().reverse();
         let duration = 0;
-        if (!revNotes[0].duration.includes('r')) return; // if the last note is not a pause - return, cause there's no room for another
+        if (!revNotes[0].duration.includes('r')) return duration; // if the last note is not a pause - return, cause there's no room for another
 
         for (const n of revNotes) {
             if (!n.duration.includes('r')) { // break the loop when hitting non-pause note
@@ -130,6 +130,11 @@ class StaffContainer extends React.Component {
             duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
             this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: 0 }); // actually remove the note from store
         }
+        return duration;
+    }
+ 
+    addNote = (_e) => {
+        let duration = this.computeDuration();
 
         console.log(this.state.duration);
 
@@ -147,21 +152,9 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(0, duration);   
     }
 
-    addRandomNote = (e) => {
-        e.preventDefault();
-
-        const notes = this.props.staves[0].voices[0].notes.slice(); // TODO: change hardcoded stave and voice values
-        const revNotes = notes.slice().reverse();
-        let duration = 0;
-        if (!revNotes[0].duration.includes('r')) return; // if the last note is not a pause - return, cause there's no room for another
-
-        for (const n of revNotes) {
-            if (!n.duration.includes('r')) { // break the loop when hitting non-pause note
-                break;
-            }
-            duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
-            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: 0 }); // actually remove the note from store
-        }
+    addRandomNote = (_e) => {
+        let duration = this.computeDuration();
+        if (duration === 0) return;
 
         const pitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
         const accidentals = ['', '#', '##', 'b', 'bb'];
