@@ -4,6 +4,7 @@ import Vex from 'vexflow';
 import { connect } from 'react-redux';
 import './Staff.css';
 import { Cb, Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, Fsh, Csh } from './mappings/keyMappings';
+import { colorMapping } from './mappings/colorMappings';
 
 const VF = Vex.Flow;
 
@@ -14,7 +15,7 @@ const mapStateToProps = state => ({
 class Staff extends React.Component {
     constructor(props) {
         super(props);
-        this.id = parseInt(this.props.id, 10);
+        this.staveId = parseInt(this.props.id, 10);
         this.ref = React.createRef();
         this.renderer = null;
         this.stave = null;
@@ -23,7 +24,7 @@ class Staff extends React.Component {
     }
 
     mapNote = (note) => {
-        const key = this.props.staves[this.id].keySig;
+        const key = this.props.staves[this.staveId].keySig;
         const mods = note.modifiers.slice();
         let mapping;
         switch (key) {
@@ -72,22 +73,26 @@ class Staff extends React.Component {
         return staveNote;
     }
 
-    mapVoices = (beatsNum, beatsType) => this.props.staves[this.id].voices
+    mapVoices = (beatsNum, beatsType) => this.props.staves[this.staveId].voices
         // mapping this object's voices array to an array of VF voices
         .map(voice => new VF.Voice({ num_beats: beatsNum, beat_value: beatsType })
             // adding notes from these voices inner array 'notes'
-            .addTickables(voice.notes.map(this.mapNote)))
+            .addTickables(voice.notes.map(note => {
+                const newNote = this.mapNote(note);
+                newNote.setStyle(colorMapping[voice.id]);
+                return newNote;
+            })))
 
     renderStaff = () => {
-        const beatsNum = this.props.staves[this.id].beatsNum;
-        const beatsType = this.props.staves[this.id].beatsType;
+        const beatsNum = this.props.staves[this.staveId].beatsNum;
+        const beatsType = this.props.staves[this.staveId].beatsType;
 
         // console.log(this.props);
 
         this.stave = new VF.Stave(10, 90, this.staveWidth)
-                            .setClef(this.props.staves[this.id].clef)
+                            .setClef(this.props.staves[this.staveId].clef)
                             .setTimeSignature(`${beatsNum}/${beatsType}`)
-                            .addModifier(new VF.KeySignature(this.props.staves[this.id].keySig));
+                            .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig));
 
         const context = this.renderer.getContext();
 
@@ -97,7 +102,7 @@ class Staff extends React.Component {
             this.formatter.joinVoices(voices).format(voices, this.staveWidth);
         } catch {
             console.log("Voice invalid, notes:");
-            console.table(this.props.staves[this.id].voices[0].notes);
+            console.table(this.props.staves[this.staveId].voices[0].notes);
             return;
         }
         context.clear();
@@ -127,9 +132,9 @@ class Staff extends React.Component {
     }
 
     componentDidUpdate() {
-        for (const voice of this.props.staves[this.id].voices) {
+        for (const voice of this.props.staves[this.staveId].voices) {
             for (const note of voice.notes) {
-                note.clef = this.props.staves[this.id].clef;
+                note.clef = this.props.staves[this.staveId].clef;
             }
         }
 
