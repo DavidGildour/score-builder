@@ -3,7 +3,8 @@ import React from 'react';
 
 import { connect } from 'react-redux';
 import { setStaveField, addNoteToStave, deleteNoteFromStave } from '../redux/actions';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote } from './ControlFields'; 
+import Staff from './Staff';
+import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration } from './ControlFields'; 
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 
@@ -17,14 +18,15 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave };
 
-class Control extends React.Component {
+class StaffContainer extends React.Component {
     state = {
         error: false,
         id: this.props.id,
-        clef: 'treble',
-        beatsNum: '4',
-        beatsType: '4',
-        keySig: 'C',
+        clef: this.props.staves[this.props.id].clef,
+        beatsNum: this.props.staves[this.props.id].beatsNum,
+        beatsType: this.props.staves[this.props.id].beatsType,
+        keySig: this.props.staves[this.props.id].keySig,
+        duration: '8',
     };
 
     populateVoiceWithRests = (voiceId, lackingDuration) => {
@@ -41,7 +43,7 @@ class Control extends React.Component {
                         clef: this.state.clef,
                         keys: ['d/5'],
                         duration: `${durationToNote[duration]}r`,
-                        modifiers: [''],
+                        modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
                     };
                     console.log('should populate');
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
@@ -110,13 +112,43 @@ class Control extends React.Component {
             [name]: value,
         });
 
-        this.props.setStaveField({ id: this.state.id, field: name, value: value });
+        if (name !== 'duration') this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
-    addNote = (e) => {
+    addNote = (_e) => {
+        const notes = this.props.staves[0].voices[0].notes.slice(); // TODO: change hardcoded stave and voice values
+        const revNotes = notes.slice().reverse();
+        let duration = 0;
+        if (!revNotes[0].duration.includes('r')) return; // if the last note is not a pause - return, cause there's no room for another
+
+        for (const n of revNotes) {
+            if (!n.duration.includes('r')) { // break the loop when hitting non-pause note
+                break;
+            }
+            duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
+            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: 0 }); // actually remove the note from store
+        }
+
+        console.log(this.state.duration);
+
+        if (duration >= noteToDuration[this.state.duration]) {
+            const newNote = {
+                clef: this.state.clef,
+                keys: [this.props.note],
+                duration: this.state.duration,
+                modifiers: [(this.state.duration.includes('d') ? '.' : '')],
+            }
+
+            duration -= noteToDuration[newNote.duration];
+            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: 0 });
+        }
+        this.populateVoiceWithRests(0, duration);   
+    }
+
+    addRandomNote = (e) => {
         e.preventDefault();
 
-        const notes = this.props.staves[0].voices[0].notes.slice();
+        const notes = this.props.staves[0].voices[0].notes.slice(); // TODO: change hardcoded stave and voice values
         const revNotes = notes.slice().reverse();
         let duration = 0;
         if (!revNotes[0].duration.includes('r')) return; // if the last note is not a pause - return, cause there's no room for another
@@ -137,9 +169,9 @@ class Control extends React.Component {
         let upperIndex;
 
         // determine the maximum valid duration of the note to ba added
-        for (const val of Object.entries(notesReversed)) {
-            if (val[1] > duration) break; // value
-            upperIndex = val[0]; // index
+        for (const [i, val] of Object.entries(notesReversed)) {
+            if (val > duration) break; // value
+            upperIndex = i; // index
         }
 
         console.log(duration, upperIndex);
@@ -188,6 +220,9 @@ class Control extends React.Component {
     render() {
         return (
             <div>
+                <div onClick={this.addNote}>
+                    <Staff id="0" note={this.state.note} />
+                </div>
                 <h3>Options:</h3>
                 <table>
                     <tbody>
@@ -200,7 +235,10 @@ class Control extends React.Component {
                             </td>
                         
                             <td>
-                                <AddNote onSubmit={this.addNote} />
+                                <AddNote onSubmit={this.addRandomNote} />
+                            </td>
+                            <td rowspan="3">
+                                <NoteDuration onChange={this.changeHandler} duration={this.state.duration} />
                             </td>
                         </tr>
                         <tr>
@@ -235,4 +273,4 @@ class Control extends React.Component {
 export default connect(
     mapStateToProps,
     mapDispatchToProps,
-)(Control);
+)(StaffContainer);
