@@ -26,7 +26,8 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 voices: state.voices.map((voice, index) => {
-                    if (parseInt(index, 10) === voiceId) {
+                    console.log(voice.id === voiceId)
+                    if (voice.id === voiceId) {
                         return {
                             ...voice,
                             notes: voice.notes.concat([note]),
@@ -40,8 +41,9 @@ export default (state = {}, action) => {
             const { voiceId, noteId } = action.payload;
             return {
                 ...state,
-                voices: state.voices.map((voice, index) => {
-                    if (parseInt(index, 10) === voiceId) {
+                voices: state.voices.map((voice) => {
+                    console.log(voice.id === voiceId)
+                    if (voice.id === voiceId) {
                         return {
                             ...voice,
                             notes: voice.notes.filter((note, i) => i !== noteId),

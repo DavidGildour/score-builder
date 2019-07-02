@@ -133,3 +133,17 @@ export const AddNote = (props) => (
 export const RemoveNote = (props) => (
         <button onClick={props.onClick}>Remove last note</button>
 );
+
+const numMapping = ['First', 'Second', 'Third', 'Fourth']
+
+export const Voices = (props) => (
+    <div>
+        Select voice:
+        {props.voices.map((voice) => (
+            <div key={voice.id}>
+                <input type="radio" name="currentVoice" value={voice.id} id={voice.id} onChange={props.onChange} checked={props.currentVoice === voice.id} />
+                <label htmlFor={voice.id}> {numMapping[voice.id]}</label>
+            </div>
+        ))}
+    </div>
+);

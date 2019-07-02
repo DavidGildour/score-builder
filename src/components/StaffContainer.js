@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { setStaveField, addNoteToStave, deleteNoteFromStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration } from './ControlFields'; 
+import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices } from './ControlFields'; 
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -24,6 +24,7 @@ class StaffContainer extends React.Component {
         error: false,
         note: null,
         id: this.props.id,
+        currentVoice: '0',
         clef: this.props.staves[this.props.id].clef,
         beatsNum: this.props.staves[this.props.id].beatsNum,
         beatsType: this.props.staves[this.props.id].beatsType,
@@ -114,11 +115,11 @@ class StaffContainer extends React.Component {
             [name]: value,
         });
 
-        if (name !== 'duration') this.props.setStaveField({ id: this.state.id, field: name, value: value });
+        if (name !== 'duration' && name !== 'currentVoice') this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
     computeDuration = () => {
-        const notes = this.props.staves[this.state.id].voices[0].notes.slice(); // TODO: change hardcoded voice value
+        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice(); // TODO: change hardcoded voice value
         const revNotes = notes.slice().reverse();
         let duration = 0;
         if (!revNotes[0].duration.includes('r')) return duration; // if the last note is not a pause - return, cause there's no room for another
@@ -128,7 +129,7 @@ class StaffContainer extends React.Component {
                 break;
             }
             duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
-            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: 0 }); // actually remove the note from store
+            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: this.state.currentVoice }); // actually remove the note from store
         }
         return duration;
     }
@@ -147,9 +148,10 @@ class StaffContainer extends React.Component {
             }
 
             duration -= noteToDuration[newNote.duration];
-            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: 0 });
+            console.log('added note: ', newNote);
+            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
         }
-        this.populateVoiceWithRests(0, duration);   
+        this.populateVoiceWithRests(this.state.currentVoice, duration);   
     }
 
     addRandomNote = (_e) => {
@@ -182,14 +184,14 @@ class StaffContainer extends React.Component {
         };
 
         duration -= noteToDuration[noteDuration];
-        this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: 0 });
-        this.populateVoiceWithRests(0, duration);   
+        this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
+        this.populateVoiceWithRests(this.state.currentVoice, duration);   
     }
 
     removeNote = (e) => {
         e.preventDefault();
 
-        const notes = this.props.staves[this.state.id].voices[0].notes.slice();
+        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice();
         let note;
         for (const n of notes.slice().reverse()) {
             if (!n.duration.includes('r')) {
@@ -202,10 +204,10 @@ class StaffContainer extends React.Component {
 
         console.log(note);
 
-        this.props.deleteNoteFromStave({ noteId: notes.indexOf(note), staveId: this.state.id, voiceId: 0 });
+        this.props.deleteNoteFromStave({ noteId: notes.indexOf(note), staveId: this.state.id, voiceId: this.state.currentVoice });
         const duration = noteToDuration[note.duration.replace('r', '')];
 
-        this.populateVoiceWithRests(0, duration);
+        this.populateVoiceWithRests(this.state.currentVoice, duration);
     }
 
     handleMouseMove = (e) => {
@@ -248,6 +250,9 @@ class StaffContainer extends React.Component {
                             </td>
                             <td rowSpan="3">
                                 <NoteDuration onChange={this.changeHandler} duration={this.state.duration} />
+                            </td>
+                            <td rowSpan="3">
+                                <Voices voices={this.props.staves[this.state.id].voices} currentVoice={this.state.currentVoice} onChange={this.changeHandler} />
                             </td>
                         </tr>
                         <tr>

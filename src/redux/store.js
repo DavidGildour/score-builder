@@ -17,6 +17,7 @@ const store = configureStore({
                         // every note has a 'modifiers' field that is used to map a single key from this note to
                         // corresponding modifier with the same index as a note.
                         // That's why sometimes 'modifiers' array have an empty element
+                        id: '0',
                         notes: [
                             {
                                 clef: 'treble',
