@@ -73,18 +73,22 @@ class Staff extends React.Component {
         return staveNote;
     }
 
-    mapVoices = (beatsNum, beatsType) => this.props.staves[this.staveId].voices
+    mapVoices = (beatsNum, beatsType) => {
+        const selected = this.props.selectedNote ? this.props.selectedNote : null;
+        return this.props.staves[this.staveId].voices
         // mapping this object's voices array to an array of VF voices
         .map(voice => new VF.Voice({ num_beats: beatsNum, beat_value: beatsType })
             // adding notes from these voices inner array 'notes'
             .addTickables(voice.notes.map(note => {
                 const newNote = this.mapNote(note);
-                // color only active voice
-                if (voice.id === this.props.activeVoice) {
+                if (selected && voice.id === selected.voiceId && voice.notes.indexOf(note).toString() === selected.noteId) {
+                    newNote.setStyle({fillStyle: '#f00', strokeStyle: '#f00'});
+                } else if (voice.id === this.props.activeVoice) {
                     newNote.setStyle(colorMapping[voice.id]);
                 }
                 return newNote;
             })))
+        }
 
     renderStaff = () => {
         const beatsNum = this.props.staves[this.staveId].beatsNum;

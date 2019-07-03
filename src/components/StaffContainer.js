@@ -28,10 +28,7 @@ class StaffContainer extends React.Component {
         id: this.props.id,
         stave: this.props.staves[this.props.id],
         currentVoice: '0',
-        clef: this.props.staves[this.props.id].clef,
-        beatsNum: this.props.staves[this.props.id].beatsNum,
-        beatsType: this.props.staves[this.props.id].beatsType,
-        keySig: this.props.staves[this.props.id].keySig,
+        selectedNote: null,
         duration: '8',
     };
 
@@ -46,7 +43,7 @@ class StaffContainer extends React.Component {
                 if (duration <= remainingDuration) {
                     remainingDuration -= duration;
                     const note = {
-                        clef: this.state.clef,
+                        clef: this.state.stave.clef,
                         keys: ['d/5'],
                         duration: `${durationToNote[duration]}r`,
                         modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
@@ -97,8 +94,8 @@ class StaffContainer extends React.Component {
             return;
         }
 
-        let beatsNum = this.state.beatsNum;
-        let beatsType = this.state.beatsType;
+        let beatsNum = this.state.stave.beatsNum;
+        let beatsType = this.state.stave.beatsType;
 
         if (name === 'beatsNum') beatsNum = value;
         else beatsType = value;
@@ -142,7 +139,7 @@ class StaffContainer extends React.Component {
 
         if (availableDuration >= noteToDuration[declaredDuration]) {
             const newNote = {
-                clef: this.state.clef,
+                clef: this.state.stave.clef,
                 keys: [this.state.note],
                 duration: this.state.restMode ? declaredDuration + 'r' : declaredDuration,
                 modifiers: [(declaredDuration.includes('d') ? '.' : '')],
@@ -178,7 +175,7 @@ class StaffContainer extends React.Component {
         const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
 
         const newNote = {
-            clef: this.state.clef,
+            clef: this.state.stave.clef,
             keys: [symbol],
             duration: noteDuration,
             modifiers: [modifiers],
@@ -221,7 +218,7 @@ class StaffContainer extends React.Component {
 
         this.props.addVoiceToStave({ staveId: this.state.id });
 
-        this.populateVoiceWithRests(value, this.state.beatsNum * (1 / this.state.beatsType))
+        this.populateVoiceWithRests(value, this.state.stave.beatsNum * (1 / this.state.stave.beatsType))
         this.setState({ error: "" });
     }
 
@@ -242,22 +239,44 @@ class StaffContainer extends React.Component {
         this.setState({ error: "" });
     }
 
+    handleClick = (e) => {
+        const curY = e.pageY;
+        const curX = e.pageX;
+        const notePositions = this.getNotePositions();
+        console.log(notePositions);
+        let selectedNote = null;
+
+        notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
+            if (curX >= n.left && curX <= n.right && curY >= n.top && curY <= n.bottom) {
+                selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString() };
+            }
+        }));
+
+        if (selectedNote) {
+            console.log(selectedNote);
+            this.setState({
+                selectedNote: selectedNote,
+                currentVoice: selectedNote.voiceId,
+            })
+        } else this.addNote(e);
+    }
+
     handleMouseMove = (e) => {
         const lines = this.state.lines;
         const curY = e.pageY;
         let note;
 
-        if (curY <= lines[0].top) note = clefMapping[this.state.clef][0];
-        else if (curY > lines[0].top && curY <= lines[0].bottom ) note = clefMapping[this.state.clef][1];
-        else if (curY > lines[0].bottom && curY <= lines[1].top ) note = clefMapping[this.state.clef][2];
-        else if (curY > lines[1].top && curY <= lines[1].bottom ) note = clefMapping[this.state.clef][3];
-        else if (curY > lines[1].bottom && curY <= lines[2].top ) note = clefMapping[this.state.clef][4];
-        else if (curY > lines[2].top && curY <= lines[2].bottom ) note = clefMapping[this.state.clef][5];
-        else if (curY > lines[2].bottom && curY <= lines[3].top ) note = clefMapping[this.state.clef][6];
-        else if (curY > lines[3].top && curY <= lines[3].bottom ) note = clefMapping[this.state.clef][7];
-        else if (curY > lines[3].bottom && curY <= lines[4].top ) note = clefMapping[this.state.clef][8];
-        else if (curY > lines[4].top && curY <= lines[4].bottom ) note = clefMapping[this.state.clef][9];
-        else if (curY > lines[4].bottom ) note = clefMapping[this.state.clef][10];
+        if (curY <= lines[0].top) note = clefMapping[this.state.stave.clef][0];
+        else if (curY > lines[0].top && curY <= lines[0].bottom ) note = clefMapping[this.state.stave.clef][1];
+        else if (curY > lines[0].bottom && curY <= lines[1].top ) note = clefMapping[this.state.stave.clef][2];
+        else if (curY > lines[1].top && curY <= lines[1].bottom ) note = clefMapping[this.state.stave.clef][3];
+        else if (curY > lines[1].bottom && curY <= lines[2].top ) note = clefMapping[this.state.stave.clef][4];
+        else if (curY > lines[2].top && curY <= lines[2].bottom ) note = clefMapping[this.state.stave.clef][5];
+        else if (curY > lines[2].bottom && curY <= lines[3].top ) note = clefMapping[this.state.stave.clef][6];
+        else if (curY > lines[3].top && curY <= lines[3].bottom ) note = clefMapping[this.state.stave.clef][7];
+        else if (curY > lines[3].bottom && curY <= lines[4].top ) note = clefMapping[this.state.stave.clef][8];
+        else if (curY > lines[4].top && curY <= lines[4].bottom ) note = clefMapping[this.state.stave.clef][9];
+        else if (curY > lines[4].bottom ) note = clefMapping[this.state.stave.clef][10];
 
         this.setState({note: note})
     }
@@ -265,14 +284,20 @@ class StaffContainer extends React.Component {
     innerStateChange = (event) => {
         const { name, value, type } = event.target;
 
-        if (type !== 'checkbox') {
-            this.setState({
-                [name]: value,
-            });
-        } else {
+        if (type === 'checkbox') {
             this.setState((state) => ({
                 [name]: !state[name],
             }));
+        } else if (name === 'currentVoice') {
+            this.setState((state) => ({
+                ...state,
+                selectedNote: null,
+                [name]: value,
+            }));
+        } else {
+            this.setState({
+                [name]: value,
+            });
         }
     }
 
@@ -281,6 +306,33 @@ class StaffContainer extends React.Component {
         const { name, value } = event.target;
 
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
+    }
+
+    getNotePositions = () => {
+        const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
+
+        const voices = this.state.stave.voices.slice();
+
+        const notes = staveSVG.getElementsByClassName('vf-stavenote');
+        let notePositions = [];
+        
+        let voiceId = 0;
+        let noteId = 0;
+        notePositions.push([]);
+        for (const n of notes) {
+            let voice = voices[voiceId];
+            let len = voice.notes.length;
+            if (noteId >= len) {
+                noteId = 0;
+                voice = voices[++voiceId];
+                notePositions.push([]);
+                len = voice.notes.length
+            }
+            notePositions[voiceId].push(n.getBoundingClientRect());
+            noteId++;
+        }
+
+        return notePositions;
     }
 
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
@@ -296,8 +348,10 @@ class StaffContainer extends React.Component {
             lines.push(line.getBoundingClientRect());
         }
 
-        console.log(lines);
-        this.setState({ lines: lines })
+        this.setState((state) => ({ 
+            ...state,
+            lines: lines,
+        }))
     }
 
     render() {
@@ -310,8 +364,8 @@ class StaffContainer extends React.Component {
                                     restMode={this.state.restMode}
                                     dotted={this.state.dotted} />
                 </div>
-                <div onClick={this.addNote} onMouseMove={this.handleMouseMove}>
-                    <Staff id="0" activeVoice={this.state.currentVoice} />
+                <div onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
+                    <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
                 <table>
                     <thead>
@@ -325,7 +379,7 @@ class StaffContainer extends React.Component {
                                 Select clef type:
                             </td>
                             <td>
-                                <ClefOptions clef={this.state.clef} onChange={this.storeChange} />
+                                <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
                             </td>
                         
                             <td>
@@ -351,8 +405,8 @@ class StaffContainer extends React.Component {
                             </td>
                             <td>
                                 <TimeSigOptions
-                                    beatsNum={this.state.beatsNum}
-                                    beatsType={this.state.beatsType}
+                                    beatsNum={this.state.stave.beatsNum}
+                                    beatsType={this.state.stave.beatsType}
                                     onChange={this.timeChangeHandler} />
                             </td>
                             <td>
@@ -364,7 +418,7 @@ class StaffContainer extends React.Component {
                                 Select key signature:
                             </td>
                             <td>
-                                <KeyOptions keySig={this.state.keySig} onChange={this.storeChange} />
+                                <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
                             </td>
                         </tr>
                     </tbody>
