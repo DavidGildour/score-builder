@@ -286,6 +286,13 @@ class StaffContainer extends React.Component {
     render() {
         return (
             <div>
+                <div className="noteDur">
+                    <NoteDuration
+                                    onChange={this.innerStateChange}
+                                    duration={this.state.duration}
+                                    restMode={this.state.restMode}
+                                    dotted={this.state.dotted} />
+                </div>
                 <div onClick={this.addNote} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" activeVoice={this.state.currentVoice} />
                 </div>
@@ -306,13 +313,6 @@ class StaffContainer extends React.Component {
                         
                             <td>
                                 <AddNote onSubmit={this.addRandomNote} />
-                            </td>
-                            <td rowSpan="3">
-                                <NoteDuration
-                                    onChange={this.innerStateChange}
-                                    duration={this.state.duration}
-                                    restMode={this.state.restMode}
-                                    dotted={this.state.dotted} />
                             </td>
                             <td rowSpan="3">
                                 <Voices

@@ -92,7 +92,7 @@ class Staff extends React.Component {
 
         // console.log(this.props);
 
-        this.stave = new VF.Stave(10, 90, this.staveWidth)
+        this.stave = new VF.Stave(10, 50, this.staveWidth)
                             .setClef(this.props.staves[this.staveId].clef)
                             .setTimeSignature(`${beatsNum}/${beatsType}`)
                             .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig));

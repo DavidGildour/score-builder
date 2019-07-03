@@ -58,54 +58,29 @@ export const KeyOptions = (props) => (
 );
 
 export const NoteDuration = (props) => (
-    <table>
-        <tbody>
-            <tr>
-                <td>
-                    <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
-                    <label htmlFor="w"> Wholenote</label>
-                </td>
-                <td>
-                    <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
-                    <label htmlFor="h">  Halfnote</label><br />
-                </td>
-                <td rowSpan="2">
-                    <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
-                    <label htmlFor="rest"> Rest</label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
-                    <label htmlFor="q"> Quarternote</label>
-                </td>
-                <td>
-                    <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
-                    <label htmlFor="8"> Eightnote</label><br />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
-                    <label htmlFor="16"> Sixteenth</label>
-                </td>
-                <td>
-                    <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
-                    <label htmlFor="32"> Thirtysecond</label><br />
-                </td>
-                <td>
-                    <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
-                    <label htmlFor="dotted"> Dotted</label>
-                </td>
-            </tr>
-            <tr>
-                <td colSpan="2">
-                    <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
-                    <label htmlFor="64"> Sixtyfourth (like somebody uses it)</label>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div>
+        <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
+        <label htmlFor="w"> Wholenote</label>
+    
+        <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
+        <label htmlFor="h">  Halfnote</label>
+    
+        <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
+        <label htmlFor="q"> Quarternote</label>
+        <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
+        <label htmlFor="8"> Eightnote</label>
+        <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
+        <label htmlFor="16"> Sixteenth</label>
+        <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
+        <label htmlFor="32"> Thirtysecond</label>
+        <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
+        <label htmlFor="64"> Sixtyfourth (like somebody uses it)</label>
+        <br />
+        <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
+        <label htmlFor="dotted"> Dotted</label>
+        <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
+        <label htmlFor="rest"> Rest</label>
+    </div>
 );
 
 
