@@ -257,7 +257,7 @@ class StaffContainer extends React.Component {
         return (
             <div>
                 <div onClick={this.addNote} onMouseMove={this.handleMouseMove}>
-                    <Staff id="0" note={this.state.note} />
+                    <Staff id="0" activeVoice={this.state.currentVoice} />
                 </div>
                 <h3>Options:</h3>
                 <table>

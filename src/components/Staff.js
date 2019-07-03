@@ -79,7 +79,10 @@ class Staff extends React.Component {
             // adding notes from these voices inner array 'notes'
             .addTickables(voice.notes.map(note => {
                 const newNote = this.mapNote(note);
-                newNote.setStyle(colorMapping[voice.id]);
+                // color only active voice
+                if (voice.id === this.props.activeVoice) {
+                    newNote.setStyle(colorMapping[voice.id]);
+                }
                 return newNote;
             })))
 
