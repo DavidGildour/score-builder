@@ -243,19 +243,21 @@ class StaffContainer extends React.Component {
     }
 
     handleMouseMove = (e) => {
+        const lines = this.state.lines;
         const curY = e.pageY;
         let note;
 
-        if (curY <= 140) note = clefMapping[this.state.clef][0];
-        else if (curY > 140 && curY <= 146 ) note = clefMapping[this.state.clef][1];
-        else if (curY > 146 && curY <= 150 ) note = clefMapping[this.state.clef][2];
-        else if (curY > 150 && curY <= 156 ) note = clefMapping[this.state.clef][3];
-        else if (curY > 156 && curY <= 160 ) note = clefMapping[this.state.clef][4];
-        else if (curY > 160 && curY <= 166 ) note = clefMapping[this.state.clef][5];
-        else if (curY > 166 && curY <= 170 ) note = clefMapping[this.state.clef][6];
-        else if (curY > 170 && curY <= 176 ) note = clefMapping[this.state.clef][7];
-        else if (curY > 176 && curY <= 180 ) note = clefMapping[this.state.clef][8];
-        else if (curY > 180 ) note = clefMapping[this.state.clef][9];
+        if (curY <= lines[0].top) note = clefMapping[this.state.clef][0];
+        else if (curY > lines[0].top && curY <= lines[0].bottom ) note = clefMapping[this.state.clef][1];
+        else if (curY > lines[0].bottom && curY <= lines[1].top ) note = clefMapping[this.state.clef][2];
+        else if (curY > lines[1].top && curY <= lines[1].bottom ) note = clefMapping[this.state.clef][3];
+        else if (curY > lines[1].bottom && curY <= lines[2].top ) note = clefMapping[this.state.clef][4];
+        else if (curY > lines[2].top && curY <= lines[2].bottom ) note = clefMapping[this.state.clef][5];
+        else if (curY > lines[2].bottom && curY <= lines[3].top ) note = clefMapping[this.state.clef][6];
+        else if (curY > lines[3].top && curY <= lines[3].bottom ) note = clefMapping[this.state.clef][7];
+        else if (curY > lines[3].bottom && curY <= lines[4].top ) note = clefMapping[this.state.clef][8];
+        else if (curY > lines[4].top && curY <= lines[4].bottom ) note = clefMapping[this.state.clef][9];
+        else if (curY > lines[4].bottom ) note = clefMapping[this.state.clef][10];
 
         this.setState({note: note})
     }
@@ -282,6 +284,21 @@ class StaffContainer extends React.Component {
     }
 
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
+
+    componentDidMount(){
+        const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
+        console.log(staveSVG);
+
+        const lines = [];
+
+        for (const [i, line] of staveSVG.childNodes.entries()) {
+            if (i >= 5) break;
+            lines.push(line.getBoundingClientRect());
+        }
+
+        console.log(lines);
+        this.setState({ lines: lines })
+    }
 
     render() {
         return (

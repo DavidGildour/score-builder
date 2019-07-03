@@ -110,18 +110,8 @@ class Staff extends React.Component {
         }
         context.clear();
 
-        const staveGroup = context.openGroup();
-
         this.stave.setContext(context).draw();
         voices.forEach(v => v.draw(context, this.stave));
-
-        context.closeGroup();
-        let lines = [];
-        for (const [i, elem] of staveGroup.childNodes.entries()) {
-            if (i >= 5) break;
-            lines.push(elem);
-            // console.log(elem.getBoundingClientRect());
-        }
     }
 
     componentDidMount() {
@@ -145,7 +135,7 @@ class Staff extends React.Component {
     }
 
     render() {
-        return <div ref={this.ref} className="mainField" />;
+        return <div ref={this.ref} id={`stave${this.staveId}`} />;
     }
 }
 
