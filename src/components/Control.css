@@ -6,3 +6,11 @@
 .timesig {
     width: 35px;
 }
+
+.noteDur {
+    text-align: center;
+}
+
+.err {
+    color: red;
+}

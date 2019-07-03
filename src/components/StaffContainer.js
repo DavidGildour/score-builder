@@ -71,6 +71,13 @@ class StaffContainer extends React.Component {
         return 0;
     }
 
+    voiceIsNotEmpty = (voiceId) => {
+        for (const note of this.state.stave.voices[voiceId].notes) {
+            if (!note.duration.includes('r')) return true;
+        }
+        return false;
+    }
+
     cutMeasure = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
         const notes = this.state.stave.voices[voiceId].notes.slice();
@@ -205,21 +212,34 @@ class StaffContainer extends React.Component {
     }
 
     addVoice = (e) => {
-        if (this.state.stave.voices.length === 4) return;
+        if (this.state.stave.voices.length === 4) {
+            this.setState({ error: "Maximum of four voices reached"});
+            return;
+        }
 
         const { value } = e.target;
 
         this.props.addVoiceToStave({ staveId: this.state.id });
 
         this.populateVoiceWithRests(value, this.state.beatsNum * (1 / this.state.beatsType))
+        this.setState({ error: "" });
     }
 
     removeVoice = (e) => {
-        if (this.state.stave.voices.length === 1) return;
+        if (this.state.stave.voices.length === 1) {
+            this.setState({ error: "Needs to be at least one voice"});
+            return;
+        }
 
         const { value } = e.target;
 
+        if (this.voiceIsNotEmpty(value)) {
+            this.setState({ error: "Voice is not empty"});
+            return;
+        }
+
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
+        this.setState({ error: "" });
     }
 
     handleMouseMove = (e) => {
@@ -304,6 +324,7 @@ class StaffContainer extends React.Component {
                                 <AddRemoveVoice
                                     addVoice={this.addVoice}
                                     removeVoice={this.removeVoice}
+                                    error={this.state.error}
                                     newVoiceId={this.state.stave.voices.length} />
                             </td>
                         </tr>
@@ -331,6 +352,9 @@ class StaffContainer extends React.Component {
                         </tr>
                     </tbody>
                 </table>
+                <div className="err">
+                    {this.state.error}
+                </div>
             </div>
         );
     }
