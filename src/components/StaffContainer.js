@@ -17,15 +17,16 @@ const mapStateToProps = state => ({
     staves: state.staves,
 });
 
-const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave };
+const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave };
 
 class StaffContainer extends React.Component {
     state = {
-        error: false,
+        error: '',
         note: null,
         restMode: false,
         dotted: false,
         id: this.props.id,
+        stave: this.props.staves[this.props.id],
         currentVoice: '0',
         clef: this.props.staves[this.props.id].clef,
         beatsNum: this.props.staves[this.props.id].beatsNum,
@@ -72,7 +73,7 @@ class StaffContainer extends React.Component {
 
     cutMeasure = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
-        const notes = this.props.staves[this.state.id].voices[voiceId].notes.slice();
+        const notes = this.state.stave.voices[voiceId].notes.slice();
 
         while (remainingDuration < 0) {
             console.log(remainingDuration);
@@ -95,7 +96,7 @@ class StaffContainer extends React.Component {
         if (name === 'beatsNum') beatsNum = value;
         else beatsType = value;
 
-        for (const voice of this.props.staves[this.state.id].voices) {
+        for (const voice of this.state.stave.voices) {
             const lackingDuration = this.voiceDurationIsValid(voice, beatsNum, beatsType);
             const voiceId = voice.id;
             if (lackingDuration > 0) {
@@ -111,7 +112,7 @@ class StaffContainer extends React.Component {
     }
 
     computeDuration = () => {
-        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice();
+        const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
         const revNotes = notes.slice().reverse();
         let duration = 0;
         if (!revNotes[0].duration.includes('r')) return duration; // if the last note is not a pause - return, cause there's no room for another
@@ -184,7 +185,7 @@ class StaffContainer extends React.Component {
     removeNote = (e) => {
         e.preventDefault();
 
-        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice();
+        const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
         let note;
         for (const n of notes.slice().reverse()) {
             if (!n.duration.includes('r')) {
@@ -204,7 +205,7 @@ class StaffContainer extends React.Component {
     }
 
     addVoice = (e) => {
-        if (this.props.staves[this.state.id].voices.length === 4) return;
+        if (this.state.stave.voices.length === 4) return;
 
         const { value } = e.target;
 
@@ -260,6 +261,7 @@ class StaffContainer extends React.Component {
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
+    static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     render() {
         return (
