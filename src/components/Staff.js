@@ -15,7 +15,7 @@ const mapStateToProps = state => ({
 class Staff extends React.Component {
     constructor(props) {
         super(props);
-        this.staveId = parseInt(this.props.id, 10);
+        this.staveId = this.props.id;
         this.ref = React.createRef();
         this.renderer = null;
         this.stave = null;

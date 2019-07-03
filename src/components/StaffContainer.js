@@ -23,6 +23,8 @@ class StaffContainer extends React.Component {
     state = {
         error: false,
         note: null,
+        restMode: false,
+        dotted: false,
         id: this.props.id,
         currentVoice: '0',
         clef: this.props.staves[this.props.id].clef,
@@ -108,18 +110,8 @@ class StaffContainer extends React.Component {
         });
     }
 
-    changeHandler = (event) => {
-        const { name, value } = event.target;
-
-        this.setState({
-            [name]: value,
-        });
-
-        if (name !== 'duration' && name !== 'currentVoice') this.props.setStaveField({ id: this.state.id, field: name, value: value });
-    }
-
     computeDuration = () => {
-        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice(); // TODO: change hardcoded voice value
+        const notes = this.props.staves[this.state.id].voices[this.state.currentVoice].notes.slice();
         const revNotes = notes.slice().reverse();
         let duration = 0;
         if (!revNotes[0].duration.includes('r')) return duration; // if the last note is not a pause - return, cause there's no room for another
@@ -135,23 +127,24 @@ class StaffContainer extends React.Component {
     }
  
     addNote = (_e) => {
-        let duration = this.computeDuration();
+        let availableDuration = this.computeDuration();
+        const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
 
-        console.log(this.state.duration);
+        console.log(declaredDuration);
 
-        if (duration >= noteToDuration[this.state.duration]) {
+        if (availableDuration >= noteToDuration[declaredDuration]) {
             const newNote = {
                 clef: this.state.clef,
                 keys: [this.state.note],
-                duration: this.state.duration,
-                modifiers: [(this.state.duration.includes('d') ? '.' : '')],
+                duration: this.state.restMode ? declaredDuration + 'r' : declaredDuration,
+                modifiers: [(declaredDuration.includes('d') ? '.' : '')],
             }
 
-            duration -= noteToDuration[newNote.duration];
+            availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
             console.log('added note: ', newNote);
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
         }
-        this.populateVoiceWithRests(this.state.currentVoice, duration);   
+        this.populateVoiceWithRests(this.state.currentVoice, availableDuration);   
     }
 
     addRandomNote = (_e) => {
@@ -238,6 +231,28 @@ class StaffContainer extends React.Component {
         this.setState({note: note})
     }
 
+    innerStateChange = (event) => {
+        const { name, value, type } = event.target;
+
+        if (type !== 'checkbox') {
+            this.setState({
+                [name]: value,
+            });
+        } else {
+            this.setState((state) => ({
+                [name]: !state[name],
+            }));
+        }
+    }
+
+    storeChange = (event) => {
+        this.innerStateChange(event);
+        const { name, value } = event.target;
+
+        this.props.setStaveField({ id: this.state.id, field: name, value: value });
+    }
+
+
     render() {
         return (
             <div>
@@ -252,17 +267,21 @@ class StaffContainer extends React.Component {
                                 Select clef type:
                             </td>
                             <td>
-                                <ClefOptions clef={this.state.clef} onChange={this.changeHandler} />
+                                <ClefOptions clef={this.state.clef} onChange={this.storeChange} />
                             </td>
                         
                             <td>
                                 <AddNote onSubmit={this.addRandomNote} />
                             </td>
                             <td rowSpan="3">
-                                <NoteDuration onChange={this.changeHandler} duration={this.state.duration} />
+                                <NoteDuration
+                                    onChange={this.innerStateChange}
+                                    duration={this.state.duration}
+                                    restMode={this.state.restMode}
+                                    dotted={this.state.dotted} />
                             </td>
                             <td rowSpan="3">
-                                <Voices voices={this.props.staves[this.state.id].voices} currentVoice={this.state.currentVoice} onChange={this.changeHandler} />
+                                <Voices voices={this.props.staves[this.state.id].voices} currentVoice={this.state.currentVoice} onChange={this.innerStateChange} />
                                 <AddVoice onClick={this.addVoice} newVoiceId={this.props.staves[this.state.id].voices.length} />
                             </td>
                         </tr>
@@ -285,7 +304,7 @@ class StaffContainer extends React.Component {
                                 Select key signature:
                             </td>
                             <td>
-                                <KeyOptions keySig={this.state.keySig} onChange={this.changeHandler} />
+                                <KeyOptions keySig={this.state.keySig} onChange={this.storeChange} />
                             </td>
                         </tr>
                     </tbody>
