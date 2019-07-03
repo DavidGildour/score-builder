@@ -2,9 +2,9 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
-import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave } from '../redux/actions';
+import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddVoice } from './ControlFields'; 
+import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields'; 
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -213,6 +213,14 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(value, this.state.beatsNum * (1 / this.state.beatsType))
     }
 
+    removeVoice = (e) => {
+        if (this.state.stave.voices.length === 1) return;
+
+        const { value } = e.target;
+
+        this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
+    }
+
     handleMouseMove = (e) => {
         const curY = e.pageY;
         let note;
@@ -259,8 +267,12 @@ class StaffContainer extends React.Component {
                 <div onClick={this.addNote} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" activeVoice={this.state.currentVoice} />
                 </div>
-                <h3>Options:</h3>
                 <table>
+                    <thead>
+                        <tr>
+                            <th>Options:</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         <tr>
                             <td>
@@ -281,8 +293,16 @@ class StaffContainer extends React.Component {
                                     dotted={this.state.dotted} />
                             </td>
                             <td rowSpan="3">
-                                <Voices voices={this.props.staves[this.state.id].voices} currentVoice={this.state.currentVoice} onChange={this.innerStateChange} />
-                                <AddVoice onClick={this.addVoice} newVoiceId={this.props.staves[this.state.id].voices.length} />
+                                <Voices
+                                    voices={this.state.stave.voices}
+                                    currentVoice={this.state.currentVoice}
+                                    onChange={this.innerStateChange} />
+                            </td>
+                            <td>
+                                <AddRemoveVoice
+                                    addVoice={this.addVoice}
+                                    removeVoice={this.removeVoice}
+                                    newVoiceId={this.state.stave.voices.length} />
                             </td>
                         </tr>
                         <tr>

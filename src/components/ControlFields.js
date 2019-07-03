@@ -125,15 +125,25 @@ export const Voices = (props) => (
         Select voice:
         {props.voices.map((voice) => (
             <div key={voice.id}>
-                <input type="radio" name="currentVoice" value={voice.id} id={voice.id} onChange={props.onChange} checked={props.currentVoice === voice.id} />
+                <input type="radio"
+                    name="currentVoice"
+                    value={voice.id}
+                    id={voice.id}
+                    onChange={props.onChange}
+                    checked={props.currentVoice === voice.id} />
                 <label htmlFor={voice.id}> {numMapping[voice.id]}</label>
             </div>
         ))}
     </div>
 );
 
-export const AddVoice = (props) => (
-    <button name="addVoice" value={props.newVoiceId} onClick={props.onClick}>
-        Add voice
-    </button>
+export const AddRemoveVoice = (props) => (
+    <div>
+        <button name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
+            Add voice
+        </button><br />
+        <button name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
+            Remove voice
+        </button>
+    </div>
 );

@@ -59,6 +59,21 @@ const rootReducer = (state = {}, action) => {
                 }),
             };
         }
+        case 'REMOVE_VOICE_FROM_STAVE': {
+            const { staveId, voiceId } = action.payload;
+            return {
+                ...state,
+                staves: state.staves.map((stave, index) => {
+                    if (index.toString() === staveId) {
+                        return {
+                            ...stave,
+                            voices: stave.voices.filter(voice => voice.id !== voiceId),
+                        };
+                    }
+                    return stave;
+                }),
+            };
+        }
         default: return state;
     }
 };
