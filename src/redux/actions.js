@@ -6,7 +6,10 @@ import { SET_STAVE_FIELD,
         DELETE_NOTE_FROM_STAVE,
         DELETE_NOTE_FROM_VOICE,
         ADD_VOICE_TO_STAVE,
-        REMOVE_VOICE_FROM_STAVE } from './actionTypes';
+        REMOVE_VOICE_FROM_STAVE,
+        UPDATE_NOTE_IN_STAVE,
+        UPDATE_NOTE_IN_VOICE,
+        CHANGE_PITCH} from './actionTypes';
 
 export const setStaveField = content => ({
     type: SET_STAVE_FIELD,
@@ -56,6 +59,30 @@ export const deleteNoteFromVoice = ({ noteId, voiceId }) => ({
         voiceId,
     },
 });
+
+export const updateNoteInStave = ({ staveId, voiceId, noteId, keys }) => ({
+    type: UPDATE_NOTE_IN_STAVE,
+    payload: {
+        staveId,
+        voiceId,
+        noteId,
+        keys,
+    }
+})
+
+export const updateNoteInVoice = ({ noteId, voiceId, keys }) => ({
+    type: UPDATE_NOTE_IN_VOICE,
+    payload: {
+        noteId,
+        voiceId,
+        keys,
+    }
+})
+
+export const changePitch = ({ keys }) => ({
+    type: CHANGE_PITCH,
+    payload: { keys },
+})
 
 export const addVoiceToStave = ({ staveId }) => ({
     type: ADD_VOICE_TO_STAVE,

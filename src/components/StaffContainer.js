@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
-import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave } from '../redux/actions';
+import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave } from '../redux/actions';
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields'; 
 
@@ -17,7 +17,7 @@ const mapStateToProps = state => ({
     staves: state.staves,
 });
 
-const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave };
+const mapDispatchToProps = { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave };
 
 class StaffContainer extends React.Component {
     state = {
@@ -208,6 +208,18 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(this.state.currentVoice, duration);
     }
 
+    transposeNote = (transposition) => {
+        const selected = this.state.selectedNote;
+        if (!selected) return;
+
+        const note = this.state.stave.voices[selected.voiceId].notes[selected.noteId];
+        // let keys;
+
+        console.log(note.keys);
+
+        this.props.updateNoteInStave({ staveId: this.state.id, voiceId: selected.voiceId, noteId: selected.noteId, keys: ['d/5']});
+    }
+
     addVoice = (e) => {
         if (this.state.stave.voices.length === 4) {
             this.setState({ error: "Maximum of four voices reached"});
@@ -281,6 +293,28 @@ class StaffContainer extends React.Component {
         this.setState({note: note})
     }
 
+    handleKeyPress = (e) => {
+        const { key } = e;
+
+        if (key === 'ArrowUp') {
+            console.log('up a semitone');
+            this.transposeNote('su');
+        }
+        if (key === 'ArrowDown') {
+            console.log('down a semitone');
+            this.transposeNote('sd');
+        }
+        if (key === 'PageUp') {
+            console.log('up an octave');
+            this.transposeNote('ou');
+        }
+        if (key === 'PageDown') {
+            console.log('down an octave');
+            this.transposeNote('od');
+        }
+        
+    }
+
     innerStateChange = (event) => {
         const { name, value, type } = event.target;
 
@@ -339,7 +373,6 @@ class StaffContainer extends React.Component {
 
     componentDidMount(){
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
-        console.log(staveSVG);
 
         const lines = [];
 
@@ -364,7 +397,7 @@ class StaffContainer extends React.Component {
                                     restMode={this.state.restMode}
                                     dotted={this.state.dotted} />
                 </div>
-                <div onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
+                <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
                 <table>

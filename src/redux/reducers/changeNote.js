@@ -9,6 +9,14 @@ export default (state = {}, action) => {
                 clef: clef,
             };
         }
+        case 'CHANGE_PITCH': {
+            console.log(action);
+            const { keys } = action.payload;
+            return {
+                ...state,
+                keys: keys,
+            };
+        }
         default: return state;
     }
 };

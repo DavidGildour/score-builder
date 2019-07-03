@@ -1,6 +1,6 @@
 /* eslint-disable object-shorthand */
 import changeStave from './changeStave';
-import { setField, addNoteToVoice, deleteNoteFromVoice } from '../actions';
+import { setField, addNoteToVoice, deleteNoteFromVoice, updateNoteInVoice } from '../actions';
 
 const rootReducer = (state = {}, action) => {
     console.log('root', action);
@@ -36,6 +36,19 @@ const rootReducer = (state = {}, action) => {
                     if (index === parseInt(staveId, 10)) {
                         return changeStave(stave,
                                            deleteNoteFromVoice({ voiceId: voiceId, noteId: noteId }));
+                    }
+                    return stave;
+                }),
+            };
+        }
+        case 'UPDATE_NOTE_IN_STAVE': {
+            const { staveId, voiceId, noteId, keys } = action.payload;
+            return {
+                ...state,
+                staves: state.staves.map((stave, index) => {
+                    if (index.toString() === staveId) {
+                        return changeStave(stave,
+                                           updateNoteInVoice({ voiceId: voiceId, noteId: noteId, keys: keys }));
                     }
                     return stave;
                 }),

@@ -1,5 +1,5 @@
 import changeNote from './changeNote';
-import { setClef } from '../actions';
+import { setClef, changePitch } from '../actions';
 
 export default (state = {}, action) => {
     console.log('changestave', action);
@@ -42,11 +42,30 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 voices: state.voices.map((voice) => {
-                    console.log(voice.id === voiceId)
                     if (voice.id === voiceId) {
                         return {
                             ...voice,
                             notes: voice.notes.filter((note, i) => i !== noteId),
+                        };
+                    }
+                    return voice;
+                }),
+            };
+        }
+        case 'UPDATE_NOTE_IN_VOICE': {
+            const { voiceId, noteId, keys } = action.payload;
+            return {
+                ...state,
+                voices: state.voices.map((voice) => {
+                    if (voice.id === voiceId) {
+                        return {
+                            ...voice,
+                            notes: voice.notes.map((note, i) => {
+                                if (i.toString() === noteId) {
+                                    return changeNote(note, changePitch({ keys: keys }))
+                                }
+                                return note;
+                            }),
                         };
                     }
                     return voice;
