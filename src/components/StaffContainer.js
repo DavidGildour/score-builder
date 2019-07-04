@@ -50,6 +50,7 @@ class StaffContainer extends React.Component {
                         keys: [restPlacement[voiceId]],
                         duration: `${durationToNote[duration]}r`,
                         modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
+                        persistent: false,
                     };
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
                     break;
@@ -123,10 +124,10 @@ class StaffContainer extends React.Component {
         const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
         const revNotes = notes.slice().reverse();
         let duration = 0;
-        if (!revNotes[0].duration.includes('r')) return duration; // if the last note is not a pause - return, cause there's no room for another
+        if (revNotes[0].persistent) return duration; // if the last note is persistent - return, cause there's no room for another
 
         for (const n of revNotes) {
-            if (!n.duration.includes('r')) { // break the loop when hitting non-pause note
+            if (n.persistent) { // break the loop when hitting persistent note
                 break;
             }
             duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
@@ -135,7 +136,7 @@ class StaffContainer extends React.Component {
         return duration;
     }
  
-    addNote = (_e) => {
+    addNote = (_e = null) => {
         let availableDuration = this.computeDuration();
         const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
 
@@ -145,6 +146,7 @@ class StaffContainer extends React.Component {
                 keys: [this.state.note],
                 duration: this.state.restMode ? declaredDuration + 'r' : declaredDuration,
                 modifiers: [(declaredDuration.includes('d') ? '.' : '')],
+                persistent: true,
             }
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
@@ -183,6 +185,7 @@ class StaffContainer extends React.Component {
             keys: [symbol],
             duration: noteDuration,
             modifiers: [modifiers],
+            persistent: true,
         };
 
         duration -= noteToDuration[noteDuration];
@@ -194,7 +197,7 @@ class StaffContainer extends React.Component {
         const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
         let note;
         for (const n of notes.slice().reverse()) {
-            if (!n.duration.includes('r')) {
+            if (n.persistent) {
                 note = n;
                 break;
             }
@@ -394,33 +397,27 @@ class StaffContainer extends React.Component {
 
         if (key === 'ArrowUp') {
             this.transposeNote('su');
-        }
-        if (key === 'ArrowDown') {
+        } else if (key === 'ArrowDown') {
             this.transposeNote('sd');
-        }
-        if (key === 'PageUp') {
+        } else if (key === 'PageUp') {
             this.transposeNote('ou');
-        }
-        if (key === 'PageDown') {
+        } else if (key === 'PageDown') {
             this.transposeNote('od');
-        }
-        if (key === 'ArrowRight') {
-            this.setState(state => ({
+        } else if (key === 'ArrowRight') {
+            if (this.state.selectedNote) this.setState(state => ({
                 selectedNote: {
                     voiceId: state.selectedNote.voiceId,
                     noteId: (Math.min(+state.selectedNote.noteId + 1, state.stave.voices[state.selectedNote.voiceId].notes.length - 1)).toString(),
                 }
             }))
-        }
-        if (key === 'ArrowLeft') {
-            this.setState(state => ({
+        } else if (key === 'ArrowLeft') {
+            if (this.state.selectedNote) this.setState(state => ({
                 selectedNote: {
                     voiceId: state.selectedNote.voiceId,
                     noteId: (Math.max(+state.selectedNote.noteId - 1, 0)).toString(),
                 }
             }))
-        }
-        if (key === 'Tab') {
+        } else if (key === 'Tab') {
             this.setState(state => {
                 const nextVoice = shiftKey 
                     ? (state.currentVoice === '0' 
@@ -435,6 +432,8 @@ class StaffContainer extends React.Component {
                         noteId: '0',
                     }
             }})
+        } else if (key === ' ') {
+            this.addNote();
         }
         
     }
