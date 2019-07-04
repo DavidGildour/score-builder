@@ -119,6 +119,9 @@ export const AddRemoveVoice = (props) => (
         </button><br />
         <button name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
             Remove voice
+        </button><br />
+        <button name="clearVoices" onClick={props.clearVoices}>
+            Clear ALL voices
         </button>
     </div>
 );

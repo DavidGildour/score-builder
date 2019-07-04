@@ -34,6 +34,12 @@ class StaffContainer extends React.Component {
     };
 
     populateVoiceWithRests = (voiceId, lackingDuration) => {
+        const restPlacement = {
+            0: 'A/4',
+            1: 'E/5',
+            2: 'F/4',
+            3: 'C/5'
+        }
         let remainingDuration = lackingDuration;
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote)) {
@@ -41,7 +47,7 @@ class StaffContainer extends React.Component {
                     remainingDuration -= duration;
                     const note = {
                         clef: this.state.stave.clef,
-                        keys: ['d/5'],
+                        keys: [restPlacement[voiceId]],
                         duration: `${durationToNote[duration]}r`,
                         modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
                     };
@@ -288,25 +294,6 @@ class StaffContainer extends React.Component {
                 console.log("new: ", newSymbol, newAcc, newOctave || oldOctave);
 
                 keys.push(`${newSymbol + newAcc}/${newOctave || oldOctave}`);
-
-                // const newKey = key.replace(/(.+)\/(\d)/, (m, p1, p2) => {
-                //     let i;
-                //     for (const k of noteMapping) {
-                //         if (k.includes(p1.replace(/^./, match => match.toUpperCase()))) i = noteMapping.indexOf(k);
-                //     }
-                //     const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11 : i - 1);
-                //     const newNote = noteMapping[newIndex][1];
-                //     let newOctave;
-
-                //     console.log(i, newIndex);
-
-                //     if ((newIndex === 0 || ['b#'].includes(p1.toLowerCase())) && transposition[1] === 'u') newOctave = +p2 + 1;
-                //     else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
-                //     else newOctave = p2;
-
-                //     return `${newNote}/${newOctave}`;
-                // });
-                // keys.push(newKey);
             }
         }
 
@@ -347,6 +334,20 @@ class StaffContainer extends React.Component {
 
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
         this.setState({ error: "" });
+    }
+
+    clearVoices = (_e) => {
+        const voiceNum = this.state.stave.voices.length;
+        for (const voice of this.state.stave.voices) {
+            this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: voice.id});
+        }
+        for (let i = 0; i < voiceNum; i++) {
+            this.props.addVoiceToStave({ staveId: this.state.id });
+            this.populateVoiceWithRests(i.toString(), this.state.stave.beatsNum * (1 / this.state.stave.beatsType));
+        }
+        this.setState({
+            selectedNote: null,
+        })
     }
 
     handleClick = (e) => {
@@ -555,10 +556,11 @@ class StaffContainer extends React.Component {
                                     currentVoice={this.state.currentVoice}
                                     onChange={this.innerStateChange} />
                             </td>
-                            <td>
+                            <td rowSpan="3">
                                 <AddRemoveVoice
                                     addVoice={this.addVoice}
                                     removeVoice={this.removeVoice}
+                                    clearVoices={this.clearVoices}
                                     error={this.state.error}
                                     newVoiceId={this.state.stave.voices.length} />
                             </td>
