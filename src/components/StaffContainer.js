@@ -8,6 +8,7 @@ import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDurat
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
+import { noteMapping } from './mappings/noteMappings';
 
 import './Control.css';
 
@@ -213,11 +214,39 @@ class StaffContainer extends React.Component {
         if (!selected) return;
 
         const note = this.state.stave.voices[selected.voiceId].notes[selected.noteId];
-        // let keys;
+        let keys = [];
+        for (const key of note.keys) {
+            if (transposition[0] === 'o') {
+                keys.push(key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1)));
+            }
+            if (transposition[0] === 's') {
+                const newKey = key.replace(/(.+)\/(\d)/, (m, p1, p2) => {
+                    let i;
+                    for (const k of noteMapping) {
+                        if (k.includes(p1.replace(/^./, match => match.toUpperCase()))) i = noteMapping.indexOf(k);
+                    }
+                    const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11: i - 1);
+                    const newNote = noteMapping[newIndex][1];
+                    let newOctave;
+
+                    if (newIndex === 0 && transposition[1] === 'u') newOctave = +p2 + 1;
+                    else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
+                    else newOctave = p2;
+                    
+                    return `${newNote}/${newOctave}`;
+                });
+                keys.push(newKey);
+            }
+        }
 
         console.log(note.keys);
 
-        this.props.updateNoteInStave({ staveId: this.state.id, voiceId: selected.voiceId, noteId: selected.noteId, keys: ['d/5']});
+        this.props.updateNoteInStave({  
+                                        staveId: this.state.id,
+                                        voiceId: selected.voiceId,
+                                        noteId: selected.noteId,
+                                        keys: keys || note.keys,
+                                    });
     }
 
     addVoice = (e) => {

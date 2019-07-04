@@ -15,6 +15,12 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 keys: keys,
+                modifiers: state.modifiers.map((e, i) => {
+                    const newAcc = keys[i].match(/[#b]+/);
+                    const oldAcc = e.match(/[#b]+/);
+                    const newMods = oldAcc === null ? e + (newAcc || '') : e.replace(oldAcc[0], newAcc === null ? '' : newAcc[0])
+                    return newMods === null ? '' : newMods;
+                }),
             };
         }
         default: return state;
