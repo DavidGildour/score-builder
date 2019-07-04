@@ -27,9 +27,9 @@ const store = configureStore({
                             },
                             {
                                 clef: 'treble',
-                                keys: ['C#/4'],
+                                keys: ['C##/4'],
                                 duration: '16',
-                                modifiers: ['#'],
+                                modifiers: ['##'],
                             },
                             {
                                 clef: 'treble',
@@ -63,15 +63,15 @@ const store = configureStore({
                             },
                             {
                                 clef: 'treble',
-                                keys: ['E#/4'],
+                                keys: ['E##/4'],
                                 duration: '16',
-                                modifiers: ['#'],
+                                modifiers: ['##'],
                             },
                             {
                                 clef: 'treble',
-                                keys: ['Fb/4'],
+                                keys: ['Fbb/4'],
                                 duration: '16',
-                                modifiers: ['b'],
+                                modifiers: ['bb'],
                             },
                             {
                                 clef: 'treble',
@@ -135,9 +135,9 @@ const store = configureStore({
                             },
                             {
                                 clef: 'treble',
-                                keys: ['B#/4'],
+                                keys: ['B##/4'],
                                 duration: '16',
-                                modifiers: ['#'],
+                                modifiers: ['##'],
                             },
                             {
                                 clef: 'treble',
