@@ -4,7 +4,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields'; 
+import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
+import MelodyGenerator from './MelodyGeneratorOptions';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -351,6 +352,10 @@ class StaffContainer extends React.Component {
         })
     }
 
+    generateMelody = (options) => {
+        console.log(options);
+    }
+
     handleClick = (e) => {
         const curY = e.pageY;
         const curX = e.pageX;
@@ -560,6 +565,9 @@ class StaffContainer extends React.Component {
                                     clearVoices={this.clearVoices}
                                     error={this.state.error}
                                     newVoiceId={this.state.stave.voices.length} />
+                            </td>
+                            <td rowSpan="4">
+                                <MelodyGenerator generate={this.generateMelody} />
                             </td>
                         </tr>
                         <tr>
