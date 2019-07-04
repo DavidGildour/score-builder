@@ -190,9 +190,7 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(this.state.currentVoice, duration);   
     }
 
-    removeNote = (e) => {
-        e.preventDefault();
-
+    removeNote = (_e) => {
         const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
         let note;
         for (const n of notes.slice().reverse()) {

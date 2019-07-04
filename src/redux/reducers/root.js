@@ -2,7 +2,47 @@
 import changeStave from './changeStave';
 import { setField, addNoteToVoice, deleteNoteFromVoice, updateNoteInVoice } from '../actions';
 
-const rootReducer = (state = {}, action) => {
+const defaultState = {
+    message: '',
+    staves: [
+        {
+            clef: 'treble',
+            beatsNum: '4',
+            beatsType: '4',
+            keySig: 'C',
+            voices: [
+                {
+                    // every note has a 'modifiers' field that is used to map a single key from this note to
+                    // corresponding modifier with the same index as a note.
+                    // That's why sometimes 'modifiers' array have an empty element
+                    id: '0',
+                    notes: [
+                        {
+                            clef: 'treble',
+                            keys: ['A/4'],
+                            duration: 'wr',
+                            modifiers: [''],
+                        },
+                    ],
+                },
+                {       
+                    id: '1',
+                    notes: [
+                        {
+                            clef: 'treble',
+                            keys: ['E/5'],
+                            duration: 'wr',
+                            modifiers: [''],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+};
+
+
+const rootReducer = (state = defaultState, action) => {
     console.log('root', action);
     switch (action.type) {
         case 'SET_STAVE_FIELD': {
