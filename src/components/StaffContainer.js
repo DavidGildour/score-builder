@@ -313,7 +313,8 @@ class StaffContainer extends React.Component {
     }
 
     handleKeyPress = (e) => {
-        const { key } = e;
+        e.preventDefault();
+        const { key, shiftKey } = e;
 
         if (key === 'ArrowUp') {
             this.transposeNote('su');
@@ -326,6 +327,38 @@ class StaffContainer extends React.Component {
         }
         if (key === 'PageDown') {
             this.transposeNote('od');
+        }
+        if (key === 'ArrowRight') {
+            this.setState(state => ({
+                selectedNote: {
+                    voiceId: state.selectedNote.voiceId,
+                    noteId: (Math.min(+state.selectedNote.noteId + 1, state.stave.voices[state.selectedNote.voiceId].notes.length - 1)).toString(),
+                }
+            }))
+        }
+        if (key === 'ArrowLeft') {
+            this.setState(state => ({
+                selectedNote: {
+                    voiceId: state.selectedNote.voiceId,
+                    noteId: (Math.max(+state.selectedNote.noteId - 1, 0)).toString(),
+                }
+            }))
+        }
+        if (key === 'Tab') {
+            this.setState(state => {
+                const nextVoice = shiftKey 
+                    ? (state.currentVoice === '0' 
+                        ? state.stave.voices.length - 1
+                        : +state.currentVoice - 1)
+                    : ((+state.currentVoice + 1) % state.stave.voices.length);
+                console.log(nextVoice);
+                return {
+                    currentVoice: nextVoice.toString(),
+                    selectedNote: {
+                        voiceId: nextVoice.toString(),
+                        noteId: '0',
+                    }
+            }})
         }
         
     }
@@ -416,11 +449,11 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
-                {/* <div>
+                <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
                         : ''}
-                </div> */}
+                </div>
                 <table>
                     <thead>
                         <tr>
