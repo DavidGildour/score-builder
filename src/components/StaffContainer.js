@@ -217,11 +217,13 @@ class StaffContainer extends React.Component {
                     for (const k of noteMapping) {
                         if (k.includes(p1.replace(/^./, match => match.toUpperCase()))) i = noteMapping.indexOf(k);
                     }
-                    const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11: i - 1);
+                    const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11 : i - 1);
                     const newNote = noteMapping[newIndex][1];
                     let newOctave;
 
-                    if (newIndex === 0 && transposition[1] === 'u') newOctave = +p2 + 1;
+                    console.log(i, newIndex);
+
+                    if ((newIndex === 0 || ['b#'].includes(p1.toLowerCase())) && transposition[1] === 'u') newOctave = +p2 + 1;
                     else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
                     else newOctave = p2;
 
