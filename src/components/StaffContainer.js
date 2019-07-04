@@ -80,6 +80,9 @@ class StaffContainer extends React.Component {
             remainingDuration += noteToDuration[notes.pop().duration.replace('r', '')];
         }
         if (remainingDuration > 0) this.populateVoiceWithRests(voiceId, remainingDuration);
+        this.setState({
+            selectedNote: null, // quick fix 
+        })
     }
 
     timeChangeHandler = (event) => {
