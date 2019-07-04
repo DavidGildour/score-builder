@@ -215,24 +215,99 @@ class StaffContainer extends React.Component {
                 keys.push(key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1)));
             }
             if (transposition[0] === 's') {
-                const newKey = key.replace(/(.+)\/(\d)/, (m, p1, p2) => {
-                    let i;
-                    for (const k of noteMapping) {
-                        if (k.includes(p1.replace(/^./, match => match.toUpperCase()))) i = noteMapping.indexOf(k);
+                const [ , oldKey, oldOctave] = key.match(/(.+)\/(\d)/);
+                const oldSymbol = oldKey[0];
+                const oldAcc = oldKey.match(/[#b]+/);
+                const oldIndex = noteMapping.indexOf(oldSymbol.toUpperCase());
+
+                let newSymbol;
+                let newAcc;
+                let newOctave;
+
+                console.log("old: ", oldSymbol, oldAcc, oldOctave);
+
+                if (transposition[1] === 'u') {
+                    const isDiatonic = ['B','E'].includes(oldSymbol.toUpperCase());
+                    if (oldAcc) {
+                        switch (oldAcc[0]) {
+                            case '##':
+                                newSymbol = noteMapping[(oldIndex + 1) % 7];
+                                newAcc = '#';
+                                break;
+                            case '#':
+                                console.log('eh?');
+                                newSymbol = noteMapping[(oldIndex + 1) % 7];
+                                newAcc = isDiatonic ? '#' : '';
+                                break;
+                            case 'bb':
+                                newSymbol = oldSymbol;
+                                newAcc = 'b';
+                                break;
+                            case 'b':
+                                newSymbol = oldSymbol;
+                                newAcc = '';
+                                break;
+                            default:
+                                newSymbol = noteMapping[(oldIndex + 1) % 7];
+                                newAcc = '#';
+                        }
+                    } else {
+                        newSymbol = isDiatonic ? noteMapping[(oldIndex + 1) % 7] : oldSymbol;
+                        newAcc = isDiatonic ? '' : '#';
                     }
-                    const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11 : i - 1);
-                    const newNote = noteMapping[newIndex][1];
-                    let newOctave;
+                    if (oldIndex === 6 && oldKey !== 'Bb') newOctave = +oldOctave + 1;
+                } else {
+                    const isDiatonic = ['C','F'].includes(oldSymbol.toUpperCase());
+                    if (oldAcc) {
+                        switch (oldAcc[0]) {
+                            case '##':
+                                newSymbol = oldSymbol;
+                                newAcc = '#';
+                                break;
+                            case '#':
+                                newSymbol = oldSymbol;
+                                newAcc = '';
+                                break;
+                            case 'bb':
+                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                                newAcc = 'b';
+                                break;
+                            case 'b':
+                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                                newAcc = isDiatonic ? 'b' : '';
+                                break;
+                            default:
+                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                                newAcc = 'b';
+                        }
+                    } else {
+                        newSymbol = isDiatonic ? noteMapping[oldIndex === 0 ? 6 : oldIndex - 1] : oldSymbol;
+                        newAcc = isDiatonic ? '' : 'b';
+                    }
+                    if (oldIndex === 0 && oldKey !== 'Db') newOctave = +oldOctave - 1;
+                }
+                console.log("new: ", newSymbol, newAcc, newOctave || oldOctave);
 
-                    console.log(i, newIndex);
+                keys.push(`${newSymbol + newAcc}/${newOctave || oldOctave}`);
 
-                    if ((newIndex === 0 || ['b#'].includes(p1.toLowerCase())) && transposition[1] === 'u') newOctave = +p2 + 1;
-                    else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
-                    else newOctave = p2;
+                // const newKey = key.replace(/(.+)\/(\d)/, (m, p1, p2) => {
+                //     let i;
+                //     for (const k of noteMapping) {
+                //         if (k.includes(p1.replace(/^./, match => match.toUpperCase()))) i = noteMapping.indexOf(k);
+                //     }
+                //     const newIndex = transposition[1] === 'u' ? (i + 1) % 12 : (i === 0 ? 11 : i - 1);
+                //     const newNote = noteMapping[newIndex][1];
+                //     let newOctave;
 
-                    return `${newNote}/${newOctave}`;
-                });
-                keys.push(newKey);
+                //     console.log(i, newIndex);
+
+                //     if ((newIndex === 0 || ['b#'].includes(p1.toLowerCase())) && transposition[1] === 'u') newOctave = +p2 + 1;
+                //     else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
+                //     else newOctave = p2;
+
+                //     return `${newNote}/${newOctave}`;
+                // });
+                // keys.push(newKey);
             }
         }
 
