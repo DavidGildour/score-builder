@@ -224,18 +224,17 @@ class StaffContainer extends React.Component {
                 let newAcc;
                 let newOctave;
 
-                console.log("old: ", oldSymbol, oldAcc, oldOctave);
+                console.log("old: ", oldSymbol, oldAcc, oldOctave, oldIndex);
 
                 if (transposition[1] === 'u') {
                     const isDiatonic = ['B','E'].includes(oldSymbol.toUpperCase());
                     if (oldAcc) {
                         switch (oldAcc[0]) {
                             case '##':
-                                newSymbol = noteMapping[(oldIndex + 1) % 7];
-                                newAcc = '#';
+                                newSymbol = noteMapping[(oldIndex + (isDiatonic ? 2 : 1)) % 7];
+                                newAcc = isDiatonic ? '' : '#';
                                 break;
                             case '#':
-                                console.log('eh?');
                                 newSymbol = noteMapping[(oldIndex + 1) % 7];
                                 newAcc = isDiatonic ? '#' : '';
                                 break;
@@ -255,7 +254,7 @@ class StaffContainer extends React.Component {
                         newSymbol = isDiatonic ? noteMapping[(oldIndex + 1) % 7] : oldSymbol;
                         newAcc = isDiatonic ? '' : '#';
                     }
-                    if (oldIndex === 6 && oldKey !== 'Bb') newOctave = +oldOctave + 1;
+                    if (oldIndex === 6 && !['Bb', 'Bbb'].includes(oldKey)) newOctave = +oldOctave + 1;
                 } else {
                     const isDiatonic = ['C','F'].includes(oldSymbol.toUpperCase());
                     if (oldAcc) {
@@ -269,8 +268,8 @@ class StaffContainer extends React.Component {
                                 newAcc = '';
                                 break;
                             case 'bb':
-                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
-                                newAcc = 'b';
+                                newSymbol = noteMapping[oldIndex === 0 ? (isDiatonic ? 5 : 6) : oldIndex - (isDiatonic ? 2 : 1)];
+                                newAcc = isDiatonic ? '' : 'b';
                                 break;
                             case 'b':
                                 newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
@@ -284,7 +283,7 @@ class StaffContainer extends React.Component {
                         newSymbol = isDiatonic ? noteMapping[oldIndex === 0 ? 6 : oldIndex - 1] : oldSymbol;
                         newAcc = isDiatonic ? '' : 'b';
                     }
-                    if (oldIndex === 0 && oldKey !== 'Db') newOctave = +oldOctave - 1;
+                    if (oldIndex === 0 && !['C#', 'C##'].includes(oldKey)) newOctave = +oldOctave - 1;
                 }
                 console.log("new: ", newSymbol, newAcc, newOctave || oldOctave);
 
