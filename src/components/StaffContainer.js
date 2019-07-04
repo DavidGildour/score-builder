@@ -35,12 +35,8 @@ class StaffContainer extends React.Component {
 
     populateVoiceWithRests = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
-        // const maxIter = Object.keys(noteToDuration).length;
-        // let count = 0;
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote)) {
-                console.log(duration, remainingDuration);
-                // count++;
                 if (duration <= remainingDuration) {
                     remainingDuration -= duration;
                     const note = {
@@ -49,7 +45,6 @@ class StaffContainer extends React.Component {
                         duration: `${durationToNote[duration]}r`,
                         modifiers: [(durationToNote[duration].includes('d') ? '.' : '')],
                     };
-                    console.log('should populate voice:', voiceId);
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
                     break;
                 }
@@ -81,7 +76,6 @@ class StaffContainer extends React.Component {
         const notes = this.state.stave.voices[voiceId].notes.slice();
 
         while (remainingDuration < 0) {
-            console.log(remainingDuration);
             this.props.deleteNoteFromStave({ noteId: notes.length - 1, staveId: this.state.id, voiceId: voiceId });
             remainingDuration += noteToDuration[notes.pop().duration.replace('r', '')];
         }
@@ -136,8 +130,6 @@ class StaffContainer extends React.Component {
         let availableDuration = this.computeDuration();
         const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
 
-        console.log(declaredDuration);
-
         if (availableDuration >= noteToDuration[declaredDuration]) {
             const newNote = {
                 clef: this.state.stave.clef,
@@ -147,10 +139,12 @@ class StaffContainer extends React.Component {
             }
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
-            console.log('added note: ', newNote);
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
+            this.setState({
+                selectedNote: null, // quick fix 
+            })
         }
-        this.populateVoiceWithRests(this.state.currentVoice, availableDuration);   
+        this.populateVoiceWithRests(this.state.currentVoice, availableDuration);
     }
 
     addRandomNote = (_e) => {
@@ -201,8 +195,6 @@ class StaffContainer extends React.Component {
 
         if (!note) return;
 
-        console.log(note);
-
         this.props.deleteNoteFromStave({ noteId: notes.indexOf(note), staveId: this.state.id, voiceId: this.state.currentVoice });
         const duration = noteToDuration[note.duration.replace('r', '')];
 
@@ -232,14 +224,12 @@ class StaffContainer extends React.Component {
                     if (newIndex === 0 && transposition[1] === 'u') newOctave = +p2 + 1;
                     else if (newIndex === 11 && transposition[1] === 'd') newOctave = +p2 - 1;
                     else newOctave = p2;
-                    
+
                     return `${newNote}/${newOctave}`;
                 });
                 keys.push(newKey);
             }
         }
-
-        console.log(note.keys);
 
         this.props.updateNoteInStave({  
                                         staveId: this.state.id,
@@ -284,7 +274,6 @@ class StaffContainer extends React.Component {
         const curY = e.pageY;
         const curX = e.pageX;
         const notePositions = this.getNotePositions();
-        console.log(notePositions);
         let selectedNote = null;
 
         notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
@@ -294,7 +283,6 @@ class StaffContainer extends React.Component {
         }));
 
         if (selectedNote) {
-            console.log(selectedNote);
             this.setState({
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
@@ -326,19 +314,15 @@ class StaffContainer extends React.Component {
         const { key } = e;
 
         if (key === 'ArrowUp') {
-            console.log('up a semitone');
             this.transposeNote('su');
         }
         if (key === 'ArrowDown') {
-            console.log('down a semitone');
             this.transposeNote('sd');
         }
         if (key === 'PageUp') {
-            console.log('up an octave');
             this.transposeNote('ou');
         }
         if (key === 'PageDown') {
-            console.log('down an octave');
             this.transposeNote('od');
         }
         
@@ -391,7 +375,8 @@ class StaffContainer extends React.Component {
                 notePositions.push([]);
                 len = voice.notes.length
             }
-            notePositions[voiceId].push(n.getBoundingClientRect());
+            // console.log(n.getElementsByClassName("vf-notehead")[0]);
+            notePositions[voiceId].push(n.getElementsByClassName("vf-notehead")[0].getBoundingClientRect());
             noteId++;
         }
 
@@ -429,6 +414,11 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
+                {/* <div>
+                    {this.state.selectedNote 
+                        ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
+                        : ''}
+                </div> */}
                 <table>
                     <thead>
                         <tr>
