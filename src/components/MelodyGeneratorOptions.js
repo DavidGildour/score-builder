@@ -19,11 +19,29 @@ const NoteSelection = (props) => (
         </select>
 )
 
+const IntervalSelection = (props) => (
+    <select  name="interval" value={props.value} onChange={props.handleChange}>
+        <option value="1">Minor second</option>
+        <option value="2">Major second</option>
+        <option value="3">Minor third</option>
+        <option value="4">Major third</option>
+        <option value="5">Perfect fourth</option>
+        <option value="6">Tritone</option>
+        <option value="7">Perfect fifth</option>
+        <option value="8">Minor sixth</option>
+        <option value="9">Major sixth</option>
+        <option value="10">Minor seventh</option>
+        <option value="11">Major seventh</option>
+        <option value="12">Perfect octave</option>
+    </select>
+)
+
 export default class MelodyGenerator extends React.Component {
     state = {
         allowRests: false,
         shortNote: '8',
         longNote: 'h',
+        interval: '7',
     }
 
     handleSubmit = (e) => {
@@ -66,6 +84,14 @@ export default class MelodyGenerator extends React.Component {
                         </td>
                         <td>
                             <NoteSelection name="longNote" handleChange={this.handleChange} value={this.state.longNote} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Biggest interval:
+                        </td>
+                        <td>
+                            <IntervalSelection handleChange={this.handleChange} value={this.state.interval} />
                         </td>
                     </tr>
                 </tbody>

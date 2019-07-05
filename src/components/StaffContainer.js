@@ -566,7 +566,7 @@ class StaffContainer extends React.Component {
                                     error={this.state.error}
                                     newVoiceId={this.state.stave.voices.length} />
                             </td>
-                            <td rowSpan="4">
+                            <td rowSpan="5">
                                 <MelodyGenerator generate={this.generateMelody} />
                             </td>
                         </tr>
