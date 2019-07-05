@@ -10,6 +10,7 @@ import MelodyGenerator from './MelodyGeneratorOptions';
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
 import { noteMapping } from './mappings/noteMappings';
+import keyMapping from './mappings/keyMappings';
 
 import './Control.css';
 
@@ -188,6 +189,8 @@ class StaffContainer extends React.Component {
         // console.log(duration, durToNote, noteToDur, voice);
         if (duration !== 0) {
             const accidentals = diatonic ? [''] : ['', '#', '##', 'b', 'bb'];
+            const mapping = keyMapping[this.state.stave.keySig];
+            const keyPitches = pitches.map(e => e + (mapping[e] ? mapping[e] : ''));
 
             const notesReversed = Object.keys(durToNote).sort((a, b) => a - b);
             const durationsReversed = Object.values(durToNote).sort((a, b) => noteToDuration[a] - noteToDuration[b]);
@@ -200,9 +203,16 @@ class StaffContainer extends React.Component {
             }
 
             const noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
-            const accidental = accidentals[getRandInt(0, accidentals.length)];
-            const symbol = `${pitches[getRandInt(0, pitches.length)]}${accidental}/${getRandInt(4,6)}`;
+            let accidental = accidentals[getRandInt(0, accidentals.length)];
+            let root = keyPitches[getRandInt(0, keyPitches.length)];
+            if (root.length > 1) {
+                accidental = root[1];
+                root = root[0];
+            }
+            const symbol = `${root}${accidental}/${getRandInt(4,6)}`;
             const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+
+            console.log("symbol:", symbol);
 
             const newNote = {
                 clef: this.state.stave.clef,
