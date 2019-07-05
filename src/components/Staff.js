@@ -3,7 +3,7 @@ import Vex from 'vexflow';
 
 import { connect } from 'react-redux';
 import './Staff.css';
-import { Cb, Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, Fsh, Csh } from './mappings/keyMappings';
+import keyMapping from './mappings/keyMappings';
 import { colorMapping } from './mappings/colorMappings';
 
 const VF = Vex.Flow;
@@ -26,25 +26,7 @@ class Staff extends React.Component {
     mapNote = (note) => {
         const key = this.props.staves[this.staveId].keySig;
         const mods = note.modifiers.slice();
-        let mapping;
-        switch (key) {
-            case 'Cb': mapping = Cb; break;
-            case 'Gb': mapping = Gb; break;
-            case 'Db': mapping = Db; break;
-            case 'Ab': mapping = Ab; break;
-            case 'Eb': mapping = Eb; break;
-            case 'Bb': mapping = Bb; break;
-            case 'F': mapping = F; break;
-            case 'C': mapping = C; break;
-            case 'G': mapping = G; break;
-            case 'D': mapping = D; break;
-            case 'A': mapping = A; break;
-            case 'E': mapping = E; break;
-            case 'B': mapping = B; break;
-            case 'F#': mapping = Fsh; break;
-            case 'C#': mapping = Csh; break;
-            default: mapping = C;
-        }
+        const mapping = keyMapping[key];
 
         for (const [i, pitch] of note.keys.entries()) {
             const symbol = pitch[0];

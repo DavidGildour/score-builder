@@ -1,4 +1,4 @@
-export const Cb = {
+const Cb = {
     B: 'b',
     E: 'b',
     A: 'b',
@@ -8,7 +8,7 @@ export const Cb = {
     F: 'b',
 }
 
-export const Gb = {
+const Gb = {
     B: 'b',
     E: 'b',
     A: 'b',
@@ -17,7 +17,7 @@ export const Gb = {
     C: 'b',
 }
 
-export const Db = {
+const Db = {
     B: 'b',
     E: 'b',
     A: 'b',
@@ -25,55 +25,55 @@ export const Db = {
     G: 'b',
 }
 
-export const Ab = {
+const Ab = {
     B: 'b',
     E: 'b',
     A: 'b',
     D: 'b',
 }
 
-export const Eb = {
+const Eb = {
     B: 'b',
     E: 'b',
     A: 'b',
 }
 
-export const Bb = {
+const Bb = {
     B: 'b',
     E: 'b',
 }
 
-export const F = {
+const F = {
     B: 'b',
 }
 
-export const C = {
+const C = {
 
 };
 
-export const G = {
+const G = {
     F: '#',
 };
 
-export const D = {
+const D = {
     F: '#',
     C: '#'
 };
 
-export const A = {
+const A = {
     F: '#',
     C: '#',
     G: '#',
 };
 
-export const E = {
+const E = {
     F: '#',
     C: '#',
     G: '#',
     D: '#',
 };
 
-export const B = {
+const B = {
     F: '#',
     C: '#',
     G: '#',
@@ -81,7 +81,7 @@ export const B = {
     A: '#',
 };
 
-export const Fsh = {
+const Fsh = {
     F: '#',
     C: '#',
     G: '#',
@@ -91,7 +91,7 @@ export const Fsh = {
 };
 
 
-export const Csh = {
+const Csh = {
     F: '#',
     C: '#',
     G: '#',
@@ -99,4 +99,22 @@ export const Csh = {
     A: '#',
     E: '#',
     B: '#',
+};
+
+export default {
+    Cb: Cb,
+    Gb: Gb,
+    Db: Db,
+    Ab: Ab,
+    Eb: Eb,
+    Bb: Bb,
+    F: F,
+    C: C,
+    G: G,
+    D: D,
+    A: A,
+    E: E,
+    B: B,
+    'F#': Fsh,
+    'C#': Csh,
 };
