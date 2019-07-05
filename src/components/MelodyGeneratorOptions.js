@@ -39,6 +39,7 @@ const IntervalSelection = (props) => (
 export default class MelodyGenerator extends React.Component {
     state = {
         allowRests: false,
+        diatonic: true,
         shortNote: '8',
         longNote: 'h',
         interval: '7',
@@ -46,7 +47,7 @@ export default class MelodyGenerator extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.props.generate({ ...this.state });
+        this.props.generate(this.state);
     }
 
     handleChange = (e) => {
@@ -67,7 +68,9 @@ export default class MelodyGenerator extends React.Component {
         <form onSubmit={this.handleSubmit}>
             <input type="submit" value="Generate melody" /><br />
             <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
-            <label htmlFor="allowRests"> Allow rests</label><br />
+            <label htmlFor="allowRests"> Allow rests</label>&nbsp;
+            <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
+            <label htmlFor="diatonic"> Diatonic</label><br />
             <table>
                 <tbody>
                     <tr>

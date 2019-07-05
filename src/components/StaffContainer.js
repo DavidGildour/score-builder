@@ -62,6 +62,7 @@ class StaffContainer extends React.Component {
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote)) {
                 if (duration <= remainingDuration) {
+                    console.log(duration, remainingDuration);
                     remainingDuration -= duration;
                     const note = {
                         clef: this.state.stave.clef,
@@ -179,15 +180,19 @@ class StaffContainer extends React.Component {
         pitches = noteMapping,
         durToNote = durationToNote,
         noteToDur = noteToDuration,
-        voice = this.state.currentVoice
+        voice = this.state.currentVoice,
+        diatonic = false,
         ) => {
         let duration = availableDuration;
+        // console.log(duration, durToNote, noteToDur, voice);
         if (duration !== 0) {
-            const accidentals = ['', '#', '##', 'b', 'bb'];
+            const accidentals = diatonic ? [''] : ['', '#', '##', 'b', 'bb'];
 
             const notesReversed = Object.keys(durToNote).sort((a, b) => a - b);
-            const durationsReversed = Object.values(durToNote).reverse();
+            const durationsReversed = Object.values(durToNote).sort((a, b) => noteToDuration[a] - noteToDuration[b]);
             let upperIndex;
+
+            console.log(notesReversed, durationsReversed);
 
             // determine the maximum valid duration of the note to ba added
             for (const [i, val] of Object.entries(notesReversed)) {
@@ -195,9 +200,7 @@ class StaffContainer extends React.Component {
                 upperIndex = i; // index
             }
 
-            console.log(duration, upperIndex, notesReversed);
-
-            const noteDuration = durationsReversed[getRandInt(0, upperIndex)];
+            const noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
             const accidental = accidentals[getRandInt(0, accidentals.length)];
             const symbol = `${pitches[getRandInt(0, pitches.length)]}${accidental}/${getRandInt(4,6)}`;
             const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
@@ -210,8 +213,7 @@ class StaffContainer extends React.Component {
                 persistent: true,
             };
 
-            duration -= noteToDur[noteDuration];
-            console.log(duration, noteToDur[noteDuration]);
+            duration -= noteToDur[noteDuration] || duration;
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
         };
         return duration;
@@ -384,7 +386,54 @@ class StaffContainer extends React.Component {
 
     generateMelody = (options) => {
         console.log(options);
+
+        for (const voice of this.state.stave.voices) {
+            for (const note of voice.notes) {
+                if (note.persistent) {
+                    this.setState({
+                        error: 'You have to clear the voices first.'
+                    })
+                    return;
+                }
+            }
+        }
+
+        const { shortNote, longNote, diatonic } = options;
+
+        if (noteToDuration[longNote] < noteToDuration[shortNote]) {
+            this.setState({
+                error: 'Shortest note exceeds the duration of a longest note',
+            })
+            return
+        }
+
+        let noteToDur = {};
+        let durToNote = {};
+        let assign = false;
+        Object.entries(durationToNote).sort().forEach(([k, v]) => {
+            if (v === shortNote) assign = true;
+            if (assign) {
+                noteToDur[v] = k;
+                durToNote[k] = v;
+            }
+            if (v === longNote) assign = false;
+        })
+        // console.log(noteToDur, durToNote);
+
+        for (const voice of this.state.stave.voices) {
+            let durationLeft = this.getRidOfRests(voice);
+            while (durationLeft > 0) {
+                const noteDur = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic);
+                console.log(durationLeft, noteDur);
+                durationLeft = noteDur;
+            }
+            // does not have to populate with rests - the melody will always fill the measure
+        }
+        this.setState({
+            error: '',
+        })
     }
+    
 
     handleClick = (e) => {
         const curY = e.pageY;
