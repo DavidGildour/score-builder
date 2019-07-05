@@ -45,7 +45,7 @@ const defaultState = {
 
 
 const rootReducer = (state = defaultState, action) => {
-    console.log('root', action);
+    // console.log('root', action);
     switch (action.type) {
         case 'SET_STAVE_FIELD': {
             const { id, field, value } = action.payload;

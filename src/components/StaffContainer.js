@@ -34,6 +34,23 @@ class StaffContainer extends React.Component {
         duration: '8',
     };
 
+    getRidOfRests = (voice) => {
+        const notes = voice.notes;
+        const revNotes = notes.slice().reverse();
+
+        let duration = 0;
+        if (!revNotes[0].persistent) { // if the last note is persistent - return, cause there's no room for another
+            for (const n of revNotes) {
+                if (n.persistent) { // break the loop when hitting persistent note
+                    break;
+                }
+                duration += noteToDuration[n.duration.replace('r', '')];
+                this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: voice.id }); // actually remove the note from store
+            }
+        }
+        return duration;
+    }
+
     populateVoiceWithRests = (voiceId, lackingDuration) => {
         const restPlacement = {
             0: 'A/4',
@@ -54,7 +71,6 @@ class StaffContainer extends React.Component {
                         persistent: false,
                     };
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
-                    break;
                 }
             }
         }
@@ -121,24 +137,16 @@ class StaffContainer extends React.Component {
         });
     }
 
-    computeDuration = () => {
-        const notes = this.state.stave.voices[this.state.currentVoice].notes.slice();
-        const revNotes = notes.slice().reverse();
-        let duration = 0;
-        if (revNotes[0].persistent) return duration; // if the last note is persistent - return, cause there's no room for another
+    computeDuration = (voice = this.state.stave.voices[this.state.currentVoice]) => {
+        const notes = voice.notes.slice();
+        const duration = notes.reduce((a, note) => a + noteToDuration[note.duration.replace('r', '')], 0);
+        const measure = this.state.stave.beatsNum * (1 / this.state.stave.beatsType);
 
-        for (const n of revNotes) {
-            if (n.persistent) { // break the loop when hitting persistent note
-                break;
-            }
-            duration += noteToDuration[n.duration.replace('r', '')]; // compute the duration we are reducing by removing trailing pauses
-            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), staveId: this.state.id, voiceId: this.state.currentVoice }); // actually remove the note from store
-        }
-        return duration;
+        return measure - duration;
     }
  
-    addNote = (_e = null) => {
-        let availableDuration = this.computeDuration();
+    addNote = (durationLeft) => {
+        let availableDuration = durationLeft;
         const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
 
         if (availableDuration >= noteToDuration[declaredDuration]) {
@@ -156,42 +164,57 @@ class StaffContainer extends React.Component {
                 selectedNote: null, // quick fix 
             })
         }
-        this.populateVoiceWithRests(this.state.currentVoice, availableDuration);
+        return availableDuration;
     }
 
-    addRandomNote = (_e) => {
-        let duration = this.computeDuration();
-        if (duration === 0) return;
+    handleRandomNote = () => {
+        const voice = this.state.stave.voices[this.state.currentVoice];
+        let durationLeft = this.getRidOfRests(voice);
+        durationLeft = this.addRandomNote(durationLeft);
+        this.populateVoiceWithRests(voice.id, durationLeft);
+    }
 
-        const pitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-        const accidentals = ['', '#', '##', 'b', 'bb'];
+    addRandomNote = (
+        availableDuration,
+        pitches = noteMapping,
+        durToNote = durationToNote,
+        noteToDur = noteToDuration,
+        voice = this.state.currentVoice
+        ) => {
+        let duration = availableDuration;
+        if (duration !== 0) {
+            const accidentals = ['', '#', '##', 'b', 'bb'];
 
-        const notesReversed = Object.keys(durationToNote).sort((a, b) => a - b);
-        const durationsReversed = Object.values(durationToNote).reverse();
-        let upperIndex;
+            const notesReversed = Object.keys(durToNote).sort((a, b) => a - b);
+            const durationsReversed = Object.values(durToNote).reverse();
+            let upperIndex;
 
-        // determine the maximum valid duration of the note to ba added
-        for (const [i, val] of Object.entries(notesReversed)) {
-            if (val > duration) break; // value
-            upperIndex = i; // index
-        }
+            // determine the maximum valid duration of the note to ba added
+            for (const [i, val] of Object.entries(notesReversed)) {
+                if (val > duration) break; // value
+                upperIndex = i; // index
+            }
 
-        const noteDuration = durationsReversed[getRandInt(0, upperIndex)];
-        const accidental = accidentals[getRandInt(0, accidentals.length)];
-        const symbol = `${pitches[getRandInt(0, pitches.length)]}${accidental}/${getRandInt(4,6)}`;
-        const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+            console.log(duration, upperIndex, notesReversed);
 
-        const newNote = {
-            clef: this.state.stave.clef,
-            keys: [symbol],
-            duration: noteDuration,
-            modifiers: [modifiers],
-            persistent: true,
+            const noteDuration = durationsReversed[getRandInt(0, upperIndex)];
+            const accidental = accidentals[getRandInt(0, accidentals.length)];
+            const symbol = `${pitches[getRandInt(0, pitches.length)]}${accidental}/${getRandInt(4,6)}`;
+            const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+
+            const newNote = {
+                clef: this.state.stave.clef,
+                keys: [symbol],
+                duration: noteDuration,
+                modifiers: [modifiers],
+                persistent: true,
+            };
+
+            duration -= noteToDur[noteDuration];
+            console.log(duration, noteToDur[noteDuration]);
+            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
         };
-
-        duration -= noteToDuration[noteDuration];
-        this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
-        this.populateVoiceWithRests(this.state.currentVoice, duration);   
+        return duration;
     }
 
     removeNote = (_e) => {
@@ -276,7 +299,13 @@ class StaffContainer extends React.Component {
                                 newAcc = '';
                                 break;
                             case 'bb':
-                                newSymbol = noteMapping[oldIndex === 0 ? (isDiatonic ? 5 : 6) : oldIndex - (isDiatonic ? 2 : 1)];
+                                let newIndex;
+                                if (oldIndex === 0) {
+                                    newIndex = isDiatonic ? 5 : 6;
+                                }  else if (oldIndex === 1) {
+                                    newIndex = isDiatonic ? 6 : 0;
+                                } else newIndex = oldIndex - (isDiatonic ? 2 : 1);
+                                newSymbol = noteMapping[newIndex];
                                 newAcc = isDiatonic ? '' : 'b';
                                 break;
                             case 'b':
@@ -349,6 +378,7 @@ class StaffContainer extends React.Component {
         }
         this.setState({
             selectedNote: null,
+            error: '',
         })
     }
 
@@ -373,7 +403,12 @@ class StaffContainer extends React.Component {
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
             })
-        } else this.addNote(e);
+        } else {
+            const voice = this.state.stave.voices[this.state.currentVoice];
+            let durationLeft = this.getRidOfRests(voice);
+            durationLeft = this.addNote(durationLeft);
+            this.populateVoiceWithRests(voice.id, durationLeft);
+        };
     }
 
     handleMouseMove = (e) => {
@@ -521,10 +556,10 @@ class StaffContainer extends React.Component {
             <div>
                 <div className="noteDur">
                     <NoteDuration
-                                    onChange={this.innerStateChange}
-                                    duration={this.state.duration}
-                                    restMode={this.state.restMode}
-                                    dotted={this.state.dotted} />
+                        onChange={this.innerStateChange}
+                        duration={this.state.duration}
+                        restMode={this.state.restMode}
+                        dotted={this.state.dotted} />
                 </div>
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
@@ -550,7 +585,7 @@ class StaffContainer extends React.Component {
                             </td>
                         
                             <td>
-                                <AddNote onSubmit={this.addRandomNote} />
+                                <AddNote onSubmit={this.handleRandomNote} />
                             </td>
                             <td rowSpan="3">
                                 <Voices

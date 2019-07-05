@@ -2,7 +2,7 @@ import changeNote from './changeNote';
 import { setClef, changePitch } from '../actions';
 
 export default (state = {}, action) => {
-    console.log('changestave', action);
+    // console.log('changestave', action);
     switch (action.type) {
         case 'SET_FIELD': {
             const { field, value } = action.payload;
@@ -26,7 +26,7 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 voices: state.voices.map((voice, index) => {
-                    console.log(voice.id === voiceId)
+                    // console.log(voice.id === voiceId)
                     if (voice.id === voiceId) {
                         return {
                             ...voice,
