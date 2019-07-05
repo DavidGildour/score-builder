@@ -60,7 +60,7 @@ class StaffContainer extends React.Component {
         }
         let remainingDuration = lackingDuration;
         while (remainingDuration !== 0) {
-            for (const duration of Object.keys(durationToNote)) {
+            for (const duration of Object.keys(durationToNote).sort((a, b) => b - a)) {
                 if (duration <= remainingDuration) {
                     console.log(duration, remainingDuration);
                     remainingDuration -= duration;
@@ -72,6 +72,7 @@ class StaffContainer extends React.Component {
                         persistent: false,
                     };
                     this.props.addNoteToStave({ staveId: this.state.id, voiceId: voiceId, note: note });
+                    break;
                 }
             }
         }
@@ -138,13 +139,13 @@ class StaffContainer extends React.Component {
         });
     }
 
-    computeDuration = (voice = this.state.stave.voices[this.state.currentVoice]) => {
-        const notes = voice.notes.slice();
-        const duration = notes.reduce((a, note) => a + noteToDuration[note.duration.replace('r', '')], 0);
-        const measure = this.state.stave.beatsNum * (1 / this.state.stave.beatsType);
+    // computeDuration = (voice = this.state.stave.voices[this.state.currentVoice]) => {
+    //     const notes = voice.notes.slice();
+    //     const duration = notes.reduce((a, note) => a + noteToDuration[note.duration.replace('r', '')], 0);
+    //     const measure = this.state.stave.beatsNum * (1 / this.state.stave.beatsType);
 
-        return measure - duration;
-    }
+    //     return measure - duration;
+    // }
  
     addNote = (durationLeft) => {
         let availableDuration = durationLeft;
