@@ -193,8 +193,6 @@ class StaffContainer extends React.Component {
             const durationsReversed = Object.values(durToNote).sort((a, b) => noteToDuration[a] - noteToDuration[b]);
             let upperIndex;
 
-            console.log(notesReversed, durationsReversed);
-
             // determine the maximum valid duration of the note to ba added
             for (const [i, val] of Object.entries(notesReversed)) {
                 if (val > duration) break; // value
@@ -424,10 +422,8 @@ class StaffContainer extends React.Component {
         for (const voice of this.state.stave.voices) {
             let durationLeft = this.getRidOfRests(voice);
             while (durationLeft > 0) {
-                const noteDur = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic);
-                console.log(durationLeft, noteDur);
-                durationLeft = noteDur;
-            }
+                durationLeft = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic);
+                }
             // does not have to populate with rests - the melody will always fill the measure
         }
         this.setState({
