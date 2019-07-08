@@ -1,4 +1,3 @@
-/* eslint-disable object-shorthand */
 import React from 'react';
 
 import { connect } from 'react-redux';
@@ -188,10 +187,7 @@ class StaffContainer extends React.Component {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
         if (duration !== 0) {
-            const accidentals = diatonic ? [''] : ['', '#', '##', 'b', 'bb'];
-            const mapping = keyMapping[this.state.stave.keySig];
-            const keyPitches = pitches.map(e => e + (mapping[e] ? mapping[e] : ''));
-
+        // CHOOSING A DURATION
             const notesReversed = Object.keys(durToNote).sort((a, b) => a - b);
             const durationsReversed = Object.values(durToNote).sort((a, b) => noteToDuration[a] - noteToDuration[b]);
             let upperIndex;
@@ -203,16 +199,37 @@ class StaffContainer extends React.Component {
             }
 
             const noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
-            let accidental = accidentals[getRandInt(0, accidentals.length)];
-            let root = keyPitches[getRandInt(0, keyPitches.length)];
-            if (root.length > 1) {
-                accidental = root[1];
-                root = root[0];
-            }
-            const symbol = `${root}${accidental}/${getRandInt(4,6)}`;
-            const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
 
-            console.log("symbol:", symbol);
+        // CHOOSING PITCH
+            const accidentals = ['', '#', '##', 'b', 'bb'];
+            let symbol;
+            let modifiers;
+            if (diatonic) {
+                const mapping = keyMapping[this.state.stave.keySig];
+                const keyPitches = pitches.map(e => e + (mapping[e] ? mapping[e] : ''));
+                let accidental = '';
+                const root = keyPitches[getRandInt(0, keyPitches.length)];
+                if (root.length > 1) {
+                    accidental = root[1];
+                }
+                symbol = `${root}/${getRandInt(4,6)}`;
+                modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+
+                console.log("symbol:", symbol);
+            } else {
+                const root = pitches[getRandInt(0, pitches.length)];
+                let accidental = accidentals[getRandInt(0, accidentals.length)];
+                symbol = `${root}${accidental}/${getRandInt(4,6)}`;
+
+                // ensuring proper naturals handling
+                if (Object.keys(keyMapping).includes(root) && accidental === '') {
+                    accidental = 'n';
+                }
+
+                modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+
+                console.log("symbol:", symbol);
+            }
 
             const newNote = {
                 clef: this.state.stave.clef,
