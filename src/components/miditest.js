@@ -4,14 +4,14 @@ import React from 'react';
 
 export default class extends React.Component {
     handleClick = () => {
-        this.track = new MidiWriter.Track();
+        const track = new MidiWriter.Track();
 
-        this.note = new MidiWriter.NoteEvent({pitch: ['C3', 'G3', 'C4', 'Eb4', 'G4', 'Bb4', 'Eb5'], duration: '1'});
-        this.track.addEvent(this.note);
+        const note = new MidiWriter.NoteEvent({pitch: ['C3', 'G3', 'C4', 'Eb4', 'G4', 'Bb4', 'Eb5'], duration: '1'});
+        track.addEvent(note);
 
-        this.write = new MidiWriter.Writer(this.track);
-        this.midiUri = this.write.dataUri();
-        window.MIDIjs.play(this.midiUri);
+        const write = new MidiWriter.Writer(track);
+        const midiUri = write.dataUri();
+        window.MIDIjs.play(midiUri);
     }
 
     shouldComponentUpdate = (nextProps) => {
@@ -33,14 +33,16 @@ export default class extends React.Component {
         const duration = map[note.duration] || note.duration.includes('d')
                                                ? `d${note.duration.slice(note.duration.length - 1)}`
                                                : note.duration;
-        this.track = new MidiWriter.Track();
+        if (!duration.includes('r')) {
+            const track = new MidiWriter.Track();
 
-        this.note = new MidiWriter.NoteEvent({pitch: keys, duration: duration});
-        this.track.addEvent(this.note);
-
-        this.write = new MidiWriter.Writer(this.track);
-        this.midiUri = this.write.dataUri();
-        window.MIDIjs.play(this.midiUri);
+            const note = new MidiWriter.NoteEvent({pitch: keys, duration: duration});
+            track.addEvent(note);
+    
+            const write = new MidiWriter.Writer(track);
+            const midiUri = write.dataUri();
+            window.MIDIjs.play(midiUri);
+        };
     }
     
     render = () => {
