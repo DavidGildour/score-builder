@@ -6,6 +6,7 @@ import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, de
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
+import Midi from './miditest';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -440,7 +441,6 @@ class StaffContainer extends React.Component {
             error: '',
         })
     }
-    
 
     handleClick = (e) => {
         const curY = e.pageY;
@@ -620,6 +620,7 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
+                <Midi />
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 

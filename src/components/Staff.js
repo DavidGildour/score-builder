@@ -90,8 +90,7 @@ class Staff extends React.Component {
         try {
             this.formatter.joinVoices(voices).format(voices, this.staveWidth);
         } catch {
-            console.log("Voice invalid, notes:");
-            console.table(this.props.staves[this.staveId].voices[0].notes);
+            console.log("Voice invalid");
             return;
         }
         context.clear();
