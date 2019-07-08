@@ -184,6 +184,7 @@ class StaffContainer extends React.Component {
         voice = this.state.currentVoice,
         diatonic = false,
         lastNote = [''],
+        allowRests = false,
         ) => {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
@@ -199,8 +200,9 @@ class StaffContainer extends React.Component {
                 upperIndex = i; // index
             }
 
-            const noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
-
+            let noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
+            if (allowRests && getRandInt(0, 6) === 0) noteDuration += 'r';
+            
         // CHOOSING PITCH
             const accidentals = ['', '#', '##', 'b', 'bb'];
             let symbol;
@@ -208,7 +210,6 @@ class StaffContainer extends React.Component {
             if (diatonic) {
                 const mapping = keyMapping[this.state.stave.keySig];
                 const keyPitches = pitches.filter(v => !lastNote.includes(v)).map(e => e + (mapping[e] ? mapping[e] : ''));
-                console.log(keyPitches, lastNote);
                 let accidental = '';
                 const root = keyPitches[getRandInt(0, keyPitches.length)];
                 if (root.length > 1) {
@@ -216,8 +217,6 @@ class StaffContainer extends React.Component {
                 }
                 symbol = `${root}/${getRandInt(4,6)}`;
                 modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
-
-                console.log("symbol:", symbol);
             } else {
                 const filteredPitches = pitches.filter(v => v !== lastNote);
                 const root = filteredPitches[getRandInt(0, filteredPitches.length)];
@@ -230,8 +229,6 @@ class StaffContainer extends React.Component {
                 }
 
                 modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
-
-                console.log("symbol:", symbol);
             }
 
             const newNote = {
@@ -244,7 +241,7 @@ class StaffContainer extends React.Component {
 
             const notePitches = newNote.keys.map(key => key.match(/^(.+)\//)[1]);
 
-            duration -= noteToDur[noteDuration] || duration;
+            duration -= noteToDur[noteDuration.replace('r', '')] || duration;
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
             return { duration: duration, notePitches: notePitches }
         };
@@ -438,7 +435,7 @@ class StaffContainer extends React.Component {
             }
         }
 
-        const { shortNote, longNote, diatonic } = options;
+        const { shortNote, longNote, diatonic, allowRests } = options;
 
         if (noteToDuration[longNote] < noteToDuration[shortNote]) {
             this.setState({
@@ -464,7 +461,7 @@ class StaffContainer extends React.Component {
             let durationLeft = this.getRidOfRests(voice);
             let lastNote = [''];
             while (durationLeft > 0) {
-                const noteAdded = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic, lastNote);
+                const noteAdded = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests);
                 durationLeft = noteAdded.duration;
                 lastNote = noteAdded.notePitches;
                 }
