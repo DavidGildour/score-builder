@@ -392,7 +392,15 @@ class StaffContainer extends React.Component {
         }
 
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
-        this.setState({ error: "" });
+        this.setState(state => ({ 
+            error: "",
+            currentVoice: state.currentVoice === value ? (+value-1).toString() : state.currentVoice,
+            selectedNote: !state.selectedNote // if there was no selected note before removing the voice - it remains null
+                          ? null                                    // however, if there was, we need to
+                          : ((state.selectedNote.voiceId === value) // check if maybe it was a part of the removed voice
+                            ? null // if so - we 'unselect' the note
+                            : { voiceId: value, noteId: state.selectedNote.noteId }), // if it was a part of a different voice though - we can keep it
+        }));
     }
 
     clearVoices = (_e) => {
