@@ -164,9 +164,18 @@ class StaffContainer extends React.Component {
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
+
+            const lastNote = this.getLastNote();
+            let noteIndex;
+            if (!lastNote) noteIndex = 0;
+            else noteIndex = this.state.stave.voices[this.state.currentVoice].notes.indexOf(lastNote) + 1;
+
             this.setState({
-                selectedNote: null, // quick fix 
-            })
+                selectedNote: {
+                    voiceId: this.state.currentVoice,
+                    noteId: noteIndex.toString(),
+                },
+            });
         }
         return availableDuration;
     }
@@ -589,6 +598,15 @@ class StaffContainer extends React.Component {
         return notePositions;
     }
 
+    getLastNote = () => {
+        let lastNote = null;
+        for (const note of this.state.stave.voices[this.state.currentVoice].notes) {
+            if (!note.persistent) break;
+            lastNote = note;
+        }
+        return lastNote;
+    }
+
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     componentDidMount(){
@@ -608,6 +626,9 @@ class StaffContainer extends React.Component {
     }
 
     render() {
+        let currentNote;
+        const selectedNote = this.state.selectedNote;
+        selectedNote ? currentNote = this.state.stave.voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div>
                 <div className="noteDur">
@@ -620,7 +641,7 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
-                <Midi />
+                <Midi check={selectedNote} currentNote={currentNote} />
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
