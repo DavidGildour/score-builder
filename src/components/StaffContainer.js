@@ -172,7 +172,7 @@ class StaffContainer extends React.Component {
     handleRandomNote = () => {
         const voice = this.state.stave.voices[this.state.currentVoice];
         let durationLeft = this.getRidOfRests(voice);
-        durationLeft = this.addRandomNote(durationLeft);
+        durationLeft = this.addRandomNote(durationLeft).duration;
         this.populateVoiceWithRests(voice.id, durationLeft);
     }
 
@@ -183,6 +183,7 @@ class StaffContainer extends React.Component {
         noteToDur = noteToDuration,
         voice = this.state.currentVoice,
         diatonic = false,
+        lastNote = [''],
         ) => {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
@@ -206,7 +207,8 @@ class StaffContainer extends React.Component {
             let modifiers;
             if (diatonic) {
                 const mapping = keyMapping[this.state.stave.keySig];
-                const keyPitches = pitches.map(e => e + (mapping[e] ? mapping[e] : ''));
+                const keyPitches = pitches.filter(v => !lastNote.includes(v)).map(e => e + (mapping[e] ? mapping[e] : ''));
+                console.log(keyPitches, lastNote);
                 let accidental = '';
                 const root = keyPitches[getRandInt(0, keyPitches.length)];
                 if (root.length > 1) {
@@ -217,7 +219,8 @@ class StaffContainer extends React.Component {
 
                 console.log("symbol:", symbol);
             } else {
-                const root = pitches[getRandInt(0, pitches.length)];
+                const filteredPitches = pitches.filter(v => v !== lastNote);
+                const root = filteredPitches[getRandInt(0, filteredPitches.length)];
                 let accidental = accidentals[getRandInt(0, accidentals.length)];
                 symbol = `${root}${accidental}/${getRandInt(4,6)}`;
 
@@ -239,10 +242,13 @@ class StaffContainer extends React.Component {
                 persistent: true,
             };
 
+            const notePitches = newNote.keys.map(key => key.match(/^(.+)\//)[1]);
+
             duration -= noteToDur[noteDuration] || duration;
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
+            return { duration: duration, notePitches: notePitches }
         };
-        return duration;
+        return { duration: duration, notePitches: [''] };
     }
 
     removeNote = (_e) => {
@@ -456,8 +462,11 @@ class StaffContainer extends React.Component {
 
         for (const voice of this.state.stave.voices) {
             let durationLeft = this.getRidOfRests(voice);
+            let lastNote = [''];
             while (durationLeft > 0) {
-                durationLeft = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic);
+                const noteAdded = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic, lastNote);
+                durationLeft = noteAdded.duration;
+                lastNote = noteAdded.notePitches;
                 }
             // does not have to populate with rests - the melody will always fill the measure
         }
