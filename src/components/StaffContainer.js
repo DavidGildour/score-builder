@@ -62,7 +62,6 @@ class StaffContainer extends React.Component {
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote).sort((a, b) => b - a)) {
                 if (duration <= remainingDuration) {
-                    console.log(duration, remainingDuration);
                     remainingDuration -= duration;
                     const note = {
                         clef: this.state.stave.clef,
@@ -185,6 +184,7 @@ class StaffContainer extends React.Component {
         diatonic = false,
         lastNote = [''],
         allowRests = false,
+        // interval = 12,
         ) => {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
@@ -202,8 +202,9 @@ class StaffContainer extends React.Component {
 
             let noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
             if (allowRests && getRandInt(0, 6) === 0) noteDuration += 'r';
-            
+
         // CHOOSING PITCH
+            const octaveRange = clefMapping[this.state.stave.clef].map(note => parseInt(note.match(/\d/)[0], 10));
             const accidentals = ['', '#', '##', 'b', 'bb'];
             let symbol;
             let modifiers;
@@ -215,13 +216,13 @@ class StaffContainer extends React.Component {
                 if (root.length > 1) {
                     accidental = root[1];
                 }
-                symbol = `${root}/${getRandInt(4,6)}`;
+                symbol = `${root}/${getRandInt(octaveRange[0], octaveRange[octaveRange.length - 1])}`;
                 modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
             } else {
                 const filteredPitches = pitches.filter(v => v !== lastNote);
                 const root = filteredPitches[getRandInt(0, filteredPitches.length)];
                 let accidental = accidentals[getRandInt(0, accidentals.length)];
-                symbol = `${root}${accidental}/${getRandInt(4,6)}`;
+                symbol = `${root}${accidental}/${getRandInt(octaveRange[0], octaveRange[octaveRange.length - 1])}`;
 
                 // ensuring proper naturals handling
                 if (Object.keys(keyMapping).includes(root) && accidental === '') {
