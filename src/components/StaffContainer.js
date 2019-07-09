@@ -137,14 +137,6 @@ class StaffContainer extends React.Component {
             [name]: value,
         });
     }
-
-    // computeDuration = (voice = this.state.stave.voices[this.state.currentVoice]) => {
-    //     const notes = voice.notes.slice();
-    //     const duration = notes.reduce((a, note) => a + noteToDuration[note.duration.replace('r', '')], 0);
-    //     const measure = this.state.stave.beatsNum * (1 / this.state.stave.beatsType);
-
-    //     return measure - duration;
-    // }
  
     addNote = (durationLeft) => {
         let availableDuration = durationLeft;
@@ -175,16 +167,61 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(voice.id, durationLeft);
     }
 
+    getAvailableNotes = (interval, centerNote, diatonic) => {
+        const [ chromaSteps, scaleSteps ] = interval.split(' ').map( e => parseInt(e, 10));
+        const mapping = keyMapping[this.state.stave.keySig];
+        const diatonicNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const chromatic = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
+        const filteredChroma = chromatic.filter(v => !v.includes((Object.values(mapping)[0] === '#') ? 'b' : '#'));
+    
+        const availableNotes = [centerNote];
+        let upOctave = centerNote.match(/\d/)[0];
+        let downOctave = centerNote.match(/\d/)[0];
+        if (centerNote[0] === 'B') upOctave++;
+        if (centerNote[0] === 'C') downOctave--;
+        if (diatonic) {
+            const notes = diatonicNotes;
+            const index = notes.indexOf(centerNote[0]);
+            for (let i = 1; i < scaleSteps; i++) {
+                const up = notes[(index + i) % notes.length];
+                const down = notes[(2*notes.length + (index - i)) % notes.length];
+                availableNotes.push(`${up}${mapping[up] || ''}/${upOctave}`);
+                availableNotes.unshift(`${down}${mapping[down] || ''}/${downOctave}`);
+                if (up[0] === 'B') upOctave++;
+                if (down[0] === 'C') downOctave--;
+            }
+            const firstIndex = filteredChroma.indexOf(availableNotes[0].match(/^(.+)\//)[1]);
+            const lastIndex = filteredChroma.indexOf(availableNotes[availableNotes.length-1].match(/^(.+)\//)[1]);
+            const centerIndex = filteredChroma.indexOf(centerNote.match(/^(.+)\//)[1]);
+            const len = filteredChroma.length;
+            console.log(centerIndex, firstIndex, lastIndex, availableNotes, chromaSteps);
+            if (((len + centerIndex - firstIndex) % len) > chromaSteps) availableNotes.shift();
+            if (((len + lastIndex - centerIndex) % len) > chromaSteps) availableNotes.pop();
+        } else {
+            const notes = filteredChroma;
+            const index = notes.indexOf(centerNote);
+            for (let i = 1; i <= chromaSteps; i++) {
+                const up = notes[(index + i) % notes.length];
+                const down = notes[(2*notes.length + (index - i)) % notes.length];
+                availableNotes.push(`${up}/${upOctave}`);
+                availableNotes.unshift(`${down}/${downOctave}`);
+                console.log(up, down);
+                if (up[0] === 'B') upOctave++;
+                if (down[0] === 'C') downOctave--;
+            }
+        }
+        return availableNotes.filter(note => note !== centerNote);
+    }
+
     addRandomNote = (
         availableDuration,
-        pitches = noteMapping,
         durToNote = durationToNote,
         noteToDur = noteToDuration,
         voice = this.state.currentVoice,
         diatonic = false,
         lastNote = [''],
         allowRests = false,
-        // interval = 12,
+        interval = '12 8',
         ) => {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
@@ -204,33 +241,23 @@ class StaffContainer extends React.Component {
             if (allowRests && getRandInt(0, 6) === 0) noteDuration += 'r';
 
         // CHOOSING PITCH
-            const octaveRange = clefMapping[this.state.stave.clef].map(note => parseInt(note.match(/\d/)[0], 10));
-            const accidentals = ['', '#', '##', 'b', 'bb'];
-            let symbol;
-            let modifiers;
-            if (diatonic) {
-                const mapping = keyMapping[this.state.stave.keySig];
-                const keyPitches = pitches.filter(v => !lastNote.includes(v)).map(e => e + (mapping[e] ? mapping[e] : ''));
-                let accidental = '';
-                const root = keyPitches[getRandInt(0, keyPitches.length)];
-                if (root.length > 1) {
-                    accidental = root[1];
-                }
-                symbol = `${root}/${getRandInt(octaveRange[0], octaveRange[octaveRange.length - 1])}`;
-                modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
-            } else {
-                const filteredPitches = pitches.filter(v => v !== lastNote);
-                const root = filteredPitches[getRandInt(0, filteredPitches.length)];
-                let accidental = accidentals[getRandInt(0, accidentals.length)];
-                symbol = `${root}${accidental}/${getRandInt(octaveRange[0], octaveRange[octaveRange.length - 1])}`;
-
-                // ensuring proper naturals handling
-                if (Object.keys(keyMapping).includes(root) && accidental === '') {
-                    accidental = 'n';
-                }
-
-                modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+            const lineMapping = clefMapping[this.state.stave.clef];
+            const centerNote = (lastNote[0] === '') ? lineMapping[Math.floor(lineMapping.length/2)] : lastNote[0];
+            const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
+            console.log(centerNote, availableNotes);
+            let accidental = '';
+            const symbol = availableNotes[getRandInt(0, availableNotes.length)];
+            if (['b', '#'].includes(symbol[1])) {
+                accidental = symbol[1];
             }
+
+            // ensuring proper naturals handling
+            const mapping = keyMapping[this.state.stave.keySig];
+            if (!diatonic && Object.keys(mapping).includes(symbol[0]) && accidental === '') {
+                accidental = 'n';
+            }
+
+            const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
 
             const newNote = {
                 clef: this.state.stave.clef,
@@ -240,7 +267,7 @@ class StaffContainer extends React.Component {
                 persistent: true,
             };
 
-            const notePitches = newNote.keys.map(key => key.match(/^(.+)\//)[1]);
+            const notePitches = newNote.keys;
 
             duration -= noteToDur[noteDuration.replace('r', '')] || duration;
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
@@ -436,7 +463,7 @@ class StaffContainer extends React.Component {
             }
         }
 
-        const { shortNote, longNote, diatonic, allowRests } = options;
+        const { shortNote, longNote, diatonic, allowRests, interval } = options;
 
         if (noteToDuration[longNote] < noteToDuration[shortNote]) {
             this.setState({
@@ -462,7 +489,7 @@ class StaffContainer extends React.Component {
             let durationLeft = this.getRidOfRests(voice);
             let lastNote = [''];
             while (durationLeft > 0) {
-                const noteAdded = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests);
+                const noteAdded = this.addRandomNote(durationLeft, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests, interval);
                 durationLeft = noteAdded.duration;
                 lastNote = noteAdded.notePitches;
                 }
