@@ -174,15 +174,13 @@ class StaffContainer extends React.Component {
         const chromatic = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
         const filteredChroma = chromatic.filter(v => !v.includes((Object.values(mapping)[0] === '#') ? 'b' : '#'));
     
-        const availableNotes = [centerNote];
+        const availableNotes = [];
         let upOctave = centerNote.match(/\d/)[0];
         let downOctave = centerNote.match(/\d/)[0];
-        if (centerNote[0] === 'B') upOctave++;
-        if (centerNote[0] === 'C') downOctave--;
         if (diatonic) {
             const notes = diatonicNotes;
             const index = notes.indexOf(centerNote[0]);
-            for (let i = 1; i < scaleSteps; i++) {
+            for (let i = 0; i < scaleSteps; i++) {
                 const up = notes[(index + i) % notes.length];
                 const down = notes[(2*notes.length + (index - i)) % notes.length];
                 availableNotes.push(`${up}${mapping[up] || ''}/${upOctave}`);
@@ -194,20 +192,18 @@ class StaffContainer extends React.Component {
             const lastIndex = filteredChroma.indexOf(availableNotes[availableNotes.length-1].match(/^(.+)\//)[1]);
             const centerIndex = filteredChroma.indexOf(centerNote.match(/^(.+)\//)[1]);
             const len = filteredChroma.length;
-            console.log(centerIndex, firstIndex, lastIndex, availableNotes, chromaSteps);
             if (((len + centerIndex - firstIndex) % len) > chromaSteps) availableNotes.shift();
             if (((len + lastIndex - centerIndex) % len) > chromaSteps) availableNotes.pop();
         } else {
             const notes = filteredChroma;
-            const index = notes.indexOf(centerNote);
-            for (let i = 1; i <= chromaSteps; i++) {
+            const index = notes.indexOf(centerNote.match(/^(.+)\//)[1]);
+            for (let i = 0; i <= chromaSteps; i++) {
                 const up = notes[(index + i) % notes.length];
                 const down = notes[(2*notes.length + (index - i)) % notes.length];
                 availableNotes.push(`${up}/${upOctave}`);
                 availableNotes.unshift(`${down}/${downOctave}`);
-                console.log(up, down);
-                if (up[0] === 'B') upOctave++;
-                if (down[0] === 'C') downOctave--;
+                if (up === 'B') upOctave++;
+                if (down === 'C') downOctave--;
             }
         }
         return availableNotes.filter(note => note !== centerNote);
@@ -579,7 +575,6 @@ class StaffContainer extends React.Component {
                         ? state.stave.voices.length - 1
                         : +state.currentVoice - 1)
                     : ((+state.currentVoice + 1) % state.stave.voices.length);
-                console.log(nextVoice);
                 return {
                     currentVoice: nextVoice.toString(),
                     selectedNote: {

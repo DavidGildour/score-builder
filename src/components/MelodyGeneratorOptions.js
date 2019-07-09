@@ -42,7 +42,7 @@ export default class extends React.Component {
         diatonic: true,
         shortNote: '8',
         longNote: 'h',
-        interval: '12 8',
+        interval: '7 5',
     }
 
     handleSubmit = (e) => {
