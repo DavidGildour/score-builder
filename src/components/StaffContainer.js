@@ -52,11 +52,12 @@ class StaffContainer extends React.Component {
     }
 
     populateVoiceWithRests = (voiceId, lackingDuration) => {
+        const lineMapping = clefMapping[this.state.stave.clef];
         const restPlacement = {
-            0: 'A/4',
-            1: 'E/5',
-            2: 'F/4',
-            3: 'C/5'
+            0: lineMapping[3*Math.floor(lineMapping.length/4)],
+            1: lineMapping[Math.floor(lineMapping.length/4)],
+            2: lineMapping[4*Math.floor(lineMapping.length/4)],
+            3: lineMapping[2*Math.floor(lineMapping.length/4)]
         }
         let remainingDuration = lackingDuration;
         while (remainingDuration !== 0) {
