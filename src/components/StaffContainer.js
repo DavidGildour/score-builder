@@ -168,12 +168,19 @@ class StaffContainer extends React.Component {
         this.populateVoiceWithRests(voice.id, durationLeft);
     }
 
-    getAvailableNotes = (interval, centerNote, diatonic) => {
+    getAvailableNotes = (interval, declaredNote, diatonic) => {
         const [ chromaSteps, scaleSteps ] = interval.split(' ').map( e => parseInt(e, 10));
         const mapping = keyMapping[this.state.stave.keySig];
         const diatonicNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
         const chromatic = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
         const filteredChroma = chromatic.filter(v => !v.includes((Object.values(mapping)[0] === '#') ? 'b' : '#'));
+        const lineMapping = clefMapping[this.state.stave.clef];
+
+        const maxNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match + 1);
+        const minNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match - 1);
+
+        let centerNote = declaredNote;
+        if (declaredNote === '') centerNote = lineMapping[Math.floor(lineMapping.length/2)]; 
     
         const availableNotes = [];
         let upOctave = centerNote.match(/\d/)[0];
@@ -207,7 +214,10 @@ class StaffContainer extends React.Component {
                 if (down === 'C') downOctave--;
             }
         }
-        return availableNotes.filter(note => note !== centerNote);
+        const minIndex = Math.max(availableNotes.indexOf(minNote), 0);
+        const maxIndex = availableNotes.indexOf(maxNote) === -1 ? availableNotes.length - 1 : availableNotes.indexOf(maxNote);
+        console.log(minNote, minIndex, maxNote, maxIndex);
+        return availableNotes.filter((note, i) => note !== centerNote && i <= maxIndex && i >= minIndex);
     }
 
     addRandomNote = (
@@ -238,10 +248,9 @@ class StaffContainer extends React.Component {
             if (allowRests && getRandInt(0, 6) === 0) noteDuration += 'r';
 
         // CHOOSING PITCH
-            const lineMapping = clefMapping[this.state.stave.clef];
-            const centerNote = (lastNote[0] === '') ? lineMapping[Math.floor(lineMapping.length/2)] : lastNote[0];
+            const centerNote = lastNote[0];
             const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
-            // console.log(centerNote, availableNotes);
+            console.log(centerNote, availableNotes);
             let accidental = '';
             const symbol = availableNotes[getRandInt(0, availableNotes.length)];
             if (['b', '#'].includes(symbol[1])) {
