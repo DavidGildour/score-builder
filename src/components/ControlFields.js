@@ -84,7 +84,7 @@ export const NoteDuration = (props) => (
 );
 
 
-export const AddNote = (props) => (
+export const AddRandomNote = (props) => (
         <button onClick={props.onSubmit}>Add random note</button>
 );
 

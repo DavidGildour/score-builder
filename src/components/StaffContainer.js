@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
+import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
@@ -240,7 +240,7 @@ class StaffContainer extends React.Component {
             const lineMapping = clefMapping[this.state.stave.clef];
             const centerNote = (lastNote[0] === '') ? lineMapping[Math.floor(lineMapping.length/2)] : lastNote[0];
             const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
-            console.log(centerNote, availableNotes);
+            // console.log(centerNote, availableNotes);
             let accidental = '';
             const symbol = availableNotes[getRandInt(0, availableNotes.length)];
             if (['b', '#'].includes(symbol[1])) {
@@ -695,7 +695,7 @@ class StaffContainer extends React.Component {
                             </td>
                         
                             <td>
-                                <AddNote onSubmit={this.handleRandomNote} />
+                                <AddRandomNote onSubmit={this.handleRandomNote} />
                             </td>
                             <td rowSpan="3">
                                 <Voices
