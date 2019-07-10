@@ -176,8 +176,10 @@ class StaffContainer extends React.Component {
         const filteredChroma = chromatic.filter(v => !v.includes((Object.values(mapping)[0] === '#') ? 'b' : '#'));
         const lineMapping = clefMapping[this.state.stave.clef];
 
-        const maxNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match + 1);
-        const minNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match - 1);
+        // defining the boundaries in which the note can be placed - 
+        // an octave up and down from the middle line of the clef
+        let maxNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match + 1);
+        let minNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match - 1);
 
         let centerNote = declaredNote;
         if (declaredNote === '') centerNote = lineMapping[Math.floor(lineMapping.length/2)]; 
@@ -186,6 +188,14 @@ class StaffContainer extends React.Component {
         let upOctave = centerNote.match(/\d/)[0];
         let downOctave = centerNote.match(/\d/)[0];
         if (diatonic) {
+            // diatonic melodies are a little bit trickier to limit (octave-wise) due to key signatures
+            // and their impact on stave lines
+            const boundarySymbol = maxNote[0]; // we dont have to worry about the accidental
+            if (mapping[boundarySymbol]) {
+                maxNote = maxNote.replace(/^(.+)\//, (match, p1) => p1 + mapping[boundarySymbol] + '/');
+                minNote = minNote.replace(/^(.+)\//, (match, p1) => p1 + mapping[boundarySymbol] + '/');
+            }
+
             const notes = diatonicNotes;
             const index = notes.indexOf(centerNote[0]);
             for (let i = 0; i < scaleSteps; i++) {
@@ -250,7 +260,7 @@ class StaffContainer extends React.Component {
         // CHOOSING PITCH
             const centerNote = lastNote[0];
             const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
-            console.log(centerNote, availableNotes);
+            console.log(voice, centerNote, availableNotes);
             let accidental = '';
             const symbol = availableNotes[getRandInt(0, availableNotes.length)];
             if (['b', '#'].includes(symbol[1])) {
