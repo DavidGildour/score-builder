@@ -32,7 +32,11 @@ class Staff extends React.Component {
             const symbol = pitch[0];
             const accidental = mapping[symbol.toUpperCase()];
             if (accidental) {
-                if (mods[i] !== '') mods[i] = mods[i].replace(accidental, '');
+                // if the note contains accidental already provided with key signature - ignore it
+                // if the note does not and the key signature indicates it should - add a natural
+                // unless the note contains another accidental - then leave it be
+                if (mods[i] === '.') mods[i] += 'n';
+                else if (mods[i] !== '') mods[i] = mods[i].includes(accidental) ? mods[i].replace(accidental, '') : mods[i];
                 else mods[i] = 'n';
             }
         }
