@@ -65,9 +65,9 @@ class Staff extends React.Component {
         // mapping this object's voices array to an array of VF voices
         .map(voice => new VF.Voice({ num_beats: beatsNum, beat_value: beatsType })
             // adding notes from these voices inner array 'notes'
-            .addTickables(voice.notes.map(note => {
+            .addTickables(voice.notes.map((note, i) => {
                 const newNote = this.mapNote(note);
-                if (selected && voice.id === selected.voiceId && voice.notes.indexOf(note).toString() === selected.noteId) {
+                if (selected && voice.id === selected.voiceId && i.toString() === selected.noteId) {
                     newNote.setStyle({fillStyle: '#f00', strokeStyle: '#f00'});
                 } else if (voice.id === this.props.activeVoice) {
                     newNote.setStyle(colorMapping[voice.id]);
@@ -91,6 +91,11 @@ class Staff extends React.Component {
 
         const voices = this.mapVoices(beatsNum, beatsType);
 
+        const beamGroups = voices.map((voice, i) => VF.Beam.generateBeams(voice.getTickables(), {
+            groups: [new VF.Fraction(1, 4)],
+            stem_direction: 1 * Math.pow(-1, i),
+        }));
+
         try {
             this.formatter.joinVoices(voices).format(voices, this.staveWidth);
         } catch {
@@ -101,7 +106,13 @@ class Staff extends React.Component {
         context.clear();
 
         this.stave.setContext(context).draw();
-        voices.forEach(v => v.draw(context, this.stave));
+        voices.forEach((v, i) => {
+            v.draw(context, this.stave);
+            beamGroups[i].forEach(beam => {
+                if (i.toString() === this.props.activeVoice) beam.setStyle(colorMapping[i]);
+                beam.setContext(context).draw();
+            });
+        });
     }
 
     componentDidMount() {
