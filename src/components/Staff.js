@@ -19,7 +19,6 @@ class Staff extends React.Component {
         this.renderer = null;
         this.stave = null;
         this.formatter = new VF.Formatter();
-        this.staveWidth = 1200;
     }
 
     mapNote = (note) => {
@@ -79,9 +78,12 @@ class Staff extends React.Component {
         const beatsNum = this.props.staves[this.staveId].beatsNum;
         const beatsType = this.props.staves[this.staveId].beatsType;
 
-        // console.log(this.props);
+        // neatly rendering the stave based on the width of the renderer's div
+        const divWidth = this.ref.current.getBoundingClientRect().width;
+        const staveWidth = divWidth * (9/10); // = 90% of the div width
+        const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
 
-        this.stave = new VF.Stave(10, 50, this.staveWidth)
+        this.stave = new VF.Stave(staveXOffset, 50, staveWidth)
                             .setClef(this.props.staves[this.staveId].clef)
                             .setTimeSignature(`${beatsNum}/${beatsType}`)
                             .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig));
@@ -96,7 +98,7 @@ class Staff extends React.Component {
         }));
 
         try {
-            this.formatter.joinVoices(voices).format(voices, this.staveWidth);
+            this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset);
         } catch {
             console.log("Voice invalid, notes:");
             console.table(this.props.staves[this.staveId].voices[0].notes);
@@ -119,7 +121,7 @@ class Staff extends React.Component {
 
         this.renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
-        this.renderer.resize(1500, 200);
+        this.renderer.resize(div.getBoundingClientRect().width, 200);
 
         this.renderStaff();
     }

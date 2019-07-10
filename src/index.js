@@ -7,8 +7,10 @@ import 'materialize-css/dist/css/materialize.min.css';
 import store from './redux/store';
 
 ReactDOM.render(
+    <div className="container">
     <Provider store={store}>
         <App />
-    </Provider>,
+    </Provider>
+    </div>,
     document.getElementById('root'),
 );
