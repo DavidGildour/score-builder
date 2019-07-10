@@ -654,7 +654,6 @@ class StaffContainer extends React.Component {
                 notePositions.push([]);
                 len = voice.notes.length
             }
-            // console.log(n.getElementsByClassName("vf-notehead")[0]);
             notePositions[voiceId].push(n.getElementsByClassName("vf-notehead")[0].getBoundingClientRect());
             noteId++;
         }

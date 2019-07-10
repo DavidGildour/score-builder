@@ -46,6 +46,7 @@ export const TimeSigOptions = (props) => (
 )
 
 export const KeyOptions = (props) => (
+    <div className="input-field">
         <select name="keySig" value={props.keySig} onChange={props.onChange}>
             <option value="Cb">Cb major/Ab minor</option>
             <option value="Gb">Gb major/Eb minor</option>
@@ -63,33 +64,35 @@ export const KeyOptions = (props) => (
             <option value="F#">F# major/D# minor</option>
             <option value="C#">C# major/A# minor</option>
         </select>
+        <label>Select key signature</label>
+    </div>
 );
 
 export const NoteDuration = (props) => (
     <div className="center-align">
         <label>
             <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
-            <span>Wholenote&nbsp;</span>
+            <span>Wholenote&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
-            <span>Halfnote&nbsp;</span>
+            <span>Halfnote&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
-            <span>Quarternote&nbsp;</span>
+            <span>Quarternote&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
-            <span>Eightnote&nbsp;</span>
+            <span>Eightnote&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
-            <span>Sixteenth&nbsp;</span>
+            <span>Sixteenth&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
-            <span>Thirtysecond&nbsp;</span>
+            <span>Thirtysecond&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
@@ -98,11 +101,11 @@ export const NoteDuration = (props) => (
         <br />
         <label>
             <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
-            <span>Dotted&nbsp;</span>
+            <span>Dotted&nbsp;&nbsp;&nbsp;</span>
         </label>
         <label>
             <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
-            <span>Rest&nbsp;</span>
+            <span>Rest</span>
         </label>
     </div>
 );
