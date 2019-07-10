@@ -1,8 +1,8 @@
 import React from 'react';
 
-
 export const ClefOptions = (props) => (
-        <select className="ctrl" name="clef" value={props.clef} onChange={props.onChange}>
+    <div className="input-field">
+        <select name="clef" value={props.clef} onChange={props.onChange}>
             <option value="treble">Treble clef</option>
             <option value="bass">Bass clef</option>
             <option value="alto">Alto clef</option>
@@ -15,30 +15,38 @@ export const ClefOptions = (props) => (
             <option value="subbass">Subbass clef</option>
             <option value="french">French clef</option>
         </select>
-);
+        <label>Select clef type</label>
+    </div>
+)
 
 export const TimeSigOptions = (props) => (
-        <div>
+    <div>
+        <div className="input-field">
             <input
-                className="ctrl timesig"
                 name="beatsNum"
+                id="beatsNum"
                 type="number"
+                className="validate"
                 value={props.beatsNum}
                 placeholder="4"
                 onChange={props.onChange} />
-            /
-            <select className="ctrl" name="beatsType" value={props.beatsType} onChange={props.onChange}>
+                <label htmlFor="beatsNum">Number of beats</label>
+        </div>
+        <div className="input-field">
+            <select id="beatsType" name="beatsType" value={props.beatsType} onChange={props.onChange}>
                 <option value="2">2</option>
                 <option value="4">4</option>
                 <option value="8">8</option>
                 <option value="16">16</option>
                 <option value="32">32</option>
             </select>
+            <label htmlFor="beatsType">Beats type</label>
         </div>
-);
+    </div>
+)
 
 export const KeyOptions = (props) => (
-        <select className="ctrl" name="keySig" value={props.keySig} onChange={props.onChange}>
+        <select name="keySig" value={props.keySig} onChange={props.onChange}>
             <option value="Cb">Cb major/Ab minor</option>
             <option value="Gb">Gb major/Eb minor</option>
             <option value="Db">Db major/Bb minor</option>
@@ -58,39 +66,55 @@ export const KeyOptions = (props) => (
 );
 
 export const NoteDuration = (props) => (
-    <div>
-        <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
-        <label htmlFor="w"> Wholenote</label>
-    
-        <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
-        <label htmlFor="h">  Halfnote</label>
-    
-        <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
-        <label htmlFor="q"> Quarternote</label>
-        <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
-        <label htmlFor="8"> Eightnote</label>
-        <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
-        <label htmlFor="16"> Sixteenth</label>
-        <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
-        <label htmlFor="32"> Thirtysecond</label>
-        <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
-        <label htmlFor="64"> Sixtyfourth (like somebody uses it)</label>
+    <div className="center-align">
+        <label>
+            <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
+            <span>Wholenote&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
+            <span>Halfnote&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
+            <span>Quarternote&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
+            <span>Eightnote&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
+            <span>Sixteenth&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
+            <span>Thirtysecond&nbsp;</span>
+        </label>
+        <label>
+            <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
+            <span>Sixtyfourth (like somebody uses it)</span>
+        </label>
         <br />
-        <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
-        <label htmlFor="dotted"> Dotted</label>
-        <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
-        <label htmlFor="rest"> Rest</label>
+        <label>
+            <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
+            <span>Dotted&nbsp;</span>
+        </label>
+        <label>
+            <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
+            <span>Rest&nbsp;</span>
+        </label>
     </div>
 );
 
 
 export const AddRandomNote = (props) => (
-        <button onClick={props.onSubmit}>Add random note</button>
+    <button className="waves-effect waves-light btn" onClick={props.onSubmit}>Add random note</button>
 );
 
 
 export const RemoveNote = (props) => (
-        <button onClick={props.onClick}>Remove last note</button>
+    <button className="waves-effect waves-light btn" onClick={props.onClick}>Remove last note</button>
 );
 
 const numMapping = ['First', 'Second', 'Third', 'Fourth']
@@ -100,13 +124,15 @@ export const Voices = (props) => (
         Select voice:
         {props.voices.map((voice) => (
             <div key={voice.id}>
+                <label>
                 <input type="radio"
                     name="currentVoice"
                     value={voice.id}
                     id={voice.id}
                     onChange={props.onChange}
                     checked={props.currentVoice === voice.id} />
-                <label htmlFor={voice.id}> {numMapping[voice.id]}</label>
+                <span>{numMapping[voice.id]}</span>
+                </label>
             </div>
         ))}
     </div>
@@ -114,13 +140,13 @@ export const Voices = (props) => (
 
 export const AddRemoveVoice = (props) => (
     <div>
-        <button name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
+        <button className="waves-effect waves-light btn" name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
             Add voice
         </button><br />
-        <button name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
+        <button className="waves-effect waves-light btn" name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
             Remove voice
         </button><br />
-        <button name="clearVoices" onClick={props.clearVoices}>
+        <button className="waves-effect waves-light btn" name="clearVoices" onClick={props.clearVoices}>
             Clear ALL voices
         </button>
     </div>

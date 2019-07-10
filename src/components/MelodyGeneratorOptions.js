@@ -66,11 +66,15 @@ export default class extends React.Component {
 
     render = () => (
         <form onSubmit={this.handleSubmit}>
-            <input type="submit" value="Generate melody" /><br />
-            <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
-            <label htmlFor="allowRests"> Allow rests</label>&nbsp;
-            <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
-            <label htmlFor="diatonic"> Diatonic</label><br />
+            <input className="waves-effect waves-light btn" type="submit" value="Generate melody" /><br />
+            <label>
+                <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
+                <span>Allow rests&nbsp;&nbsp;&nbsp;</span>
+            </label>
+            <label>
+                <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
+                <span>Diatonic</span>
+            </label><br />
             <table>
                 <tbody>
                     <tr>

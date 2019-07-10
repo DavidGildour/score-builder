@@ -2,7 +2,6 @@ import React from 'react';
 import Vex from 'vexflow';
 
 import { connect } from 'react-redux';
-import './Staff.css';
 import keyMapping from './mappings/keyMappings';
 import { colorMapping } from './mappings/colorMappings';
 

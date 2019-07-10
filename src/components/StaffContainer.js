@@ -1,6 +1,7 @@
 import React from 'react';
-
 import { connect } from 'react-redux';
+import M from 'materialize-css/dist/js/materialize.min';
+
 import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave } from '../redux/actions';
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
@@ -10,8 +11,6 @@ import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
 import { noteMapping } from './mappings/noteMappings';
 import keyMapping from './mappings/keyMappings';
-
-import './Control.css';
 
 const getRandInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -666,6 +665,9 @@ class StaffContainer extends React.Component {
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     componentDidMount(){
+        console.log(M);
+        M.AutoInit();
+    
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
         const lines = [];
@@ -684,7 +686,7 @@ class StaffContainer extends React.Component {
     render() {
         return (
             <div>
-                <div className="noteDur">
+                <div>
                     <NoteDuration
                         onChange={this.innerStateChange}
                         duration={this.state.duration}
