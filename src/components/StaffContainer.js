@@ -192,8 +192,8 @@ class StaffContainer extends React.Component {
             // and their impact on stave lines
             const boundarySymbol = maxNote[0]; // we dont have to worry about the accidental
             if (mapping[boundarySymbol]) {
-                maxNote = maxNote.replace(/^(.+)\//, (match, p1) => p1 + mapping[boundarySymbol] + '/');
-                minNote = minNote.replace(/^(.+)\//, (match, p1) => p1 + mapping[boundarySymbol] + '/');
+                maxNote = maxNote.replace(boundarySymbol, boundarySymbol + mapping[boundarySymbol]);
+                minNote = minNote.replace(boundarySymbol, boundarySymbol + mapping[boundarySymbol]);
             }
 
             const notes = diatonicNotes;
