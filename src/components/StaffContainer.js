@@ -538,6 +538,7 @@ class StaffContainer extends React.Component {
     
 
     handleClick = (e) => {
+        e.preventDefault();
         const curY = e.pageY;
         const curX = e.pageX;
         const notePositions = this.getNotePositions();
