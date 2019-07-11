@@ -137,6 +137,16 @@ class StaffContainer extends React.Component {
             [name]: value,
         });
     }
+
+    getLastNoteInAVoice = (voice) => {
+        const notes = voice.notes.slice();
+        const revNotes = notes.slice().reverse();
+
+        for (const note of revNotes) {
+            if (note.persistent) return notes.indexOf(note);
+        }
+        return -1;
+    }
  
     addNote = (durationLeft) => {
         let availableDuration = durationLeft;
@@ -153,8 +163,12 @@ class StaffContainer extends React.Component {
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
+            const newNoteId = this.getLastNoteInAVoice(this.state.stave.voices[this.state.currentVoice]) + 1;
             this.setState({
-                selectedNote: null, // quick fix 
+                selectedNote: {
+                    noteId: Math.min(newNoteId, this.state.stave.voices[this.state.currentVoice].notes.length - 1).toString(),
+                    voiceId: this.state.currentVoice,
+                },
             })
         }
         return availableDuration;
@@ -164,6 +178,13 @@ class StaffContainer extends React.Component {
         const voice = this.state.stave.voices[this.state.currentVoice];
         let durationLeft = this.getRidOfRests(voice);
         durationLeft = this.addRandomNote(durationLeft).duration;
+        const newNoteId = this.getLastNoteInAVoice(this.state.stave.voices[this.state.currentVoice]) + 1;
+        this.setState({
+            selectedNote: {
+                noteId: Math.min(newNoteId, this.state.stave.voices[this.state.currentVoice].notes.length - 1).toString(),
+                voiceId: this.state.currentVoice,
+            },
+        })
         this.populateVoiceWithRests(voice.id, durationLeft);
     }
 
