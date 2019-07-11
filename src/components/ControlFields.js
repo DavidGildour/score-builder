@@ -1,4 +1,5 @@
 import React from 'react';
+import M from 'materialize-css/dist/js/materialize.min';
 
 export const ClefOptions = (props) => (
     <div className="input-field">
@@ -120,26 +121,26 @@ export const RemoveNote = (props) => (
     <button className="waves-effect waves-light btn" onClick={props.onClick}>Remove last note</button>
 );
 
-const numMapping = ['First', 'Second', 'Third', 'Fourth']
+export class Voices extends React.Component {
+    static numMapping = ['First', 'Second', 'Third', 'Fourth'];
 
-export const Voices = (props) => (
-    <div>
-        Select voice:
-        {props.voices.map((voice) => (
-            <div key={voice.id}>
-                <label>
-                <input type="radio"
-                    name="currentVoice"
-                    value={voice.id}
-                    id={voice.id}
-                    onChange={props.onChange}
-                    checked={props.currentVoice === voice.id} />
-                <span>{numMapping[voice.id]}</span>
-                </label>
-            </div>
-        ))}
-    </div>
-);
+    componentDidUpdate = () => {
+        M.AutoInit();
+    }
+
+    render = () => (
+        <div className="input-field">
+            <select name="currentVoice" value={this.props.currentVoice} onChange={this.props.onChange}>
+            {this.props.voices.map((voice) => (
+                <option key={voice.id} value={voice.id}>
+                    {Voices.numMapping[voice.id]}
+                </option>
+            ))}
+            </select>
+            <label>Select voice</label>
+        </div>
+    )
+};
 
 export const AddRemoveVoice = (props) => (
     <div>
