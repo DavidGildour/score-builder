@@ -94,7 +94,9 @@ export default class extends React.Component {
                 </div>
             </div>
             <div className="row">
-                <button className="waves-effect waves-light btn fill" type="submit">Generate melody</button>
+                <button className="waves-effect waves-light btn fill" type="submit">
+                    Generate melody<i className="material-icons right">cached</i>
+                </button>
             </div>
         </form>
     )

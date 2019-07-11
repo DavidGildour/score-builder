@@ -117,12 +117,16 @@ export const NoteDuration = (props) => (
 
 
 export const AddRandomNote = (props) => (
-    <button className="waves-effect waves-light btn fill" onClick={props.onSubmit}>Add random note</button>
+    <button className="waves-effect waves-light btn fill" onClick={props.onSubmit}>
+        Add random note <i className="material-icons right">cached</i>
+    </button>
 );
 
 
 export const RemoveNote = (props) => (
-    <button className="waves-effect waves-light btn fill" onClick={props.onClick}>Remove last note</button>
+    <button className="waves-effect waves-light btn fill" onClick={props.onClick}>
+        Remove last note <i className="material-icons right">remove</i>
+    </button>
 );
 
 export class Voices extends React.Component {
@@ -150,17 +154,17 @@ export const AddRemoveVoice = (props) => (
     <div className="row top-margin">
         <div className="col s4">
             <button className="waves-effect waves-light btn fill" name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
-                Add voice
+                Add voice <i className="material-icons right">add</i>
             </button>
         </div>
         <div className="col s4">
             <button className="waves-effect waves-light btn fill" name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
-                Remove voice
+                Remove<i className="material-icons right">remove</i>
             </button>
         </div>
         <div className="col s4">
             <button className="waves-effect waves-light btn fill" name="clearVoices" onClick={props.clearVoices}>
-                Clear ALL voices
+                Clear ALL<i className="material-icons right">clear</i>
             </button>
         </div>
     </div>
