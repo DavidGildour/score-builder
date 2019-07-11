@@ -3,17 +3,17 @@ import React from 'react';
 export const ClefOptions = (props) => (
     <div className="input-field">
         <select name="clef" value={props.clef} onChange={props.onChange}>
-            <option value="treble">Treble clef</option>
-            <option value="bass">Bass clef</option>
-            <option value="alto">Alto clef</option>
-            <option value="tenor">Tenor clef</option>
-            <option value="percussion">Percussion clef</option>
-            <option value="soprano">Soprano clef</option>
-            <option value="mezzo-soprano">Mezzo Soprano clef</option>
-            <option value="baritone-c">Baritone (C) clef</option>
-            <option value="baritone-f">Baritone (F) clef</option>
-            <option value="subbass">Subbass clef</option>
-            <option value="french">French clef</option>
+            <option value="treble" data-icon={process.env.PUBLIC_URL + '/clefs/treble.png'}>Treble</option>
+            <option value="bass" data-icon={process.env.PUBLIC_URL + '/clefs/bass.png'}>Bass</option>
+            <option value="alto" data-icon={process.env.PUBLIC_URL + '/clefs/alto.png'}>Alto</option>
+            <option value="tenor" data-icon={process.env.PUBLIC_URL + '/clefs/tenor.png'}>Tenor</option>
+            <option value="percussion" data-icon={process.env.PUBLIC_URL + '/clefs/percussion.png'}>Percussion</option>
+            <option value="soprano" data-icon={process.env.PUBLIC_URL + '/clefs/soprano.png'}>Soprano</option>
+            <option value="mezzo-soprano" data-icon={process.env.PUBLIC_URL + '/clefs/mezzosoprano.png'}>Mezzo Soprano</option>
+            <option value="baritone-c" data-icon={process.env.PUBLIC_URL + '/clefs/baritone-c.png'}>Baritone (C)</option>
+            <option value="baritone-f" data-icon={process.env.PUBLIC_URL + '/clefs/baritone-f.png'}>Baritone (F)</option>
+            <option value="subbass" data-icon={process.env.PUBLIC_URL + '/clefs/subbass.png'}>Subbass</option>
+            <option value="french" data-icon={process.env.PUBLIC_URL + '/clefs/french.png'}>French</option>
         </select>
         <label>Select clef type</label>
     </div>
@@ -48,21 +48,21 @@ export const TimeSigOptions = (props) => (
 export const KeyOptions = (props) => (
     <div className="input-field">
         <select name="keySig" value={props.keySig} onChange={props.onChange}>
-            <option value="Cb">Cb major/Ab minor</option>
-            <option value="Gb">Gb major/Eb minor</option>
-            <option value="Db">Db major/Bb minor</option>
-            <option value="Ab">Ab major/F minor</option>
-            <option value="Eb">Eb major/C minor</option>
-            <option value="Bb">Bb major/G minor</option>
-            <option value="F">F major/D minor</option>
-            <option value="C">C major/A minor</option>
-            <option value="G">G major/E minor</option>
-            <option value="D">D major/B minor</option>
-            <option value="A">A major/F# minor</option>
-            <option value="E">E major/C# minor</option>
-            <option value="B">B major/G# minor</option>
-            <option value="F#">F# major/D# minor</option>
-            <option value="C#">C# major/A# minor</option>
+            <option value="Cb" data-icon={process.env.PUBLIC_URL + '/keys/Cb.png'}>Cb maj/Ab min</option>
+            <option value="Gb" data-icon={process.env.PUBLIC_URL + '/keys/Gb.png'}>Gb maj/Eb min</option>
+            <option value="Db" data-icon={process.env.PUBLIC_URL + '/keys/Db.png'}>Db maj/Bb min</option>
+            <option value="Ab" data-icon={process.env.PUBLIC_URL + '/keys/Ab.png'}>Ab maj/F min</option>
+            <option value="Eb" data-icon={process.env.PUBLIC_URL + '/keys/Eb.png'}>Eb maj/C min</option>
+            <option value="Bb" data-icon={process.env.PUBLIC_URL + '/keys/Bb.png'}>Bb maj/G min</option>
+            <option value="F" data-icon={process.env.PUBLIC_URL + '/keys/F.png'}>F maj/D min</option>
+            <option value="C" data-icon={process.env.PUBLIC_URL + '/keys/C.png'}>C maj/A min</option>
+            <option value="G" data-icon={process.env.PUBLIC_URL + '/keys/G.png'}>G maj/E min</option>
+            <option value="D" data-icon={process.env.PUBLIC_URL + '/keys/D.png'}>D maj/B min</option>
+            <option value="A" data-icon={process.env.PUBLIC_URL + '/keys/A.png'}>A maj/F# min</option>
+            <option value="E" data-icon={process.env.PUBLIC_URL + '/keys/E.png'}>E maj/C# min</option>
+            <option value="B" data-icon={process.env.PUBLIC_URL + '/keys/B.png'}>B maj/G# min</option>
+            <option value="F#" data-icon={process.env.PUBLIC_URL + '/keys/Fsh.png'}>F# maj/D# min</option>
+            <option value="C#" data-icon={process.env.PUBLIC_URL + '/keys/Csh.png'}>C# maj/A# min</option>
         </select>
         <label>Select key signature</label>
     </div>

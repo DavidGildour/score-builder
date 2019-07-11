@@ -688,7 +688,6 @@ class StaffContainer extends React.Component {
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     componentDidMount(){
-        console.log(M);
         M.AutoInit();
     
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
@@ -701,15 +700,17 @@ class StaffContainer extends React.Component {
             lines.push({ top: linePos.top + window.scrollY, bottom: linePos.bottom + window.scrollY });
         }
 
-        this.setState((state) => ({ 
-            ...state,
+        this.setState({
             lines: lines,
-        }))
+        });
     }
 
     render() {
         return (
             <div>
+                <div className="center red-text">
+                    {this.state.error || <span>&nbsp;</span>}
+                </div>
                 <div>
                     <NoteDuration
                         onChange={this.innerStateChange}
@@ -785,9 +786,6 @@ class StaffContainer extends React.Component {
                         </tr>
                     </tbody>
                 </table>
-                <div className="err">
-                    {this.state.error}
-                </div>
             </div>
         );
     }

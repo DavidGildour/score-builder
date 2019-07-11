@@ -82,7 +82,7 @@ class Staff extends React.Component {
         const divWidth = this.ref.current.getBoundingClientRect().width;
         const staveWidth = divWidth * (9/10); // = 90% of the div width
         const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
-
+        // # == 8.86px b = 7.5px - IMPORTANT
         this.stave = new VF.Stave(staveXOffset, 50, staveWidth)
                             .setClef(this.props.staves[this.staveId].clef)
                             .setTimeSignature(`${beatsNum}/${beatsType}`)
