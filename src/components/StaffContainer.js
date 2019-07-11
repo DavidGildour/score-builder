@@ -523,7 +523,10 @@ class StaffContainer extends React.Component {
         let selectedNote = null;
 
         notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
-            if (curX >= n.left && curX <= n.right && curY >= n.top && curY <= n.bottom) {
+            if (curX >= (n.left   + window.scrollX)
+             && curX <= (n.right  + window.scrollX)
+             && curY >= (n.top    + window.scrollY)
+             && curY <= (n.bottom + window.scrollY)) {
                 selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString() };
             }
         }));
@@ -546,17 +549,17 @@ class StaffContainer extends React.Component {
         const curY = e.pageY;
         let note;
 
-        if (curY <= lines[0].top) note = clefMapping[this.state.stave.clef][0];
-        else if (curY > lines[0].top && curY <= lines[0].bottom ) note = clefMapping[this.state.stave.clef][1];
-        else if (curY > lines[0].bottom && curY <= lines[1].top ) note = clefMapping[this.state.stave.clef][2];
-        else if (curY > lines[1].top && curY <= lines[1].bottom ) note = clefMapping[this.state.stave.clef][3];
-        else if (curY > lines[1].bottom && curY <= lines[2].top ) note = clefMapping[this.state.stave.clef][4];
-        else if (curY > lines[2].top && curY <= lines[2].bottom ) note = clefMapping[this.state.stave.clef][5];
-        else if (curY > lines[2].bottom && curY <= lines[3].top ) note = clefMapping[this.state.stave.clef][6];
-        else if (curY > lines[3].top && curY <= lines[3].bottom ) note = clefMapping[this.state.stave.clef][7];
-        else if (curY > lines[3].bottom && curY <= lines[4].top ) note = clefMapping[this.state.stave.clef][8];
-        else if (curY > lines[4].top && curY <= lines[4].bottom ) note = clefMapping[this.state.stave.clef][9];
-        else if (curY > lines[4].bottom ) note = clefMapping[this.state.stave.clef][10];
+        if      (curY <=lines[0].top)                               note = clefMapping[this.state.stave.clef][0];
+        else if (curY > lines[0].top    && curY <= lines[0].bottom) note = clefMapping[this.state.stave.clef][1];
+        else if (curY > lines[0].bottom && curY <= lines[1].top   ) note = clefMapping[this.state.stave.clef][2];
+        else if (curY > lines[1].top    && curY <= lines[1].bottom) note = clefMapping[this.state.stave.clef][3];
+        else if (curY > lines[1].bottom && curY <= lines[2].top   ) note = clefMapping[this.state.stave.clef][4];
+        else if (curY > lines[2].top    && curY <= lines[2].bottom) note = clefMapping[this.state.stave.clef][5];
+        else if (curY > lines[2].bottom && curY <= lines[3].top   ) note = clefMapping[this.state.stave.clef][6];
+        else if (curY > lines[3].top    && curY <= lines[3].bottom) note = clefMapping[this.state.stave.clef][7];
+        else if (curY > lines[3].bottom && curY <= lines[4].top   ) note = clefMapping[this.state.stave.clef][8];
+        else if (curY > lines[4].top    && curY <= lines[4].bottom) note = clefMapping[this.state.stave.clef][9];
+        else if (curY > lines[4].bottom)                            note = clefMapping[this.state.stave.clef][10];
 
         this.setState({note: note})
     }
@@ -673,7 +676,8 @@ class StaffContainer extends React.Component {
 
         for (const [i, line] of staveSVG.childNodes.entries()) {
             if (i >= 5) break;
-            lines.push(line.getBoundingClientRect());
+            const linePos = line.getBoundingClientRect();
+            lines.push({ top: linePos.top + window.scrollY, bottom: linePos.bottom + window.scrollY });
         }
 
         this.setState((state) => ({ 
