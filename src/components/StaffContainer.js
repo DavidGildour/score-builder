@@ -727,66 +727,51 @@ class StaffContainer extends React.Component {
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
                         : ''}
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Options:</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                Select clef type:
-                            </td>
-                            <td>
-                                <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
-                            </td>
-                        
-                            <td>
-                                <AddRandomNote onSubmit={this.handleRandomNote} />
-                            </td>
-                            <td rowSpan="3">
-                                <Voices
-                                    voices={this.state.stave.voices}
-                                    currentVoice={this.state.currentVoice}
-                                    onChange={this.innerStateChange} />
-                            </td>
-                            <td rowSpan="3">
-                                <AddRemoveVoice
-                                    addVoice={this.addVoice}
-                                    removeVoice={this.removeVoice}
-                                    clearVoices={this.clearVoices}
-                                    error={this.state.error}
-                                    newVoiceId={this.state.stave.voices.length} />
-                            </td>
-                            <td rowSpan="5">
-                                <MelodyGenerator generate={this.generateMelody} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Select time signature:
-                            </td>
-                            <td>
-                                <TimeSigOptions
-                                    beatsNum={this.state.stave.beatsNum}
-                                    beatsType={this.state.stave.beatsType}
-                                    onChange={this.timeChangeHandler} />
-                            </td>
-                            <td>
-                                <RemoveNote onClick={this.removeNote} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Select key signature:
-                            </td>
-                            <td>
-                                <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="row">
+                    <div className="col s4">
+                        <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
+                    </div>
+                    <div className="col s4">
+                        <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
+                    </div>
+                    <div className="col s4">
+                        <TimeSigOptions
+                                beatsNum={this.state.stave.beatsNum}
+                                beatsType={this.state.stave.beatsType}
+                                onChange={this.timeChangeHandler} />
+                    </div>
+                </div>
+                <div className="divider"></div>
+                <div className="row section">
+                    <div className="col s6">
+                        <AddRemoveVoice
+                                addVoice={this.addVoice}
+                                removeVoice={this.removeVoice}
+                                clearVoices={this.clearVoices}
+                                error={this.state.error}
+                                newVoiceId={this.state.stave.voices.length} />
+                    </div>
+                    <div className="col s3"> 
+                        <Voices
+                            voices={this.state.stave.voices}
+                            currentVoice={this.state.currentVoice}
+                            onChange={this.innerStateChange} />
+                    </div>
+                    <div className="col s3">
+                        <div className="row">
+                            <AddRandomNote onSubmit={this.handleRandomNote} />
+                        </div>
+                        <div className="row">
+                        <   RemoveNote onClick={this.removeNote} />
+                        </div>
+                    </div>
+                </div>
+                <div className="divider"></div>
+                <div className="row section">
+                    <div className="col s12">
+                        <MelodyGenerator generate={this.generateMelody} />
+                    </div>
+                </div>
             </div>
         );
     }

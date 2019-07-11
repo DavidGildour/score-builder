@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import App from './components/App';
 import 'materialize-css/dist/css/materialize.min.css';
+import './custom.css';
 import store from './redux/store';
 
 ReactDOM.render(

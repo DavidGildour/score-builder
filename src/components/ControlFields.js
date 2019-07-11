@@ -21,27 +21,31 @@ export const ClefOptions = (props) => (
 )
 
 export const TimeSigOptions = (props) => (
-    <div>
-        <div className="input-field">
-            <input
-                name="beatsNum"
-                id="beatsNum"
-                type="number"
-                className="validate"
-                value={props.beatsNum}
-                placeholder="4"
-                onChange={props.onChange} />
-                <label htmlFor="beatsNum">Number of beats</label>
+    <div className="row">
+        <div className="col s6">
+            <div className="input-field">
+                <input
+                    name="beatsNum"
+                    id="beatsNum"
+                    type="number"
+                    className="validate"
+                    value={props.beatsNum}
+                    placeholder="4"
+                    onChange={props.onChange} />
+                    <label htmlFor="beatsNum">Beats number</label>
+            </div>
         </div>
-        <div className="input-field">
-            <select id="beatsType" name="beatsType" value={props.beatsType} onChange={props.onChange}>
-                <option value="2">2</option>
-                <option value="4">4</option>
-                <option value="8">8</option>
-                <option value="16">16</option>
-                <option value="32">32</option>
-            </select>
-            <label htmlFor="beatsType">Beats type</label>
+        <div className="col s6">
+            <div className="input-field">
+                <select id="beatsType" name="beatsType" value={props.beatsType} onChange={props.onChange}>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="8">8</option>
+                    <option value="16">16</option>
+                    <option value="32">32</option>
+                </select>
+                <label htmlFor="beatsType">Beats type</label>
+            </div>
         </div>
     </div>
 )
@@ -113,12 +117,12 @@ export const NoteDuration = (props) => (
 
 
 export const AddRandomNote = (props) => (
-    <button className="waves-effect waves-light btn" onClick={props.onSubmit}>Add random note</button>
+    <button className="waves-effect waves-light btn fill" onClick={props.onSubmit}>Add random note</button>
 );
 
 
 export const RemoveNote = (props) => (
-    <button className="waves-effect waves-light btn" onClick={props.onClick}>Remove last note</button>
+    <button className="waves-effect waves-light btn fill" onClick={props.onClick}>Remove last note</button>
 );
 
 export class Voices extends React.Component {
@@ -143,15 +147,21 @@ export class Voices extends React.Component {
 };
 
 export const AddRemoveVoice = (props) => (
-    <div>
-        <button className="waves-effect waves-light btn" name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
-            Add voice
-        </button><br />
-        <button className="waves-effect waves-light btn" name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
-            Remove voice
-        </button><br />
-        <button className="waves-effect waves-light btn" name="clearVoices" onClick={props.clearVoices}>
-            Clear ALL voices
-        </button>
+    <div className="row top-margin">
+        <div className="col s4">
+            <button className="waves-effect waves-light btn fill" name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
+                Add voice
+            </button>
+        </div>
+        <div className="col s4">
+            <button className="waves-effect waves-light btn fill" name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
+                Remove voice
+            </button>
+        </div>
+        <div className="col s4">
+            <button className="waves-effect waves-light btn fill" name="clearVoices" onClick={props.clearVoices}>
+                Clear ALL voices
+            </button>
+        </div>
     </div>
 );

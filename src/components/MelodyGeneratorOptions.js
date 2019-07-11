@@ -72,18 +72,30 @@ export default class extends React.Component {
 
     render = () => (
         <form onSubmit={this.handleSubmit}>
-            <button className="waves-effect waves-light btn" type="submit">Generate melody</button><br />
-            <label>
-                <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
-                <span>Allow rests&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
-                <span>Diatonic</span>
-            </label><br />
-            <NoteSelection name="shortNote" text="Shortest note" handleChange={this.handleChange} value={this.state.shortNote} />
-            <NoteSelection name="longNote" text="Longest note" handleChange={this.handleChange} value={this.state.longNote} />
-            <IntervalSelection handleChange={this.handleChange} value={this.state.interval} />
+            <div className="row">
+                <div className="col s3 top-margin">
+                    <label>
+                        <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
+                        <span>Allow rests&nbsp;&nbsp;&nbsp;</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
+                        <span>Diatonic</span>
+                    </label>
+                </div>
+                <div className="col s3">
+                    <NoteSelection name="shortNote" text="Shortest note" handleChange={this.handleChange} value={this.state.shortNote} />
+                </div>
+                <div className="col s3">
+                    <NoteSelection name="longNote" text="Longest note" handleChange={this.handleChange} value={this.state.longNote} />
+                </div>
+                <div className="col s3">
+                    <IntervalSelection handleChange={this.handleChange} value={this.state.interval} />
+                </div>
+            </div>
+            <div className="row">
+                <button className="waves-effect waves-light btn fill" type="submit">Generate melody</button>
+            </div>
         </form>
     )
 };
