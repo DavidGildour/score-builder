@@ -3,6 +3,7 @@ import React from 'react';
 import MIDISounds from 'midi-sounds-react';
 
 import { midiMapping } from './mappings/midiMappings';
+import { durToBeats } from './mappings/durationMappings';
 
 
 export default class extends React.Component {
@@ -24,21 +25,6 @@ export default class extends React.Component {
     }
 
     componentDidUpdate() {
-        const durToBeats = {
-            'q': 1,
-            'qd': 1.5,
-            'h': 2,
-            'hd': 3,
-            'w': 4,
-            'wd': 6,
-            '8': 0.5,
-            '8d': 0.75,
-            '16': 0.25,
-            '16d': 0.375,
-            '32': 0.125,
-            '32d': 0.1875,
-            '64': 0.0625,
-        }
         if (!this.props.currentNote.duration.includes('r')) {
             const notes = this.props.currentNote.keys.map(note => midiMapping[note] || 109);
             const duration = durToBeats[this.props.currentNote.duration] * (60/this.state.tempo)
