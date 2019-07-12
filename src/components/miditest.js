@@ -3,22 +3,23 @@ import React from 'react';
 import MIDISounds from 'midi-sounds-react';
 
 import { midiMapping } from './mappings/midiMappings';
-import { durToBeats } from './mappings/durationMappings';
+import { durToBeats, noteToDuration } from './mappings/durationMappings';
 
 
 export default class extends React.Component {
     state = {
         instrument: 281,
-        tempo: 60,
+        tempo: 90,
     }
 
     handleClick = () => {
         let t = this.midiSounds.contextTime();
+        this.midiSounds.cancelQueue();
         for (const note of this.props.notes) {
             if (!note.duration.includes('r')) {
                 this.midiSounds.playBeatAt(t, [
                     [],
-                    [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), durToBeats[note.duration]/4]]
+                    [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
                 ], this.state.tempo);
             }
             t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
