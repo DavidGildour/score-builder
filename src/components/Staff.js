@@ -42,7 +42,8 @@ class Staff extends React.Component {
                 if (mods[i] === '.') mods[i] += 'n';
                 else if (mods[i] !== '') mods[i] = mods[i].includes(accidental) ? mods[i].replace(accidental, '') : mods[i];
                 else mods[i] = 'n';
-            }
+            // getting rid of unnecessary naturals (if current line does not contain any accidentals in current key)
+            } else if (mods[i].includes('n')) mods[i] = mods[i].replace('n', '');
         }
 
         // initializing a single note to ba added to the voice

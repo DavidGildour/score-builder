@@ -642,8 +642,11 @@ class StaffContainer extends React.Component {
         } else if (name === 'currentVoice') {
             this.setState((state) => ({
                 ...state,
-                selectedNote: null,
-                [name]: value,
+                selectedNote: {
+                    voiceId: value,
+                    noteId: '0',
+                },
+                currentVoice: value,
             }));
         } else {
             this.setState({
@@ -725,7 +728,7 @@ class StaffContainer extends React.Component {
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
-                        : ''}
+                        : <span>&nbsp;</span>}
                 </div>
                 <div className="row">
                     <div className="col s4">
@@ -762,7 +765,7 @@ class StaffContainer extends React.Component {
                             <AddRandomNote onSubmit={this.handleRandomNote} />
                         </div>
                         <div className="row">
-                        <   RemoveNote onClick={this.removeNote} />
+                            <RemoveNote onClick={this.removeNote} />
                         </div>
                     </div>
                 </div>
