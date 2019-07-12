@@ -9,48 +9,20 @@ import { durToBeats } from './mappings/durationMappings';
 export default class extends React.Component {
     state = {
         instrument: 281,
-        tempo: 120,
+        tempo: 60,
     }
 
     handleClick = () => {
         let t = this.midiSounds.contextTime();
-        this.midiSounds.playChordAt(t, this.state.instrument, ['C/4', 'G/4', 'C/5', 'Eb/5', 'G/5', 'Bb/5'].map(note => midiMapping[note]), durToBeats['qd']* (60/this.state.tempo));
-        t += durToBeats['qd']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['C/4']], 1/16]]
-        ], this.state.tempo);
-        t += durToBeats['16']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['D/4']], 1/16]]
-        ], this.state.tempo);
-        t += durToBeats['16']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['Eb/4']], 1/16]]
-        ], this.state.tempo);
-        t += durToBeats['16']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['F/4']], 1/16]]
-        ], this.state.tempo);
-        t += durToBeats['16']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['D/4']], 1/8]]
-        ], this.state.tempo);
-        t += durToBeats['8']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['Bb/3']], 1/16]]
-        ], this.state.tempo);
-        t += durToBeats['16']* (60/this.state.tempo);
-        this.midiSounds.playBeatAt(t, [
-            [],
-            [[this.state.instrument, [midiMapping['C/4']], 1/4]]
-        ], this.state.tempo);
-        t += durToBeats['q']* (60/this.state.tempo);
+        for (const note of this.props.notes) {
+            if (!note.duration.includes('r')) {
+                this.midiSounds.playBeatAt(t, [
+                    [],
+                    [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), durToBeats[note.duration]/4]]
+                ], this.state.tempo);
+            }
+            t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
+        }
     }
 
     shouldComponentUpdate = (nextProps) => {
@@ -78,7 +50,7 @@ export default class extends React.Component {
     render = () => {
         return (
             <div>
-                <button onClick={this.handleClick}>The Licc!</button>
+                <button onClick={this.handleClick}>Play the voice</button>
                 <div hidden>
                     <MIDISounds ref={ref => this.midiSounds = ref} appElementName="root" instruments={[this.state.instrument]} />
                 </div>
