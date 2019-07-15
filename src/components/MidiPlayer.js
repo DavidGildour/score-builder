@@ -107,12 +107,11 @@ export default class extends React.Component {
         this.midiSounds.setEchoLevel(0);
         this.midiSounds.setMasterVolume(1/9);
         // computing pixel shift per one bpm for tempo indicator
-        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 15)/170;
+        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/170;
         window.addEventListener('resize', () => {
-            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 15)/170;
+            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/170;
             this.forceUpdate();
         });
-        console.log(this.tempoFactor);
     }
 
     handleChange = (e) => {
