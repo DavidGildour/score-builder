@@ -6,7 +6,7 @@ import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, de
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
-import Midi from './miditest';
+import MidiPlayer from './MidiPlayer';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -641,7 +641,9 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
-                <Midi check={selectedNote} currentNote={currentNote} notes={this.state.stave.voices[this.state.currentVoice].notes} />
+                <MidiPlayer check={selectedNote}
+                    currentNote={currentNote}
+                    voices={this.state.stave.voices} />
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 

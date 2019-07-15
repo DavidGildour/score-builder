@@ -8,14 +8,16 @@ import { durToBeats, noteToDuration } from './mappings/durationMappings';
 
 export default class extends React.Component {
     state = {
-        instrument: 281,
+        instrument: 2,
         tempo: 90,
     }
 
-    handleClick = () => {
-        let t = this.midiSounds.contextTime();
+    playVoice = () => {
         this.midiSounds.cancelQueue();
-        for (const note of this.props.notes) {
+        if (!this.props.check) return;
+        const voice =  this.props.voices[this.props.check.voiceId];
+        let t = this.midiSounds.contextTime();
+        for (const note of voice.notes) {
             if (!note.duration.includes('r')) {
                 this.midiSounds.playBeatAt(t, [
                     [],
@@ -23,6 +25,22 @@ export default class extends React.Component {
                 ], this.state.tempo);
             }
             t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
+        }
+    }
+
+    playAllVoices = () => {
+        const voices = this.props.voices;
+        for (const voice of voices) {
+            let t = this.midiSounds.contextTime();
+            for (const note of voice.notes) {
+                if (!note.duration.includes('r')) {
+                    this.midiSounds.playBeatAt(t, [
+                        [],
+                        [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
+                    ], this.state.tempo);
+                }
+                t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
+            }
         }
     }
 
@@ -51,7 +69,8 @@ export default class extends React.Component {
     render = () => {
         return (
             <div>
-                <button onClick={this.handleClick}>Play the voice</button>
+                <button onClick={this.playVoice}>Play the current voice</button>
+                <button onClick={this.playAllVoices}>Play the all the voices</button>
                 <div hidden>
                     <MIDISounds ref={ref => this.midiSounds = ref} appElementName="root" instruments={[this.state.instrument]} />
                 </div>
