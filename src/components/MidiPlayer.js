@@ -32,7 +32,7 @@ import { durToBeats, noteToDuration } from './mappings/durationMappings';
 export default class extends React.Component {
     state = {
         instrument: 281,
-        tempo: 30,
+        bpm: 30,
         metronome: false,
         stateChange: false,
     }
@@ -47,9 +47,9 @@ export default class extends React.Component {
                 this.midiSounds.playBeatAt(t, [
                     [],
                     [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
-                ], this.state.tempo);
+                ], this.state.bpm);
             }
-            t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
+            t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.bpm);
         }
         if (this.state.metronome) this.playMetronome();
     }
@@ -64,9 +64,9 @@ export default class extends React.Component {
                     this.midiSounds.playBeatAt(t, [
                         [],
                         [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
-                    ], this.state.tempo);
+                    ], this.state.bpm);
                 }
-                t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.tempo);
+                t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.bpm);
             }
         }
         if (this.state.metronome) this.playMetronome();
@@ -78,7 +78,7 @@ export default class extends React.Component {
         for (let i = 0; i < beatsNum; i++) {
             this.midiSounds.setDrumVolume(204, i === 0 ? 9/9: 3/9);
             this.midiSounds.playDrumsAt(t, [204]);
-            t += (4/beatsType) * (60 / this.state.tempo);
+            t += (4/beatsType) * (60 / this.state.bpm);
         }
     }
 
@@ -95,7 +95,7 @@ export default class extends React.Component {
         if (!this.state.stateChange && this.props.check && !this.props.currentNote.duration.includes('r')) {
             this.midiSounds.cancelQueue(); // stop the current sound
             const notes = this.props.currentNote.keys.map(note => midiMapping[note] || 109);
-            const duration = durToBeats[this.props.currentNote.duration] * (60/this.state.tempo)
+            const duration = durToBeats[this.props.currentNote.duration] * (60/this.state.bpm)
             this.midiSounds.playChordNow(this.state.instrument, notes, duration);
         }
         this.setState({
@@ -123,6 +123,7 @@ export default class extends React.Component {
                 stateChange: true,
             }));
         } else {
+            this.props.setParentState(e);
             this.setState({
                 [name]: [value],
                 stateChange: true,
@@ -136,14 +137,14 @@ export default class extends React.Component {
             <div>
                 <div className="row">
                     <p className="range-field">
-                        <input type="range" style={{border: 'none'}} id="tempo" name="tempo" min="30" max="200" value={this.state.tempo} onChange={this.handleChange} />
+                        <input type="range" style={{border: 'none'}} id="tempo" name="bpm" min="30" max="200" value={this.state.bpm} onChange={this.handleChange} />
                         <span className="thumb active" style={{
                                                         height: '30px',
                                                         width: '30px',
                                                         top: '-30px',
                                                         marginLeft: '-7px',
-                                                        left: (this.state.tempo - 30)*this.tempoFactor || 0}}>
-                            <span className="value">{this.state.tempo}</span>
+                                                        left: (this.state.bpm - 30)*this.tempoFactor || 0}}>
+                            <span className="value">{this.state.bpm}</span>
                         </span>
                     </p>
                 </div>

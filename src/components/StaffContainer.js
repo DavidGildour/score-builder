@@ -32,6 +32,7 @@ class StaffContainer extends React.Component {
         currentVoice: '0',
         selectedNote: null,
         duration: '8',
+        bpm: 30,
     };
 
     getRidOfRests = (voice) => {
@@ -739,7 +740,7 @@ class StaffContainer extends React.Component {
                         dotted={this.state.dotted} />
                 </div>
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
-                    <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
+                    <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} bpm={this.state.bpm} />
                 </div>
                 <div>
                     {this.state.selectedNote 
@@ -749,7 +750,8 @@ class StaffContainer extends React.Component {
                 <MidiPlayer check={selectedNote}
                     currentNote={currentNote}
                     voices={this.state.stave.voices}
-                    timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]} />
+                    timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
+                    setParentState={this.innerStateChange} />
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s4">
