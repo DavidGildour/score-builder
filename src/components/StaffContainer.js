@@ -702,6 +702,10 @@ class StaffContainer extends React.Component {
 
     componentDidMount(){
         M.AutoInit();
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     const elems = document.querySelectorAll('.sidenav');
+        //     const instances = M.Sidenav.init(elems, {edge: 'right'});
+        // });
     
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
@@ -737,15 +741,17 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} />
                 </div>
-                <MidiPlayer check={selectedNote}
-                    currentNote={currentNote}
-                    voices={this.state.stave.voices} />
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
                         : <span>&nbsp;</span>}
                 </div>
-                <div className="row">
+                <MidiPlayer check={selectedNote}
+                    currentNote={currentNote}
+                    voices={this.state.stave.voices}
+                    timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]} />
+                <div className="divider"></div>
+                <div className="row section">
                     <div className="col s4">
                         <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
                     </div>
