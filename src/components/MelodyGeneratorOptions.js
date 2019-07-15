@@ -2,6 +2,7 @@ import React from 'react';
 
 
 const NoteSelection = (props) => (
+    <div className="input-field">
         <select name={props.name} value={props.value} onChange={props.handleChange}>
             <option value="wd">Dotted wholenote</option>
             <option value="w">Wholenote</option>
@@ -17,32 +18,37 @@ const NoteSelection = (props) => (
             <option value="32">Thirtysecond</option>
             <option value="64">Sixtyfourth</option>
         </select>
+        <label>{props.text}</label>
+    </div>
 )
 
 const IntervalSelection = (props) => (
-    <select  name="interval" value={props.value} onChange={props.handleChange}>
-        <option value="1">Minor second</option>
-        <option value="2">Major second</option>
-        <option value="3">Minor third</option>
-        <option value="4">Major third</option>
-        <option value="5">Perfect fourth</option>
-        <option value="6">Tritone</option>
-        <option value="7">Perfect fifth</option>
-        <option value="8">Minor sixth</option>
-        <option value="9">Major sixth</option>
-        <option value="10">Minor seventh</option>
-        <option value="11">Major seventh</option>
-        <option value="12">Perfect octave</option>
-    </select>
+    <div className="input-field">
+        <select  name="interval" value={props.value} onChange={props.handleChange}>
+            <option value="1 2">Minor second</option>
+            <option value="2 2">Major second</option>
+            <option value="3 3">Minor third</option>
+            <option value="4 3">Major third</option>
+            <option value="5 4">Perfect fourth</option>
+            <option value="6 5">Tritone</option>
+            <option value="7 5">Perfect fifth</option>
+            <option value="8 6">Minor sixth</option>
+            <option value="9 6">Major sixth</option>
+            <option value="10 7">Minor seventh</option>
+            <option value="11 7">Major seventh</option>
+            <option value="12 8">Perfect octave</option>
+        </select>
+        <label>Biggest interval</label>
+    </div>
 )
 
-export default class MelodyGenerator extends React.Component {
+export default class extends React.Component {
     state = {
         allowRests: false,
         diatonic: true,
         shortNote: '8',
         longNote: 'h',
-        interval: '7',
+        interval: '7 5',
     }
 
     handleSubmit = (e) => {
@@ -66,39 +72,32 @@ export default class MelodyGenerator extends React.Component {
 
     render = () => (
         <form onSubmit={this.handleSubmit}>
-            <input type="submit" value="Generate melody" /><br />
-            <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
-            <label htmlFor="allowRests"> Allow rests</label>&nbsp;
-            <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
-            <label htmlFor="diatonic"> Diatonic</label><br />
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            Shortest note:
-                        </td>
-                        <td>
-                            <NoteSelection name="shortNote" handleChange={this.handleChange} value={this.state.shortNote} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Longest note:
-                        </td>
-                        <td>
-                            <NoteSelection name="longNote" handleChange={this.handleChange} value={this.state.longNote} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Biggest interval:
-                        </td>
-                        <td>
-                            <IntervalSelection handleChange={this.handleChange} value={this.state.interval} />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div className="row">
+                <div className="col s3 top-margin">
+                    <label>
+                        <input type="checkbox" name="allowRests" id="allowRests" onChange={this.handleChange} checked={this.state.allowRests} />
+                        <span>Allow rests&nbsp;&nbsp;&nbsp;</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="diatonic" id="diatonic" onChange={this.handleChange} checked={this.state.diatonic} />
+                        <span>Diatonic</span>
+                    </label>
+                </div>
+                <div className="col s3">
+                    <NoteSelection name="shortNote" text="Shortest note" handleChange={this.handleChange} value={this.state.shortNote} />
+                </div>
+                <div className="col s3">
+                    <NoteSelection name="longNote" text="Longest note" handleChange={this.handleChange} value={this.state.longNote} />
+                </div>
+                <div className="col s3">
+                    <IntervalSelection handleChange={this.handleChange} value={this.state.interval} />
+                </div>
+            </div>
+            <div className="row">
+                <button className="waves-effect waves-light btn fill" type="submit">
+                    Generate melody<i className="material-icons right">cached</i>
+                </button>
+            </div>
         </form>
     )
 };

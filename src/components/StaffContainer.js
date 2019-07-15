@@ -1,10 +1,10 @@
-/* eslint-disable object-shorthand */
 import React from 'react';
-
 import { connect } from 'react-redux';
+import M from 'materialize-css/dist/js/materialize.min';
+
 import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave } from '../redux/actions';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
+import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
 
@@ -12,8 +12,6 @@ import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
 import { noteMapping } from './mappings/noteMappings';
 import keyMapping from './mappings/keyMappings';
-
-import './Control.css';
 
 const getRandInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -54,17 +52,17 @@ class StaffContainer extends React.Component {
     }
 
     populateVoiceWithRests = (voiceId, lackingDuration) => {
+        const lineMapping = clefMapping[this.state.stave.clef];
         const restPlacement = {
-            0: 'A/4',
-            1: 'E/5',
-            2: 'F/4',
-            3: 'C/5'
+            0: lineMapping[3*Math.floor(lineMapping.length/4)],
+            1: lineMapping[Math.floor(lineMapping.length/4)],
+            2: lineMapping[4*Math.floor(lineMapping.length/4)],
+            3: lineMapping[2*Math.floor(lineMapping.length/4)]
         }
         let remainingDuration = lackingDuration;
         while (remainingDuration !== 0) {
             for (const duration of Object.keys(durationToNote).sort((a, b) => b - a)) {
                 if (duration <= remainingDuration) {
-                    console.log(duration, remainingDuration);
                     remainingDuration -= duration;
                     const note = {
                         clef: this.state.stave.clef,
@@ -141,13 +139,15 @@ class StaffContainer extends React.Component {
         });
     }
 
-    // computeDuration = (voice = this.state.stave.voices[this.state.currentVoice]) => {
-    //     const notes = voice.notes.slice();
-    //     const duration = notes.reduce((a, note) => a + noteToDuration[note.duration.replace('r', '')], 0);
-    //     const measure = this.state.stave.beatsNum * (1 / this.state.stave.beatsType);
+    getLastNoteInAVoice = (voice) => {
+        const notes = voice.notes.slice();
+        const revNotes = notes.slice().reverse();
 
-    //     return measure - duration;
-    // }
+        for (const note of revNotes) {
+            if (note.persistent) return notes.indexOf(note);
+        }
+        return -1;
+    }
  
     addNote = (durationLeft) => {
         let availableDuration = durationLeft;
@@ -164,18 +164,13 @@ class StaffContainer extends React.Component {
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: this.state.currentVoice });
-
-            const lastNote = this.getLastNote();
-            let noteIndex;
-            if (!lastNote) noteIndex = 0;
-            else noteIndex = this.state.stave.voices[this.state.currentVoice].notes.indexOf(lastNote) + 1;
-
+            const newNoteId = this.getLastNoteInAVoice(this.state.stave.voices[this.state.currentVoice]) + 1;
             this.setState({
                 selectedNote: {
+                    noteId: Math.min(newNoteId, this.state.stave.voices[this.state.currentVoice].notes.length - 1).toString(),
                     voiceId: this.state.currentVoice,
-                    noteId: noteIndex.toString(),
                 },
-            });
+            })
         }
         return availableDuration;
     }
@@ -183,25 +178,93 @@ class StaffContainer extends React.Component {
     handleRandomNote = () => {
         const voice = this.state.stave.voices[this.state.currentVoice];
         let durationLeft = this.getRidOfRests(voice);
-        durationLeft = this.addRandomNote(durationLeft);
+        durationLeft = this.addRandomNote(durationLeft).duration;
+        const newNoteId = this.getLastNoteInAVoice(this.state.stave.voices[this.state.currentVoice]) + 1;
+        this.setState({
+            selectedNote: {
+                noteId: Math.min(newNoteId, this.state.stave.voices[this.state.currentVoice].notes.length - 1).toString(),
+                voiceId: this.state.currentVoice,
+            },
+        })
         this.populateVoiceWithRests(voice.id, durationLeft);
+    }
+
+    getAvailableNotes = (interval, declaredNote, diatonic) => {
+        const [ chromaSteps, scaleSteps ] = interval.split(' ').map( e => parseInt(e, 10));
+        const mapping = keyMapping[this.state.stave.keySig];
+        const diatonicNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const chromatic = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
+        const filteredChroma = chromatic.filter(v => !v.includes((Object.values(mapping)[0] === '#') ? 'b' : '#'));
+        const lineMapping = clefMapping[this.state.stave.clef];
+
+        // defining the boundaries in which the note can be placed - 
+        // an octave up and down from the middle line of the clef
+        let maxNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match + 1);
+        let minNote = lineMapping[Math.floor(lineMapping.length/2)].replace(/\d/, match => +match - 1);
+
+        let centerNote = declaredNote;
+        if (declaredNote === '') centerNote = lineMapping[Math.floor(lineMapping.length/2)]; 
+    
+        const availableNotes = [];
+        let upOctave = centerNote.match(/\d/)[0];
+        let downOctave = centerNote.match(/\d/)[0];
+        if (diatonic) {
+            // diatonic melodies are a little bit trickier to limit (octave-wise) due to key signatures
+            // and their impact on stave lines
+            const boundarySymbol = maxNote[0]; // we dont have to worry about the accidental
+            if (mapping[boundarySymbol]) {
+                maxNote = maxNote.replace(boundarySymbol, boundarySymbol + mapping[boundarySymbol]);
+                minNote = minNote.replace(boundarySymbol, boundarySymbol + mapping[boundarySymbol]);
+            }
+
+            const notes = diatonicNotes;
+            const index = notes.indexOf(centerNote[0]);
+            for (let i = 0; i < scaleSteps; i++) {
+                const up = notes[(index + i) % notes.length];
+                const down = notes[(2*notes.length + (index - i)) % notes.length];
+                availableNotes.push(`${up}${mapping[up] || ''}/${upOctave}`);
+                availableNotes.unshift(`${down}${mapping[down] || ''}/${downOctave}`);
+                if (up[0] === 'B') upOctave++;
+                if (down[0] === 'C') downOctave--;
+            }
+            const firstIndex = filteredChroma.indexOf(availableNotes[0].match(/^(.+)\//)[1]);
+            const lastIndex = filteredChroma.indexOf(availableNotes[availableNotes.length-1].match(/^(.+)\//)[1]);
+            const centerIndex = filteredChroma.indexOf(centerNote.match(/^(.+)\//)[1]);
+            const len = filteredChroma.length;
+            if (((len + centerIndex - firstIndex) % len) > chromaSteps) availableNotes.shift();
+            if (((len + lastIndex - centerIndex) % len) > chromaSteps) availableNotes.pop();
+        } else {
+            const notes = filteredChroma;
+            const index = notes.indexOf(centerNote.match(/^(.+)\//)[1]);
+            for (let i = 0; i <= chromaSteps; i++) {
+                const up = notes[(index + i) % notes.length];
+                const down = notes[(2*notes.length + (index - i)) % notes.length];
+                availableNotes.push(`${up}/${upOctave}`);
+                availableNotes.unshift(`${down}/${downOctave}`);
+                if (up === 'B') upOctave++;
+                if (down === 'C') downOctave--;
+            }
+        }
+        const minIndex = Math.max(availableNotes.indexOf(minNote), 0);
+        const maxIndex = availableNotes.indexOf(maxNote) === -1 ? availableNotes.length - 1 : availableNotes.indexOf(maxNote);
+        console.log(minNote, minIndex, maxNote, maxIndex);
+        return availableNotes.filter((note, i) => note !== centerNote && i <= maxIndex && i >= minIndex);
     }
 
     addRandomNote = (
         availableDuration,
-        pitches = noteMapping,
         durToNote = durationToNote,
         noteToDur = noteToDuration,
         voice = this.state.currentVoice,
         diatonic = false,
+        lastNote = [''],
+        allowRests = false,
+        interval = '12 8',
         ) => {
         let duration = availableDuration;
         // console.log(duration, durToNote, noteToDur, voice);
         if (duration !== 0) {
-            const accidentals = diatonic ? [''] : ['', '#', '##', 'b', 'bb'];
-            const mapping = keyMapping[this.state.stave.keySig];
-            const keyPitches = pitches.map(e => e + (mapping[e] ? mapping[e] : ''));
-
+        // CHOOSING A DURATION
             const notesReversed = Object.keys(durToNote).sort((a, b) => a - b);
             const durationsReversed = Object.values(durToNote).sort((a, b) => noteToDuration[a] - noteToDuration[b]);
             let upperIndex;
@@ -212,17 +275,26 @@ class StaffContainer extends React.Component {
                 upperIndex = i; // index
             }
 
-            const noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
-            let accidental = accidentals[getRandInt(0, accidentals.length)];
-            let root = keyPitches[getRandInt(0, keyPitches.length)];
-            if (root.length > 1) {
-                accidental = root[1];
-                root = root[0];
-            }
-            const symbol = `${root}${accidental}/${getRandInt(4,6)}`;
-            const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
+            let noteDuration = upperIndex ? durationsReversed[getRandInt(0, upperIndex)] : durationToNote[duration];
+            if (allowRests && getRandInt(0, 6) === 0) noteDuration += 'r';
 
-            console.log("symbol:", symbol);
+        // CHOOSING PITCH
+            const centerNote = lastNote[0];
+            const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
+            console.log(voice, centerNote, availableNotes);
+            let accidental = '';
+            const symbol = availableNotes[getRandInt(0, availableNotes.length)];
+            if (['b', '#'].includes(symbol[1])) {
+                accidental = symbol[1];
+            }
+
+            // ensuring proper naturals handling
+            const mapping = keyMapping[this.state.stave.keySig];
+            if (!diatonic && Object.keys(mapping).includes(symbol[0]) && accidental === '') {
+                accidental = 'n';
+            }
+
+            const modifiers = noteDuration.includes('d') ? accidental + '.' : accidental;
 
             const newNote = {
                 clef: this.state.stave.clef,
@@ -232,10 +304,13 @@ class StaffContainer extends React.Component {
                 persistent: true,
             };
 
-            duration -= noteToDur[noteDuration] || duration;
+            const notePitches = newNote.keys;
+
+            duration -= noteToDur[noteDuration.replace('r', '')] || duration;
             this.props.addNoteToStave({ note: newNote, staveId: this.state.id, voiceId: voice });
+            return { duration: duration, notePitches: notePitches }
         };
-        return duration;
+        return { duration: duration, notePitches: [''] };
     }
 
     removeNote = (_e) => {
@@ -385,7 +460,15 @@ class StaffContainer extends React.Component {
         }
 
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
-        this.setState({ error: "" });
+        this.setState(state => ({ 
+            error: "",
+            currentVoice: state.currentVoice === value ? (+value-1).toString() : state.currentVoice,
+            selectedNote: !state.selectedNote // if there was no selected note before removing the voice - it remains null
+                          ? null                                    // however, if there was, we need to
+                          : ((state.selectedNote.voiceId === value) // check if maybe it was a part of the removed voice
+                            ? null // if so - we 'unselect' the note
+                            : { voiceId: value, noteId: state.selectedNote.noteId }), // if it was a part of a different voice though - we can keep it
+        }));
     }
 
     clearVoices = (_e) => {
@@ -417,7 +500,7 @@ class StaffContainer extends React.Component {
             }
         }
 
-        const { shortNote, longNote, diatonic } = options;
+        const { shortNote, longNote, diatonic, allowRests, interval } = options;
 
         if (noteToDuration[longNote] < noteToDuration[shortNote]) {
             this.setState({
@@ -441,8 +524,11 @@ class StaffContainer extends React.Component {
 
         for (const voice of this.state.stave.voices) {
             let durationLeft = this.getRidOfRests(voice);
+            let lastNote = [''];
             while (durationLeft > 0) {
-                durationLeft = this.addRandomNote(durationLeft, noteMapping, durToNote, noteToDur, voice.id, diatonic);
+                const noteAdded = this.addRandomNote(durationLeft, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests, interval);
+                durationLeft = noteAdded.duration;
+                lastNote = noteAdded.notePitches;
                 }
             // does not have to populate with rests - the melody will always fill the measure
         }
@@ -452,13 +538,17 @@ class StaffContainer extends React.Component {
     }
 
     handleClick = (e) => {
+        e.preventDefault();
         const curY = e.pageY;
         const curX = e.pageX;
         const notePositions = this.getNotePositions();
         let selectedNote = null;
 
         notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
-            if (curX >= n.left && curX <= n.right && curY >= n.top && curY <= n.bottom) {
+            if (curX >= (n.left   + window.scrollX)
+             && curX <= (n.right  + window.scrollX)
+             && curY >= (n.top    + window.scrollY)
+             && curY <= (n.bottom + window.scrollY)) {
                 selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString() };
             }
         }));
@@ -481,17 +571,17 @@ class StaffContainer extends React.Component {
         const curY = e.pageY;
         let note;
 
-        if (curY <= lines[0].top) note = clefMapping[this.state.stave.clef][0];
-        else if (curY > lines[0].top && curY <= lines[0].bottom ) note = clefMapping[this.state.stave.clef][1];
-        else if (curY > lines[0].bottom && curY <= lines[1].top ) note = clefMapping[this.state.stave.clef][2];
-        else if (curY > lines[1].top && curY <= lines[1].bottom ) note = clefMapping[this.state.stave.clef][3];
-        else if (curY > lines[1].bottom && curY <= lines[2].top ) note = clefMapping[this.state.stave.clef][4];
-        else if (curY > lines[2].top && curY <= lines[2].bottom ) note = clefMapping[this.state.stave.clef][5];
-        else if (curY > lines[2].bottom && curY <= lines[3].top ) note = clefMapping[this.state.stave.clef][6];
-        else if (curY > lines[3].top && curY <= lines[3].bottom ) note = clefMapping[this.state.stave.clef][7];
-        else if (curY > lines[3].bottom && curY <= lines[4].top ) note = clefMapping[this.state.stave.clef][8];
-        else if (curY > lines[4].top && curY <= lines[4].bottom ) note = clefMapping[this.state.stave.clef][9];
-        else if (curY > lines[4].bottom ) note = clefMapping[this.state.stave.clef][10];
+        if      (curY <=lines[0].top)                               note = clefMapping[this.state.stave.clef][0];
+        else if (curY > lines[0].top    && curY <= lines[0].bottom) note = clefMapping[this.state.stave.clef][1];
+        else if (curY > lines[0].bottom && curY <= lines[1].top   ) note = clefMapping[this.state.stave.clef][2];
+        else if (curY > lines[1].top    && curY <= lines[1].bottom) note = clefMapping[this.state.stave.clef][3];
+        else if (curY > lines[1].bottom && curY <= lines[2].top   ) note = clefMapping[this.state.stave.clef][4];
+        else if (curY > lines[2].top    && curY <= lines[2].bottom) note = clefMapping[this.state.stave.clef][5];
+        else if (curY > lines[2].bottom && curY <= lines[3].top   ) note = clefMapping[this.state.stave.clef][6];
+        else if (curY > lines[3].top    && curY <= lines[3].bottom) note = clefMapping[this.state.stave.clef][7];
+        else if (curY > lines[3].bottom && curY <= lines[4].top   ) note = clefMapping[this.state.stave.clef][8];
+        else if (curY > lines[4].top    && curY <= lines[4].bottom) note = clefMapping[this.state.stave.clef][9];
+        else if (curY > lines[4].bottom)                            note = clefMapping[this.state.stave.clef][10];
 
         this.setState({note: note})
     }
@@ -529,7 +619,6 @@ class StaffContainer extends React.Component {
                         ? state.stave.voices.length - 1
                         : +state.currentVoice - 1)
                     : ((+state.currentVoice + 1) % state.stave.voices.length);
-                console.log(nextVoice);
                 return {
                     currentVoice: nextVoice.toString(),
                     selectedNote: {
@@ -553,8 +642,11 @@ class StaffContainer extends React.Component {
         } else if (name === 'currentVoice') {
             this.setState((state) => ({
                 ...state,
-                selectedNote: null,
-                [name]: value,
+                selectedNote: {
+                    voiceId: value,
+                    noteId: '0',
+                },
+                currentVoice: value,
             }));
         } else {
             this.setState({
@@ -590,7 +682,6 @@ class StaffContainer extends React.Component {
                 notePositions.push([]);
                 len = voice.notes.length
             }
-            // console.log(n.getElementsByClassName("vf-notehead")[0]);
             notePositions[voiceId].push(n.getElementsByClassName("vf-notehead")[0].getBoundingClientRect());
             noteId++;
         }
@@ -610,19 +701,21 @@ class StaffContainer extends React.Component {
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     componentDidMount(){
+        M.AutoInit();
+    
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
         const lines = [];
 
         for (const [i, line] of staveSVG.childNodes.entries()) {
             if (i >= 5) break;
-            lines.push(line.getBoundingClientRect());
+            const linePos = line.getBoundingClientRect();
+            lines.push({ top: linePos.top + window.scrollY, bottom: linePos.bottom + window.scrollY });
         }
 
-        this.setState((state) => ({ 
-            ...state,
+        this.setState({
             lines: lines,
-        }))
+        });
     }
 
     render() {
@@ -631,7 +724,10 @@ class StaffContainer extends React.Component {
         selectedNote ? currentNote = this.state.stave.voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div>
-                <div className="noteDur">
+                <div className="center red-text">
+                    {this.state.error || <span>&nbsp;</span>}
+                </div>
+                <div>
                     <NoteDuration
                         onChange={this.innerStateChange}
                         duration={this.state.duration}
@@ -647,70 +743,52 @@ class StaffContainer extends React.Component {
                 <div>
                     {this.state.selectedNote 
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
-                        : ''}
+                        : <span>&nbsp;</span>}
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Options:</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                Select clef type:
-                            </td>
-                            <td>
-                                <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
-                            </td>
-                        
-                            <td>
-                                <AddNote onSubmit={this.handleRandomNote} />
-                            </td>
-                            <td rowSpan="3">
-                                <Voices
-                                    voices={this.state.stave.voices}
-                                    currentVoice={this.state.currentVoice}
-                                    onChange={this.innerStateChange} />
-                            </td>
-                            <td rowSpan="3">
-                                <AddRemoveVoice
-                                    addVoice={this.addVoice}
-                                    removeVoice={this.removeVoice}
-                                    clearVoices={this.clearVoices}
-                                    error={this.state.error}
-                                    newVoiceId={this.state.stave.voices.length} />
-                            </td>
-                            <td rowSpan="5">
-                                <MelodyGenerator generate={this.generateMelody} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Select time signature:
-                            </td>
-                            <td>
-                                <TimeSigOptions
-                                    beatsNum={this.state.stave.beatsNum}
-                                    beatsType={this.state.stave.beatsType}
-                                    onChange={this.timeChangeHandler} />
-                            </td>
-                            <td>
-                                <RemoveNote onClick={this.removeNote} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Select key signature:
-                            </td>
-                            <td>
-                                <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div className="err">
-                    {this.state.error}
+                <div className="row">
+                    <div className="col s4">
+                        <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
+                    </div>
+                    <div className="col s4">
+                        <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
+                    </div>
+                    <div className="col s4">
+                        <TimeSigOptions
+                                beatsNum={this.state.stave.beatsNum}
+                                beatsType={this.state.stave.beatsType}
+                                onChange={this.timeChangeHandler} />
+                    </div>
+                </div>
+                <div className="divider"></div>
+                <div className="row section">
+                    <div className="col s6">
+                        <AddRemoveVoice
+                                addVoice={this.addVoice}
+                                removeVoice={this.removeVoice}
+                                clearVoices={this.clearVoices}
+                                error={this.state.error}
+                                newVoiceId={this.state.stave.voices.length} />
+                    </div>
+                    <div className="col s3"> 
+                        <Voices
+                            voices={this.state.stave.voices}
+                            currentVoice={this.state.currentVoice}
+                            onChange={this.innerStateChange} />
+                    </div>
+                    <div className="col s3">
+                        <div className="row">
+                            <AddRandomNote onSubmit={this.handleRandomNote} />
+                        </div>
+                        <div className="row">
+                            <RemoveNote onClick={this.removeNote} />
+                        </div>
+                    </div>
+                </div>
+                <div className="divider"></div>
+                <div className="row section">
+                    <div className="col s12">
+                        <MelodyGenerator generate={this.generateMelody} />
+                    </div>
                 </div>
             </div>
         );

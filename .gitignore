@@ -9,3 +9,5 @@ yarn-error.log*
 *.txt
 
 build
+
+src/components/sketch.js
