@@ -32,7 +32,7 @@ import { durToBeats, noteToDuration } from './mappings/durationMappings';
 export default class extends React.Component {
     state = {
         instrument: 281,
-        tempo: 60,
+        tempo: 30,
         metronome: false,
         stateChange: false,
     }
@@ -106,45 +106,74 @@ export default class extends React.Component {
     componentDidMount() {
         this.midiSounds.setEchoLevel(0);
         this.midiSounds.setMasterVolume(1/9);
+        // computing pixel shift per one bpm for tempo indicator
+        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 15)/170;
+        window.addEventListener('resize', () => {
+            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 15)/170;
+            this.forceUpdate();
+        });
+        console.log(this.tempoFactor);
     }
 
     handleChange = (e) => {
-        const { name } = e.target;
+        const { name, value, type } = e.target;
 
-        this.setState((state) => ({
-            [name]: !state[name],
-            stateChange: true,
-        }));
+        if (type === "checkbox") {
+            this.setState((state) => ({
+                [name]: !state[name],
+                stateChange: true,
+            }));
+        } else {
+            this.setState({
+                [name]: [value],
+                stateChange: true,
+            });
+        }
         this.forceUpdate();
     }
     
     render = () => {
         return (
-            <div className="row section">
-                <div className="col s6">
-                    <button className="waves-effect waves-light btn fill" onClick={this.playVoice}>
-                        Play the current voice<i className="material-icons right">play_arrow</i>
-                    </button>
+            <div>
+                <div className="row">
+                    <p className="range-field">
+                        <input type="range" style={{border: 'none'}} id="tempo" name="tempo" min="30" max="200" value={this.state.tempo} onChange={this.handleChange} />
+                        <span className="thumb active" style={{
+                                                        height: '30px',
+                                                        width: '30px',
+                                                        top: '-30px',
+                                                        marginLeft: '-7px',
+                                                        left: (this.state.tempo - 30)*this.tempoFactor || 0}}>
+                            <span className="value">{this.state.tempo}</span>
+                        </span>
+                    </p>
                 </div>
-                <div className="col s5">
-                    <button className="waves-effect waves-light btn fill" onClick={this.playAllVoices}>
-                        Play all the voices<i className="material-icons right">play_arrow</i>
-                    </button>
-                </div>
-                <div className="col s1">
-                    <label>
-                        <input type="checkbox" name="metronome" id="metronome" onChange={this.handleChange} checked={this.state.metronome} />
-                        <span>Metronome</span>
-                    </label>
-                </div>
-                {/* <div className="col s2">
-                    <MidiOptions />
-                </div> */}
-                <div hidden>
-                    <MIDISounds ref={ref => this.midiSounds = ref}
-                        appElementName="root"
-                        instruments={[this.state.instrument]}
-                        drums={[204]} />
+                <div className="row">
+                    <div className="col s5">
+                        <button className="waves-effect waves-light btn fill" onClick={this.playVoice}>
+                            Play the current voice<i className="material-icons right">play_arrow</i>
+                        </button>
+                    </div>
+                    <div className="col s5">
+                        <button className="waves-effect waves-light btn fill" onClick={this.playAllVoices}>
+                            Play all the voices<i className="material-icons right">play_arrow</i>
+                        </button>
+                    </div>
+                    <div className="col s2">
+                        <label>
+                            <input type="checkbox" name="metronome" id="metronome" onChange={this.handleChange} checked={this.state.metronome} />
+                            <span>Metronome</span>
+                        </label>
+                    </div>
+                    {/* <div className="col s2">
+                        <MidiOptions />
+                    </div> */}
+                    <div hidden>
+                        <MIDISounds ref={ref => this.midiSounds = ref}
+                            appElementName="root"
+                            instruments={[this.state.instrument]}
+                            drums={[204]} />
+                    </div>
                 </div>
             </div>
         )
