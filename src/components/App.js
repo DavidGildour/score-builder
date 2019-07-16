@@ -5,7 +5,7 @@ import language from '../lang/language';
 
 export default class extends React.Component {
     state = {
-        lang: 'PL',
+        lang: 'EN',
     }
 
     render = () => (
@@ -37,7 +37,7 @@ export default class extends React.Component {
             <div id="about" className="modal modal-fixed-footer">
                 <div className="modal-content">
                     <h4 className="center">{language[this.state.lang].navbar.about}</h4>
-                    {language[this.state.lang].navbar.aboutContent}
+                    {language[this.state.lang].navbar.aboutContent.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
                 <div className="modal-footer">
                     <a href="#!" className="modal-close waves-effect waves-green btn-flat">{language[this.state.lang].navbar.close}</a>
