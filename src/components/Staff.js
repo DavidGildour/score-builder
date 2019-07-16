@@ -91,17 +91,9 @@ class Staff extends React.Component {
         const accidentalType = Object.values(keyMap)[0] || null;
         const keyOffset = accidentalNum * Staff.accidentalWidth[accidentalType];
 
-        // neatly rendering the stave based on the width of the renderer's div
-        const divWidth = this.ref.current.getBoundingClientRect().width;
-        const staveWidth = divWidth * (9/10); // = 90% of the div width
-        const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
-        this.stave = new VF.Stave(staveXOffset, 50, staveWidth)
-                            .setClef(this.props.staves[this.staveId].clef)
-                            .setTimeSignature(`${beatsNum}/${beatsType}`)
-                            .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig))
-                            .setTempo({duration: 'q', dots: false, bpm: this.props.bpm}, 0);
-
         const context = this.renderer.getContext();
+        context.clear();
+        // context.scale(0.8, 0.8); // may consider scaling the stave when the window gets too small
 
         const voices = this.mapVoices(beatsNum, beatsType);
 
@@ -110,13 +102,24 @@ class Staff extends React.Component {
             stem_direction: 1 * Math.pow(-1, i),
         }));
 
+        // neatly rendering the stave based on the width of the renderer's div
+        const divWidth = this.ref.current.getBoundingClientRect().width;
+        const staveWidth = divWidth * (9/10); // = 90% of the div width
+        const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
+
+        
         try {
             this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset - keyOffset);
         } catch {
             console.log("Voice invalid");
             return;
         }
-        context.clear();
+
+        this.stave = new VF.Stave(staveXOffset, 50, Math.max(staveWidth, this.formatter.getMinTotalWidth() + keyOffset))
+                            .setClef(this.props.staves[this.staveId].clef)
+                            .setTimeSignature(`${beatsNum}/${beatsType}`)
+                            .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig))
+                            .setTempo({duration: 'q', dots: false, bpm: this.props.bpm}, 0);
 
         this.stave.setContext(context).draw();
         voices.forEach((v, i) => {
@@ -134,6 +137,11 @@ class Staff extends React.Component {
         this.renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
         this.renderer.resize(div.getBoundingClientRect().width, 200);
+        window.addEventListener('resize', () => {
+            const div = this.ref.current;
+            this.renderer.resize(div.getBoundingClientRect().width, 200);
+            this.renderStaff();
+        })
 
         this.renderStaff();
     }

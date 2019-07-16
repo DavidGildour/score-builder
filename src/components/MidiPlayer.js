@@ -31,7 +31,7 @@ import { durToBeats, noteToDuration } from './mappings/durationMappings';
 
 export default class extends React.Component {
     state = {
-        instrument: 281,
+        instrument: 2,
         bpm: 30,
         metronome: false,
         stateChange: false,
