@@ -20,17 +20,16 @@ export default class extends React.Component {
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                     <li><a href="#about" className="modal-trigger">{language[this.state.lang].navbar.about}</a></li>
                     <li>
-                        <a
-                            className="z-depth-0 btn-floating btn-large pulse green accent-3 modal-trigger"
-                            href="#!"
-                            data-target="help"
-                            style={{ textTransform: 'none' }}
-                            >{language[this.state.lang].navbar.help}</a>
-                    </li>
-                    <li>
                         <a href="#!" data-target="dropdown" className="dropdown-trigger">
                             {language[this.state.lang].navbar.lang} <i className="material-icons right">arrow_drop_down</i>
                         </a>
+                    </li>
+                    <li>
+                        <a
+                            className="z-depth-0 btn-floating btn-medium pulse green accent-3 modal-trigger"
+                            href="#!"
+                            data-target="help"
+                            ><i className="material-icons">help_outline</i>{/*language[this.state.lang].navbar.help*/}</a>
                     </li>
                 </ul>
                 </div>

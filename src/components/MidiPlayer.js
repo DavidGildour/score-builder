@@ -165,8 +165,12 @@ export default class extends React.Component {
                     </div>
                     <div className="col s2">
                         <label>
-                            <input type="checkbox" name="metronome" id="metronome" onChange={this.handleChange} checked={this.state.metronome} />
-                            <span>{this.props.lang.metro}</span>
+                            <input type="checkbox"
+                                name="metronome"
+                                id="metronome"
+                                onChange={this.handleChange}
+                                checked={this.state.metronome} />
+                            <span style={{marginTop: '7px'}}>{this.props.lang.metro}</span>
                         </label>
                     </div>
                     {/* <div className="col s2">
