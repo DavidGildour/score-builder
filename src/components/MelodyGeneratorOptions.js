@@ -7,7 +7,7 @@ const NoteSelection = (props) => (
         <select name={props.name} value={props.value} onChange={props.handleChange}>
             {Object.entries(props.lang.noteNames)
                 .sort((a, b) => noteToDuration[a[0]] < noteToDuration[b[0]])
-                .map(([key, value]) => <option value={key}>{value}</option>)}
+                .map(([key, value], i) => <option key={i} value={key}>{value}</option>)}
         </select>
         <label>{props.lang.label}</label>
     </div>

@@ -1,12 +1,28 @@
 export default {
     navbar: {
+        close: 'Close',
         help: 'Help',
-        helpContent: `Lorem ipsumdolor sit amet, consectetur adipiscing elit. 
-        Suspendisse vel ex ex. In tristique, est in pharetra tristique, ex mauris suscipit nunc, ac faucibus enim arcu sit amet neque. 
-        Aenean commodo lorem eu sollicitudin viverra. In nec tellus vel mi lacinia convallis sed vel augue. Integer at libero dui. 
-        Curabitur at feugiat lacus, sit amet tempor orci. Sed vel purus nisl. Ut posuere nunc ac bibendum fermentum. 
-        Donec ullamcorper feugiat pretium. In fringilla quis felis sed ullamcorper. Curabitur bibendum tortor ac libero vehicula, 
-        id faucibus nisl eleifend. `,
+        helpContent: [
+        `Click on the stave to add a note.`,
+        `To change the duration and type of the note to be added choose one of the options above the stave.`,
+        `Click on the note to select it. 
+        Arrows up and down as well as 'PageUp' and 'PageDown' keys change the pitch of the selected note 
+        by a halfstep and octave accordingly. Arrows left and right change the selected note to its neighbour in a current voice.`,
+        `To change the current voice, either click on a note of that voice, select it from the dropdown list, 
+        or press 'Tab' ('Shift' + 'Tab') to switch to the next (previous) voice.
+        'Remove Voice' button removes the last added voice (however, only if that voice is empty). 
+        'Clear All' button removes every note from EVERY active voice. Use with caution!`,
+        `To change the playback tempo use the slider beneath the stave. 'Metronome' checkbox toggles metronome playing alongside the track.`,
+        `This app gives the option to randomly generate a melody in every voice in somehow controlled way.
+        'Allow Rests' checkbox determines whether the melody will include rests. 'Diatonic' checkbox determines whether the melody will include
+        only notes from the current key (will be diatonic) or notes from the entire chromatic scale (will not be diatonic).
+        'Shortest' and 'Longest note' dropdowns allow to set the shortest and longest available note duration in the melody, accordingly.
+        'Largest interval' dropdown serves as a control over the largest available interval between 
+        two neighbouring notes in a voice (melodic interval).
+        This does not control the harmonic interval between voices.
+        Additionally the generated melody will not include notes higher than one line above the highest 
+        and lower than one line beneath the lowest line in the current clef.`
+        ],
         about: 'About',
         aboutContent: `Lorem ipsumdolor sit amet, consectetur adipiscing elit. 
         Suspendisse vel ex ex. In tristique, est in pharetra tristique, ex mauris suscipit nunc, ac faucibus enim arcu sit amet neque. 
@@ -84,7 +100,7 @@ export default {
         voices: {
             add: 'Add voice',
             remove: 'Remove voice',
-            clear: 'Clear ALL voices',
+            clear: 'Clear ALL',
             mapping: ['First', 'Second', 'Third', 'Fourth'],
             label: 'Select voice',
         },
@@ -97,7 +113,7 @@ export default {
             diatonic: 'Diatonic',
             shortLabel: 'Shortest note',
             longLabel: 'Longest note',
-            intervalLabel: 'Biggest interval',
+            intervalLabel: 'Largest interval',
             generate: 'Generate melody',
             intervals: {
                 m2: 'Minor second',
