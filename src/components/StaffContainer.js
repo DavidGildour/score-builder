@@ -734,6 +734,7 @@ class StaffContainer extends React.Component {
                 </div>
                 <div>
                     <NoteDuration
+                        lang={this.props.lang}
                         onChange={this.innerStateChange}
                         duration={this.state.duration}
                         restMode={this.state.restMode}
@@ -747,7 +748,9 @@ class StaffContainer extends React.Component {
                         ? this.state.stave.voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
                         : <span>&nbsp;</span>}
                 </div>
-                <MidiPlayer check={selectedNote}
+                <MidiPlayer 
+                    lang={this.props.lang.player}
+                    check={selectedNote}
                     currentNote={currentNote}
                     voices={this.state.stave.voices}
                     timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
@@ -755,13 +758,14 @@ class StaffContainer extends React.Component {
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s4">
-                        <ClefOptions clef={this.state.stave.clef} onChange={this.storeChange} />
+                        <ClefOptions lang={this.props.lang.options.clef} clef={this.state.stave.clef} onChange={this.storeChange} />
                     </div>
                     <div className="col s4">
-                        <KeyOptions keySig={this.state.stave.keySig} onChange={this.storeChange} />
+                        <KeyOptions lang={this.props.lang.options.key} keySig={this.state.stave.keySig} onChange={this.storeChange} />
                     </div>
                     <div className="col s4">
                         <TimeSigOptions
+                                lang={this.props.lang.options.time}
                                 beatsNum={this.state.stave.beatsNum}
                                 beatsType={this.state.stave.beatsType}
                                 onChange={this.timeChangeHandler} />
@@ -771,6 +775,7 @@ class StaffContainer extends React.Component {
                 <div className="row section">
                     <div className="col s6">
                         <AddRemoveVoice
+                                lang={this.props.lang.options.voices}
                                 addVoice={this.addVoice}
                                 removeVoice={this.removeVoice}
                                 clearVoices={this.clearVoices}
@@ -779,23 +784,24 @@ class StaffContainer extends React.Component {
                     </div>
                     <div className="col s3"> 
                         <Voices
+                            lang={this.props.lang.options.voices}
                             voices={this.state.stave.voices}
                             currentVoice={this.state.currentVoice}
                             onChange={this.innerStateChange} />
                     </div>
                     <div className="col s3">
                         <div className="row">
-                            <AddRandomNote onSubmit={this.handleRandomNote} />
+                            <AddRandomNote text={this.props.lang.options.notes.add} onSubmit={this.handleRandomNote} />
                         </div>
                         <div className="row">
-                            <RemoveNote onClick={this.removeNote} />
+                            <RemoveNote text={this.props.lang.options.notes.remove} onClick={this.removeNote} />
                         </div>
                     </div>
                 </div>
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s12">
-                        <MelodyGenerator generate={this.generateMelody} />
+                        <MelodyGenerator lang={this.props.lang.options.melody} noteNames={this.props.lang.noteNames} generate={this.generateMelody} />
                     </div>
                 </div>
             </div>

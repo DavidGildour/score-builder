@@ -83,6 +83,10 @@ export default class extends React.Component {
     }
 
     shouldComponentUpdate = (nextProps) => {
+        if (this.props.lang !== nextProps.lang) {
+            this.setState({ stateChange: true });
+            return true;
+        }
         if (!nextProps.check) return false;                                 // > dont if theres no selectedNote in new props
         else if (!this.props.check) return true;                            // > do if there is a selected note in new props
                                                                             //   and not in the old ones
@@ -151,18 +155,18 @@ export default class extends React.Component {
                 <div className="row">
                     <div className="col s5">
                         <button className="waves-effect waves-light btn fill" onClick={this.playVoice}>
-                            Play the current voice<i className="material-icons right">play_arrow</i>
+                            {this.props.lang.playVoice}<i className="material-icons right">play_arrow</i>
                         </button>
                     </div>
                     <div className="col s5">
                         <button className="waves-effect waves-light btn fill" onClick={this.playAllVoices}>
-                            Play all the voices<i className="material-icons right">play_arrow</i>
+                        {this.props.lang.playAll}<i className="material-icons right">play_arrow</i>
                         </button>
                     </div>
                     <div className="col s2">
                         <label>
                             <input type="checkbox" name="metronome" id="metronome" onChange={this.handleChange} checked={this.state.metronome} />
-                            <span>Metronome</span>
+                            <span>{this.props.lang.metro}</span>
                         </label>
                     </div>
                     {/* <div className="col s2">
