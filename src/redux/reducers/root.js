@@ -1,6 +1,6 @@
 /* eslint-disable object-shorthand */
 import changeStave from './changeStave';
-import { setField, addNoteToVoice, deleteNoteFromVoice, updateNoteInVoice } from '../actions';
+import { setField, addNoteToMeasure, deleteNoteFromMeasure, updateNoteInMeasure, addVoiceToMeasures } from '../actions';
 
 const defaultState = {
     message: '',
@@ -10,31 +10,36 @@ const defaultState = {
             beatsNum: '4',
             beatsType: '4',
             keySig: 'C',
-            voices: [
+            measures: [
                 {
-                    // every note has a 'modifiers' field that is used to map a single key from this note to
-                    // corresponding modifier with the same index as a note.
-                    // That's why sometimes 'modifiers' array have an empty element
                     id: '0',
-                    notes: [
+                    voices: [
                         {
-                            clef: 'treble',
-                            keys: ['A/4'],
-                            duration: 'wr',
-                            modifiers: [''],
-                            persistent: false,
+                            // every note has a 'modifiers' field that is used to map a single key from this note to
+                            // corresponding modifier with the same index as a note.
+                            // That's why sometimes 'modifiers' array have an empty element
+                            id: '0',
+                            notes: [
+                                {
+                                    clef: 'treble',
+                                    keys: ['A/4'],
+                                    duration: 'wr',
+                                    modifiers: [''],
+                                    persistent: false,
+                                },
+                            ],
                         },
-                    ],
-                },
-                {       
-                    id: '1',
-                    notes: [
-                        {
-                            clef: 'treble',
-                            keys: ['E/5'],
-                            duration: 'wr',
-                            modifiers: [''],
-                            persistent: false,
+                        {       
+                            id: '1',
+                            notes: [
+                                {
+                                    clef: 'treble',
+                                    keys: ['E/5'],
+                                    duration: 'wr',
+                                    modifiers: [''],
+                                    persistent: false,
+                                },
+                            ],
                         },
                     ],
                 },
@@ -45,52 +50,51 @@ const defaultState = {
 
 
 const rootReducer = (state = defaultState, action) => {
-    // console.log('root', action);
     switch (action.type) {
         case 'SET_STAVE_FIELD': {
             const { id, field, value } = action.payload;
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
-                    if (index === parseInt(id, 10)) return changeStave(stave, setField({ field: field, value: value }));
+                    if (index === parseInt(id, 10)) return changeStave(stave, setField({ field, value }));
                     return stave;
                 }),
             };
         }
         case 'ADD_NOTE_TO_STAVE': {
-            const { staveId, voiceId, note } = action.payload;
+            const { staveId, measureId, voiceId, note } = action.payload;
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
-                    if (index === parseInt(staveId, 10)) {
+                    if (index.toString() === staveId) {
                         return changeStave(stave,
-                                           addNoteToVoice({ voiceId: voiceId, note: note }));
+                                           addNoteToMeasure({ measureId, voiceId, note }));
                     }
                     return stave;
                 }),
             };
         }
         case 'DELETE_NOTE_FROM_STAVE': {
-            const { staveId, voiceId, noteId } = action.payload;
+            const { staveId, measureId, voiceId, noteId } = action.payload;
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
-                    if (index === parseInt(staveId, 10)) {
+                    if (index.toString() ===staveId) {
                         return changeStave(stave,
-                                           deleteNoteFromVoice({ voiceId: voiceId, noteId: noteId }));
+                                           deleteNoteFromMeasure({ measureId, voiceId, noteId }));
                     }
                     return stave;
                 }),
             };
         }
         case 'UPDATE_NOTE_IN_STAVE': {
-            const { staveId, voiceId, noteId, keys } = action.payload;
+            const { staveId, measureId, voiceId, noteId, keys } = action.payload;
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
                     if (index.toString() === staveId) {
                         return changeStave(stave,
-                                           updateNoteInVoice({ voiceId: voiceId, noteId: noteId, keys: keys }));
+                                           updateNoteInMeasure({ measureId, voiceId, noteId, keys }));
                     }
                     return stave;
                 }),
@@ -101,15 +105,7 @@ const rootReducer = (state = defaultState, action) => {
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
-                    if (index.toString() === staveId) {
-                        return {
-                            ...stave,
-                            voices: stave.voices.concat({
-                                id: stave.voices.length.toString(),
-                                notes: [],
-                            }),
-                        };
-                    }
+                    if (index.toString() === staveId) return changeStave(stave, addVoiceToMeasures());
                     return stave;
                 }),
             };
@@ -122,12 +118,42 @@ const rootReducer = (state = defaultState, action) => {
                     if (index.toString() === staveId) {
                         return {
                             ...stave,
-                            voices: stave.voices.filter(voice => voice.id !== voiceId),
+                            measures: stave.measures.map(measure => ({
+                                ...measure,
+                                voices: measure.voices.filter(voice => voice.id !== voiceId),
+                            })),
                         };
                     }
                     return stave;
                 }),
             };
+        }
+        case 'ADD_MEASURE_TO_STAVE': {
+            const { staveId, voicesNum } = action.payload;
+            const voices = [];
+            for (let i = 0; i < voicesNum; i++) {
+                voices.push({
+                    id: i.toString(),
+                    notes: [],
+                })
+            }
+            console.log(voices);
+            return {
+                ...state,
+                staves: state.staves.map((stave, i) => {
+                    if (i.toString() === staveId) {
+                        return {
+                            ...stave,
+                            measures: stave.measures.concat({
+                                id: stave.measures.length.toString(),
+                                voices: voices,
+                            })
+                        }
+                    } else {
+                        return stave;
+                    }
+                })
+            }
         }
         default: return state;
     }

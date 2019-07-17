@@ -17,7 +17,6 @@ class Staff extends React.Component {
         this.staveId = this.props.id;
         this.ref = React.createRef();
         this.renderer = null;
-        this.stave = null;
         this.formatter = new VF.Formatter();
     }
 
@@ -64,9 +63,9 @@ class Staff extends React.Component {
         return staveNote;
     }
 
-    mapVoices = (beatsNum, beatsType) => {
+    mapVoices = (measure, beatsNum, beatsType) => {
         const selected = this.props.selectedNote ? this.props.selectedNote : null;
-        return this.props.staves[this.staveId].voices
+        return measure.voices
         // mapping this object's voices array to an array of VF voices
         .map(voice => new VF.Voice({ num_beats: beatsNum, beat_value: beatsType })
             // adding notes from these voices inner array 'notes'
@@ -78,8 +77,8 @@ class Staff extends React.Component {
                     newNote.setStyle(colorMapping[voice.id]);
                 }
                 return newNote;
-            })))
-        }
+            }))
+        )}
 
     renderStaff = () => {
         const beatsNum = this.props.staves[this.staveId].beatsNum;
@@ -95,40 +94,45 @@ class Staff extends React.Component {
         context.clear();
         // context.scale(0.8, 0.8); // may consider scaling the stave when the window gets too small
 
-        const voices = this.mapVoices(beatsNum, beatsType);
-
-        const beamGroups = voices.map((voice, i) => VF.Beam.generateBeams(voice.getTickables(), {
-            groups: [new VF.Fraction(1, 4)],
-            stem_direction: 1 * Math.pow(-1, i),
-        }));
-
         // neatly rendering the stave based on the width of the renderer's div
         const divWidth = this.ref.current.getBoundingClientRect().width;
-        const staveWidth = divWidth * (9/10); // = 90% of the div width
+        const staveWidth = (divWidth * (9/10)) / this.props.staves[this.staveId].measures.length; // = 90% of the div width
         const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
 
-        
-        try {
+        let measures = [];
+        // let voices = [];
+        for (const measure of this.props.staves[this.staveId].measures) {
+            let stave;
+            if (measure.id === '0') {
+                stave = new VF.Stave(staveXOffset, 50, staveWidth)
+                                .setClef(this.props.staves[this.staveId].clef)
+                                .setTimeSignature(`${beatsNum}/${beatsType}`)
+                                .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig))
+                                .setTempo({duration: 'q', dots: false, bpm: this.props.bpm}, 0);
+            } else {
+                const measureXOffset = (staveWidth * parseInt(measure.id, 10)) + staveXOffset;
+                stave = new VF.Stave(measureXOffset, 50, staveWidth);
+            }
+            stave.setContext(context).draw()
+            const voices = this.mapVoices(measure, beatsNum, beatsType);
+            
+            const beamGroups = voices.map((voice, i) => VF.Beam.generateBeams(voice.getTickables(), {
+                groups: [new VF.Fraction(1, 4)],
+                stem_direction: 1 * Math.pow(-1, i),
+            }));
+            
             this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset - keyOffset);
-        } catch {
-            console.log("Voice invalid");
-            return;
+
+            voices.forEach((v, i) => {
+                v.draw(context, stave);
+                beamGroups[i].forEach(beam => {
+                    if (i.toString() === this.props.activeVoice) beam.setStyle(colorMapping[i]);
+                    beam.setContext(context).draw();
+                });
+            });
+            measures.push(stave);
         }
 
-        this.stave = new VF.Stave(staveXOffset, 50, Math.max(staveWidth, this.formatter.getMinTotalWidth() + keyOffset))
-                            .setClef(this.props.staves[this.staveId].clef)
-                            .setTimeSignature(`${beatsNum}/${beatsType}`)
-                            .addModifier(new VF.KeySignature(this.props.staves[this.staveId].keySig))
-                            .setTempo({duration: 'q', dots: false, bpm: this.props.bpm}, 0);
-
-        this.stave.setContext(context).draw();
-        voices.forEach((v, i) => {
-            v.draw(context, this.stave);
-            beamGroups[i].forEach(beam => {
-                if (i.toString() === this.props.activeVoice) beam.setStyle(colorMapping[i]);
-                beam.setContext(context).draw();
-            });
-        });
     }
 
     componentDidMount() {
@@ -147,12 +151,6 @@ class Staff extends React.Component {
     }
 
     componentDidUpdate() {
-        for (const voice of this.props.staves[this.staveId].voices) {
-            for (const note of voice.notes) {
-                note.clef = this.props.staves[this.staveId].clef;
-            }
-        }
-
         this.renderStaff();
     }
 

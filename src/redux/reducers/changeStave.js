@@ -1,5 +1,6 @@
 import changeNote from './changeNote';
-import { setClef, changePitch } from '../actions';
+import changeMeasure from './changeMeasure';
+import { setClef, updateNoteInVoice, addNoteToVoice, deleteNoteFromVoice, addVoiceToMeasure } from '../actions';
 
 export default (state = {}, action) => {
     // console.log('changestave', action);
@@ -9,9 +10,12 @@ export default (state = {}, action) => {
             if (field === 'clef') {
                 return {
                     ...state,
-                    voices: state.voices.map(voice => ({
-                        ...voice,
-                        notes: voice.notes.map(note => changeNote(note, setClef({ clef: value }))),
+                    measures: state.measures.map(measure => ({
+                        ...measure,
+                        voices: measure.voices.map(voice => ({
+                            ...voice,
+                            notes: voice.notes.map(note => changeNote(note, setClef({ clef: value }))),
+                        })),
                     })),
                     [field]: value,
                 };
@@ -21,54 +25,40 @@ export default (state = {}, action) => {
                 [field]: value,
             };
         }
-        case 'ADD_NOTE_TO_VOICE': {
-            const { voiceId, note } = action.payload;
+        case 'ADD_VOICE_TO_MEASURES': {
             return {
                 ...state,
-                voices: state.voices.map((voice, index) => {
-                    // console.log(voice.id === voiceId)
-                    if (voice.id === voiceId) {
-                        return {
-                            ...voice,
-                            notes: voice.notes.concat([note]),
-                        };
+                measures: state.measures.map((measure) => changeMeasure(measure, addVoiceToMeasure()))
+            }
+        }
+        case 'ADD_NOTE_TO_MEASURE': {
+            const { measureId, voiceId, note } = action.payload;
+            return {
+                ...state,
+                measures: state.measures.map((measure, i) => {
+                    if (i.toString() === measureId) return changeMeasure(measure, addNoteToVoice({ note: note, voiceId: voiceId }));
+                    return measure;
                     }
-                    return voice;
-                }),
+                ),
             };
         }
-        case 'DELETE_NOTE_FROM_VOICE': {
-            const { voiceId, noteId } = action.payload;
+        case 'DELETE_NOTE_FROM_MEASURE': {
+            const { measureId, voiceId, noteId } = action.payload;
             return {
                 ...state,
-                voices: state.voices.map((voice) => {
-                    if (voice.id === voiceId) {
-                        return {
-                            ...voice,
-                            notes: voice.notes.filter((note, i) => i !== noteId),
-                        };
-                    }
-                    return voice;
-                }),
-            };
+                measures: state.measures.map((measure, i) => {
+                    if (i.toString() === measureId) return changeMeasure(measure, deleteNoteFromVoice({ noteId: noteId, voiceId: voiceId }));
+                    return measure;
+                },
+            )};
         }
-        case 'UPDATE_NOTE_IN_VOICE': {
-            const { voiceId, noteId, keys } = action.payload;
+        case 'UPDATE_NOTE_IN_MEASURE': {
+            const { measureId, voiceId, noteId, keys } = action.payload;
             return {
                 ...state,
-                voices: state.voices.map((voice) => {
-                    if (voice.id === voiceId) {
-                        return {
-                            ...voice,
-                            notes: voice.notes.map((note, i) => {
-                                if (i.toString() === noteId) {
-                                    return changeNote(note, changePitch({ keys: keys }))
-                                }
-                                return note;
-                            }),
-                        };
-                    }
-                    return voice;
+                measures: state.measures.map((measure) => {
+                    if (measure.id === measureId) return changeMeasure(measure, updateNoteInVoice({ voiceId, noteId, keys}));
+                    return measure;
                 }),
             };
         }

@@ -115,6 +115,11 @@ export const NoteDuration = (props) => (
     </div>
 );
 
+export const AddMeasure = (props) => (
+    <button className="btn top-margin fill" onClick={props.onClick}>
+        Measure<i className="material-icons right">add</i>
+    </button>
+);
 
 export const AddRandomNote = (props) => (
     <button className="waves-effect waves-light btn fill" onClick={props.onSubmit}>

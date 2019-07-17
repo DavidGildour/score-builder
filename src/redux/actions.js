@@ -5,11 +5,17 @@ import { SET_STAVE_FIELD,
         ADD_NOTE_TO_STAVE,
         DELETE_NOTE_FROM_STAVE,
         DELETE_NOTE_FROM_VOICE,
-        ADD_VOICE_TO_STAVE,
-        REMOVE_VOICE_FROM_STAVE,
         UPDATE_NOTE_IN_STAVE,
+        UPDATE_NOTE_IN_MEASURE,
         UPDATE_NOTE_IN_VOICE,
-        CHANGE_PITCH} from './actionTypes';
+        CHANGE_PITCH,
+        ADD_MEASURE_TO_STAVE,
+        ADD_NOTE_TO_MEASURE, 
+        DELETE_NOTE_FROM_MEASURE,
+        ADD_VOICE_TO_MEASURES,
+        ADD_VOICE_TO_MEASURE,
+        ADD_VOICE_TO_STAVE, 
+        REMOVE_VOICE_FROM_STAVE} from './actionTypes';
 
 export const setStaveField = content => ({
     type: SET_STAVE_FIELD,
@@ -26,14 +32,24 @@ export const setClef = clef => ({
     payload: { ...clef },
 });
 
-export const addNoteToStave = ({ note, staveId, voiceId }) => ({
+export const addNoteToStave = ({ note, measureId, staveId, voiceId }) => ({
     type: ADD_NOTE_TO_STAVE,
     payload: {
         note,
         staveId,
+        measureId,
         voiceId,
     },
 });
+
+export const addNoteToMeasure = ({ note, measureId, voiceId }) => ({
+    type: ADD_NOTE_TO_MEASURE,
+    payload: {
+        note,
+        measureId,
+        voiceId,
+    }
+})
 
 export const addNoteToVoice = ({ note, voiceId }) => ({
     type: ADD_NOTE_TO_VOICE,
@@ -43,11 +59,21 @@ export const addNoteToVoice = ({ note, voiceId }) => ({
     },
 });
 
-export const deleteNoteFromStave = ({ noteId, staveId, voiceId }) => ({
+export const deleteNoteFromStave = ({ noteId, staveId, measureId, voiceId }) => ({
     type: DELETE_NOTE_FROM_STAVE,
     payload: {
         noteId,
         staveId,
+        measureId,
+        voiceId,
+    },
+});
+
+export const deleteNoteFromMeasure = ({ noteId, measureId, voiceId }) => ({
+    type: DELETE_NOTE_FROM_MEASURE,
+    payload: {
+        noteId,
+        measureId,
         voiceId,
     },
 });
@@ -60,10 +86,11 @@ export const deleteNoteFromVoice = ({ noteId, voiceId }) => ({
     },
 });
 
-export const updateNoteInStave = ({ staveId, voiceId, noteId, keys }) => ({
+export const updateNoteInStave = ({ staveId, measureId, voiceId, noteId, keys }) => ({
     type: UPDATE_NOTE_IN_STAVE,
     payload: {
         staveId,
+        measureId,
         voiceId,
         noteId,
         keys,
@@ -79,16 +106,36 @@ export const updateNoteInVoice = ({ noteId, voiceId, keys }) => ({
     }
 })
 
+export const updateNoteInMeasure = ({ measureId, noteId, voiceId, keys }) => ({
+    type: UPDATE_NOTE_IN_MEASURE,
+    payload: {
+        noteId,
+        voiceId,
+        measureId,
+        keys,
+    }
+})
+
 export const changePitch = ({ keys }) => ({
     type: CHANGE_PITCH,
     payload: { keys },
 })
 
+export const addVoiceToMeasures = () => ({
+    type: ADD_VOICE_TO_MEASURES,
+    payload: {}
+});
+
 export const addVoiceToStave = ({ staveId }) => ({
     type: ADD_VOICE_TO_STAVE,
     payload: {
         staveId,
-    },
+    }
+});
+
+export const addVoiceToMeasure = () => ({
+    type: ADD_VOICE_TO_MEASURE,
+    payload: {}
 });
 
 export const deleteVoiceFromStave = ({ staveId, voiceId }) => ({
@@ -97,4 +144,12 @@ export const deleteVoiceFromStave = ({ staveId, voiceId }) => ({
         staveId,
         voiceId,
     },
+});
+
+export const addMeasureToStave = ({ staveId, voicesNum }) => ({
+    type: ADD_MEASURE_TO_STAVE,
+    payload: {
+        staveId,
+        voicesNum,
+    }
 });
