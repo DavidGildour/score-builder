@@ -5,3 +5,8 @@
 .top-margin {
     margin-top: 21px;
 }
+
+.lang-ico {
+    position: relative;
+    top: 6px;
+}

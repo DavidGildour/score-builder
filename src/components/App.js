@@ -11,8 +11,16 @@ export default class extends React.Component {
     render = () => (
         <div id="main" className="App">
             <ul id="dropdown" className="dropdown-content">
-                <li><a href="#!" onClick={() => this.setState({lang: 'PL'})}>PL</a></li>
-                <li><a href="#!" onClick={() => this.setState({lang: 'EN'})}>EN</a></li>
+                <li>
+                    <a href="#!" onClick={() => this.setState({lang: 'PL'})}>
+                        PL <img className="lang-ico" alt="en_flag" width="25" height="25" src={process.env.PUBLIC_URL + '/lang_icons/pl.ico'} />
+                    </a>
+                </li>
+                <li>
+                    <a href="#!" onClick={() => this.setState({lang: 'EN'})}>
+                        EN <img className="lang-ico" alt="en_flag" width="25" height="25" src={process.env.PUBLIC_URL + '/lang_icons/en.ico'} />
+                    </a>
+                </li>
             </ul>
             <nav>
                 <div className="nav-wrapper green accent-4">
@@ -21,7 +29,7 @@ export default class extends React.Component {
                     <li><a href="#about" className="modal-trigger">{language[this.state.lang].navbar.about}</a></li>
                     <li>
                         <a href="#!" data-target="dropdown" className="dropdown-trigger">
-                            {language[this.state.lang].navbar.lang} <i className="material-icons right">arrow_drop_down</i>
+                            {language[this.state.lang].navbar.lang}<i className="material-icons right">arrow_drop_down</i>
                         </a>
                     </li>
                     <li>
@@ -29,7 +37,7 @@ export default class extends React.Component {
                             className="z-depth-0 btn-floating btn-medium pulse green accent-3 modal-trigger"
                             href="#!"
                             data-target="help"
-                            ><i className="material-icons">help_outline</i>{/*language[this.state.lang].navbar.help*/}</a>
+                            ><i className="material-icons">help_outline</i></a>
                     </li>
                 </ul>
                 </div>
@@ -40,7 +48,7 @@ export default class extends React.Component {
                     {language[this.state.lang].navbar.aboutContent.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
                 <div className="modal-footer">
-                    <a href="#!" className="modal-close waves-effect waves-green btn-flat">{language[this.state.lang].navbar.close}</a>
+                    <a href="#!" className="modal-close btn-flat">{language[this.state.lang].navbar.close}</a>
                 </div>
             </div>
             <div id="help" className="modal modal-fixed-footer">
@@ -49,7 +57,7 @@ export default class extends React.Component {
                     {language[this.state.lang].navbar.helpContent.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
                 <div className="modal-footer">
-                    <a href="#!" className="modal-close waves-effect waves-green btn-flat">{language[this.state.lang].navbar.close}</a>
+                    <a href="#!" className="modal-close btn-flat">{language[this.state.lang].navbar.close}</a>
                 </div>
             </div>
             <StaffContainer lang={language[this.state.lang]} id="0" />
