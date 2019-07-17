@@ -158,9 +158,14 @@ export default class extends React.Component {
                             {this.props.lang.playVoice}<i className="material-icons right">play_arrow</i>
                         </button>
                     </div>
-                    <div className="col s5">
+                    <div className="col s4">
                         <button className="waves-effect waves-light btn fill" onClick={this.playAllVoices}>
                         {this.props.lang.playAll}<i className="material-icons right">play_arrow</i>
+                        </button>
+                    </div>
+                    <div className="col s1 center-align" style={{marginTop: '-3px'}}>
+                        <button className="waves-effect waves-light btn-floating" onClick={() => this.midiSounds.cancelQueue()}>
+                            <i className="material-icons">stop</i>
                         </button>
                     </div>
                     <div className="col s2">
