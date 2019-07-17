@@ -76,7 +76,7 @@ export default {
                 mezzoSoprano: 'Mezzo soprano',
                 baritone_c: 'Baritone (C)',
                 baritone_f: 'Baritone (F)',
-                subbas: 'Subbass',
+                subbass: 'Subbass',
                 french: 'French',
             }
         },
