@@ -172,6 +172,15 @@ class StaffContainer extends React.Component {
         }
         return -1;
     }
+
+    getLatestAvailableMeasure = () => {
+        for (const measure of this.state.stave.measures) {
+            for (const note of measure.voices[this.state.currentVoice].notes) {
+                if (!note.persistent) return measure;
+            }
+        }
+        return null;
+    }
  
     addNote = (durationLeft) => {
         let availableDuration = durationLeft;
@@ -201,18 +210,20 @@ class StaffContainer extends React.Component {
     }
 
     handleRandomNote = () => {
-        const voice = this.state.stave.measures[0].voices[this.state.currentVoice];
-        let durationLeft = this.getRidOfRests('0', voice);
+        const measure = this.getLatestAvailableMeasure();
+        if (!measure) return;
+        const voice = measure.voices[this.state.currentVoice];
+        let durationLeft = this.getRidOfRests(measure.id, voice);
         durationLeft = this.addRandomNote(durationLeft).duration;
-        const newNoteId = this.getLastNoteInAVoice(this.state.stave.measures[0].voices[this.state.currentVoice]) + 1;
+        const newNoteId = this.getLastNoteInAVoice(measure.voices[this.state.currentVoice]) + 1;
+        this.populateVoiceWithRests(measure.id, voice.id, durationLeft);
         this.setState((_state) => ({
             selectedNote: {
-                noteId: Math.min(newNoteId, this.state.stave.measures[0].voices[this.state.currentVoice].notes.length - 1).toString(),
+                noteId: Math.min(newNoteId, measure.voices[this.state.currentVoice].notes.length - 1).toString(),
                 voiceId: this.state.currentVoice,
-                measureId: '0',
+                measureId: measure.id,
             },
         }));
-        this.populateVoiceWithRests('0', voice.id, durationLeft);
     }
 
     getAvailableNotes = (interval, declaredNote, diatonic) => {
@@ -281,6 +292,7 @@ class StaffContainer extends React.Component {
         durToNote = durationToNote,
         noteToDur = noteToDuration,
         voice = this.state.currentVoice,
+        measure = this.getLatestAvailableMeasure(),
         diatonic = false,
         lastNote = [''],
         allowRests = false,
@@ -331,7 +343,7 @@ class StaffContainer extends React.Component {
             const notePitches = newNote.keys;
 
             duration -= noteToDur[noteDuration.replace('r', '')] || duration;
-            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, measureId: '0', voiceId: voice });
+            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, measureId: measure.id, voiceId: voice });
             return { duration: duration, notePitches: notePitches }
         };
         return { duration: duration, notePitches: [''] };
@@ -542,13 +554,15 @@ class StaffContainer extends React.Component {
     generateMelody = (options) => {
         console.log(options);
 
-        for (const voice of this.state.stave.measures[0].voices) {
-            for (const note of voice.notes) {
-                if (note.persistent) {
-                    this.setState({
-                        error: 'You have to clear the voices first.'
-                    })
-                    return;
+        for (const measure of this.state.stave.measures) {
+            for (const voice of measure.voices) {
+                for (const note of voice.notes) {
+                    if (note.persistent) {
+                        this.setState({
+                            error: 'You have to clear the voices first.'
+                        })
+                        return;
+                    }
                 }
             }
         }
@@ -575,15 +589,17 @@ class StaffContainer extends React.Component {
         })
         // console.log(noteToDur, durToNote);
 
-        for (const voice of this.state.stave.measures[0].voices) {
-            let durationLeft = this.getRidOfRests('0', voice);
-            let lastNote = [''];
-            while (durationLeft > 0) {
-                const noteAdded = this.addRandomNote(durationLeft, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests, interval);
-                durationLeft = noteAdded.duration;
-                lastNote = noteAdded.notePitches;
-                }
-            // does not have to populate with rests - the melody will always fill the measure
+        for (const measure of this.state.stave.measures) {
+            for (const voice of measure.voices) {
+                let durationLeft = this.getRidOfRests(measure.id, voice);
+                let lastNote = [''];
+                while (durationLeft > 0) {
+                    const noteAdded = this.addRandomNote(durationLeft, durToNote, noteToDur, voice.id, measure, diatonic, lastNote, allowRests, interval);
+                    durationLeft = noteAdded.duration;
+                    lastNote = noteAdded.notePitches;
+                    }
+                // does not have to populate with rests - the melody will always fill the measure
+            }
         }
         this.setState({
             error: '',
