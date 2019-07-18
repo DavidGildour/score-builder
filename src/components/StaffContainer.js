@@ -299,7 +299,6 @@ class StaffContainer extends React.Component {
         // CHOOSING PITCH
             const centerNote = lastNote[0];
             const availableNotes = this.getAvailableNotes(interval, centerNote, diatonic);
-            console.log(voice, centerNote, availableNotes);
             let accidental = '';
             const symbol = availableNotes[getRandInt(0, availableNotes.length)];
             if (['b', '#'].includes(symbol[1])) {
@@ -332,21 +331,27 @@ class StaffContainer extends React.Component {
     }
 
     removeNote = (_e) => {
-        const notes = this.state.stave.measures[0].voices[this.state.currentVoice].notes.slice();
-        let note;
-        for (const n of notes.slice().reverse()) {
-            if (n.persistent) {
-                note = n;
-                break;
+        let lastNonEmptyMeasureId = this.state.stave.measures.length - 1;
+        let note = null;
+        let notes;
+        for (const measure of this.state.stave.measures.slice().reverse()) {
+            notes = measure.voices[this.state.currentVoice].notes;
+            for (const n of notes.slice().reverse()) {
+                if (n.persistent) {
+                    note = n;
+                    break;
+                }
             }
+            if (note) break;
+            lastNonEmptyMeasureId -= 1;
         }
-
+        
         if (!note) return;
 
-        this.props.deleteNoteFromStave({ noteId: notes.indexOf(note), measureId: '0', staveId: this.state.id, voiceId: this.state.currentVoice });
+        this.props.deleteNoteFromStave({ noteId: notes.indexOf(note), measureId: lastNonEmptyMeasureId.toString(), staveId: this.state.id, voiceId: this.state.currentVoice });
         const duration = noteToDuration[note.duration.replace('r', '')];
 
-        this.populateVoiceWithRests('0', this.state.currentVoice, duration);
+        this.populateVoiceWithRests(lastNonEmptyMeasureId.toString(), this.state.currentVoice, duration);
     }
 
     transposeNote = (transposition) => {
@@ -569,30 +574,28 @@ class StaffContainer extends React.Component {
 
     handleClick = (e) => {
         e.preventDefault();
+        if (!this.state.currentMeasure) return;
         const curY = e.pageY;
         const curX = e.pageX;
         let selectedNote = null;
 
-        for (let i = 0; i < this.state.stave.measures.length; i++) {
-            const notePositions = this.getNotePositions(i.toString());
-
-            notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
-                if(curX >= (n.left   + window.scrollX)
-                && curX <= (n.right  + window.scrollX)
-                && curY >= (n.top    + window.scrollY)
-                && curY <= (n.bottom + window.scrollY)) {
-                    selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString(), measureId: i.toString() };
-                }
+        const notePositions = this.getNotePositions(this.state.currentMeasure);
+        // eslint-disable-next-line
+        notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
+            if(curX >= (n.left   + window.scrollX)
+            && curX <= (n.right  + window.scrollX)
+            && curY >= (n.top    + window.scrollY)
+            && curY <= (n.bottom + window.scrollY)) {
+                selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString(), measureId: this.state.currentMeasure };
+            }
         }));
-
-        }
         
         if (selectedNote) {
             this.setState({
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
             })
-        } else if (this.state.currentMeasure) {
+        } else {
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
             durationLeft = this.addNote(durationLeft);
@@ -665,7 +668,7 @@ class StaffContainer extends React.Component {
                 nextNoteId = selected.noteId;
             } else {
                 nextMeasureId = (+selected.measureId - 1).toString();
-                nextNoteId = (this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes.length - 1).toString();
+                nextNoteId = (this.state.stave.measures[+selected.measureId - 1].voices[selected.voiceId].notes.length - 1).toString();
             }
         } else {
             nextMeasureId = selected.measureId;
@@ -775,6 +778,7 @@ class StaffContainer extends React.Component {
         notePositions.push([]);
         for (const n of notes) {
             let voice = voices[voiceId];
+            console.log(measureId, voices, voiceId, n);
             let len = voice.notes.length;
             if (noteId >= len) {
                 noteId = 0;

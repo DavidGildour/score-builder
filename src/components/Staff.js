@@ -120,7 +120,12 @@ class Staff extends React.Component {
                 stem_direction: 1 * Math.pow(-1, i),
             }));
             
-            this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset - keyOffset);
+            if (measure.id === '0') {
+                // 35 px is here due to first measure having clef and time signature
+                this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset - keyOffset - 35);
+            } else {
+                this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset)
+            }
 
             voices.forEach((v, i) => {
                 v.draw(context, stave);
