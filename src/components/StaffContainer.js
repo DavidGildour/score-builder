@@ -595,7 +595,6 @@ class StaffContainer extends React.Component {
         } else if (this.state.currentMeasure) {
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
-            console.log(durationLeft);
             durationLeft = this.addNote(durationLeft);
             this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
         };
@@ -762,7 +761,6 @@ class StaffContainer extends React.Component {
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
         const voices = this.state.stave.measures[measureId].voices;
-        console.log(voices);
 
         const currentMeasureBarLines = { left: this.state.measureBarLines[2*measureId], right: this.state.measureBarLines[2*measureId + 1] };
         
@@ -828,14 +826,13 @@ class StaffContainer extends React.Component {
     }
 
     render() {
-        // let currentNote;
-        // const selectedNote = this.state.selectedNote;
-        // selectedNote ? currentNote = this.state.stave.measures[0].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
-        // console.log(this.state.stave);
+        let currentNote;
+        const selectedNote = this.state.selectedNote;
+        selectedNote ? currentNote = this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div>
                 <div className="center red-text">
-                    {this.state.currentMeasure}{this.state.error || <span>&nbsp;</span>}
+                    {this.state.error || <span>&nbsp;</span>}
                 </div>
                 <div>
                     <NoteDuration
@@ -853,13 +850,13 @@ class StaffContainer extends React.Component {
                         activeVoice={this.state.currentVoice}
                         bpm={this.state.bpm} />
                 </div>
-                {/* <MidiPlayer 
+                <MidiPlayer 
                     lang={this.props.lang.player}
                     check={selectedNote}
                     currentNote={currentNote}
-                    voices={this.state.stave.measures[0].voices}
+                    measures={this.state.stave.measures}
                     timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
-                    setParentState={this.innerStateChange} /> */}
+                    setParentState={this.innerStateChange} />
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s3">

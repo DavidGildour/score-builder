@@ -40,25 +40,10 @@ export default class extends React.Component {
     playVoice = () => {
         this.midiSounds.cancelQueue();
         if (!this.props.check) return;
-        const voice =  this.props.voices[this.props.check.voiceId];
         let t = this.midiSounds.contextTime();
-        for (const note of voice.notes) {
-            if (!note.duration.includes('r')) {
-                this.midiSounds.playBeatAt(t, [
-                    [],
-                    [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
-                ], this.state.bpm);
-            }
-            t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.bpm);
-        }
-        if (this.state.metronome) this.playMetronome();
-    }
-
-    playAllVoices = () => {
-        this.midiSounds.cancelQueue();
-        const voices = this.props.voices;
-        for (const voice of voices) {
-            let t = this.midiSounds.contextTime();
+        for (const measure of this.props.measures){
+            if (this.state.metronome) this.playMetronomeAt(t);
+            const voice =  measure.voices[this.props.check.voiceId];
             for (const note of voice.notes) {
                 if (!note.duration.includes('r')) {
                     this.midiSounds.playBeatAt(t, [
@@ -69,12 +54,35 @@ export default class extends React.Component {
                 t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.bpm);
             }
         }
-        if (this.state.metronome) this.playMetronome();
     }
 
-    playMetronome = () => {
-        const [beatsNum, beatsType] = this.props.timeSig.map(n => parseInt(n, 10));
+    playAllVoices = () => {
+        this.midiSounds.cancelQueue();
         let t = this.midiSounds.contextTime();
+        for (const measure of this.props.measures) {
+            if (this.state.metronome) this.playMetronomeAt(t);
+            const voices = measure.voices;
+            let m_t;
+            for (const voice of voices) {
+                m_t = t;
+                for (const note of voice.notes) {
+                    if (!note.duration.includes('r')) {
+                        this.midiSounds.playBeatAt(m_t, [
+                            [],
+                            [[this.state.instrument, note.keys.map(pitch => midiMapping[pitch]), noteToDuration[note.duration]]]
+                        ], this.state.bpm);
+                    }
+                    m_t += durToBeats[note.duration.replace('r', '')] * (60 / this.state.bpm);
+                }
+            }
+            t = m_t;
+        }
+        
+    }
+
+    playMetronomeAt = (when) => {
+        const [beatsNum, beatsType] = this.props.timeSig.map(n => parseInt(n, 10));
+        let t = when;
         for (let i = 0; i < beatsNum; i++) {
             this.midiSounds.setDrumVolume(204, i === 0 ? 9/9: 3/9);
             this.midiSounds.playDrumsAt(t, [204]);
