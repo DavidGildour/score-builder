@@ -156,12 +156,12 @@ export class Voices extends React.Component {
 export const AddRemoveVoice = (props) => (
     <div className="row top-margin">
         <div className="col s4">
-            <button className="waves-effect waves-light btn fill" name="addVoice" value={props.newVoiceId} onClick={props.addVoice}>
+            <button className="waves-effect waves-light btn fill" name="addVoice" onClick={props.addVoice}>
                 {props.lang.add}<i className="material-icons right">add</i>
             </button>
         </div>
         <div className="col s4">
-            <button className="waves-effect waves-light btn fill" name="removeVoice" value={props.newVoiceId - 1} onClick={props.removeVoice}>
+            <button className="waves-effect waves-light btn fill" name="removeVoice" onClick={props.removeVoice}>
                 {props.lang.remove}<i className="material-icons right">remove</i>
             </button>
         </div>

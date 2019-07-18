@@ -454,7 +454,7 @@ class StaffContainer extends React.Component {
             return;
         }
 
-        const voiceId = e.target.value;
+        const voiceId = this.state.stave.measures[0].voices.length.toString();
 
         this.props.addVoiceToStave({ staveId: this.state.id });
 
@@ -470,22 +470,22 @@ class StaffContainer extends React.Component {
             return;
         }
 
-        const { value } = e.target;
+        const voiceId = (this.state.stave.measures[0].voices.length-1).toString();
 
-        if (this.voiceIsNotEmpty(value)) {
+        if (this.voiceIsNotEmpty(voiceId)) {
             this.setState({ error: "Voice is not empty"});
             return;
         }
 
-        this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: value });
+        this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: voiceId });
         this.setState(state => ({ 
             error: "",
-            currentVoice: state.currentVoice === value ? (+value-1).toString() : state.currentVoice,
+            currentVoice: state.currentVoice === voiceId ? (+voiceId-1).toString() : state.currentVoice,
             selectedNote: !state.selectedNote // if there was no selected note before removing the voice - it remains null
                           ? null                                    // however, if there was, we need to
-                          : ((state.selectedNote.voiceId === value) // check if maybe it was a part of the removed voice
+                          : ((state.selectedNote.voiceId === voiceId) // check if maybe it was a part of the removed voice
                             ? null // if so - we 'unselect' the note
-                            : { voiceId: value, noteId: state.selectedNote.noteId }), // if it was a part of a different voice though - we can keep it
+                            : { voiceId: voiceId, noteId: state.selectedNote.noteId, measureId: state.selectedNote.measureId }), // if it was a part of a different voice though - we can keep it
         }));
     }
 
@@ -819,9 +819,7 @@ class StaffContainer extends React.Component {
                                 lang={this.props.lang.options.voices}
                                 addVoice={this.addVoice}
                                 removeVoice={this.removeVoice}
-                                clearVoices={this.clearVoices}
-                                error={this.state.error}
-                                newVoiceId={this.state.stave.measures[0].voices.length} />
+                                clearVoices={this.clearVoices} />
                     </div>
                     <div className="col s3"> 
                         <Voices
