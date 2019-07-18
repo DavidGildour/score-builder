@@ -88,13 +88,13 @@ const rootReducer = (state = defaultState, action) => {
             };
         }
         case 'UPDATE_NOTE_IN_STAVE': {
-            const { staveId, measureId, voiceId, noteId, keys } = action.payload;
+            const { staveId, measureId, voiceId, noteId, update } = action.payload;
             return {
                 ...state,
                 staves: state.staves.map((stave, index) => {
                     if (index.toString() === staveId) {
                         return changeStave(stave,
-                                           updateNoteInMeasure({ measureId, voiceId, noteId, keys }));
+                                           updateNoteInMeasure({ measureId, voiceId, noteId, update }));
                     }
                     return stave;
                 }),

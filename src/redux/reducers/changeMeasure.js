@@ -1,7 +1,5 @@
 import changeNote from './changeNote';
 
-import { changePitch } from '../actions';
-
 export default (state = {}, action) => {
     switch (action.type) {
         case 'ADD_NOTE_TO_VOICE': {
@@ -31,14 +29,14 @@ export default (state = {}, action) => {
             }
         }
         case 'UPDATE_NOTE_IN_VOICE': {
-            const { voiceId, noteId, keys } = action.payload;
+            const { voiceId, noteId, update } = action.payload;
             return {
                 ...state,
                 voices: state.voices.map((voice) => {
                     if (voice.id === voiceId) return {
                         ...voice,
                         notes: voice.notes.map((note, i) => {
-                            if (i.toString() === noteId) return changeNote(note, changePitch({ keys }));
+                            if (i.toString() === noteId) return changeNote(note, { type: update.type, payload: update.payload });
                             return note;
                         })
                     }

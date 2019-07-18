@@ -46,6 +46,7 @@ export default class extends React.Component {
                 <div className="modal-content">
                     <h4 className="center">{language[this.state.lang].navbar.about}</h4>
                     {language[this.state.lang].navbar.aboutContent.map((line, i) => <p key={i}>{line}</p>)}
+                    {language[this.state.lang].author}<a target="_blank" rel="noopener noreferrer" href="https://github.com/DavidGildour">Maciej B. Nowak</a>
                 </div>
                 <div className="modal-footer">
                     <a href="#!" className="modal-close btn-flat">{language[this.state.lang].navbar.close}</a>

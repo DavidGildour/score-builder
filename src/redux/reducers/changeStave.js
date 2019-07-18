@@ -53,11 +53,11 @@ export default (state = {}, action) => {
             )};
         }
         case 'UPDATE_NOTE_IN_MEASURE': {
-            const { measureId, voiceId, noteId, keys } = action.payload;
+            const { measureId, voiceId, noteId, update } = action.payload;
             return {
                 ...state,
                 measures: state.measures.map((measure) => {
-                    if (measure.id === measureId) return changeMeasure(measure, updateNoteInVoice({ voiceId, noteId, keys}));
+                    if (measure.id === measureId) return changeMeasure(measure, updateNoteInVoice({ voiceId, noteId, update}));
                     return measure;
                 }),
             };

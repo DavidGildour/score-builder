@@ -8,7 +8,6 @@ import { SET_STAVE_FIELD,
         UPDATE_NOTE_IN_STAVE,
         UPDATE_NOTE_IN_MEASURE,
         UPDATE_NOTE_IN_VOICE,
-        CHANGE_PITCH,
         ADD_MEASURE_TO_STAVE,
         ADD_NOTE_TO_MEASURE, 
         DELETE_NOTE_FROM_MEASURE,
@@ -86,39 +85,34 @@ export const deleteNoteFromVoice = ({ noteId, voiceId }) => ({
     },
 });
 
-export const updateNoteInStave = ({ staveId, measureId, voiceId, noteId, keys }) => ({
+export const updateNoteInStave = ({ staveId, measureId, voiceId, noteId, update }) => ({
     type: UPDATE_NOTE_IN_STAVE,
     payload: {
         staveId,
         measureId,
         voiceId,
         noteId,
-        keys,
+        update,
     }
 })
 
-export const updateNoteInVoice = ({ noteId, voiceId, keys }) => ({
+export const updateNoteInVoice = ({ noteId, voiceId, update }) => ({
     type: UPDATE_NOTE_IN_VOICE,
     payload: {
         noteId,
         voiceId,
-        keys,
+        update,
     }
 })
 
-export const updateNoteInMeasure = ({ measureId, noteId, voiceId, keys }) => ({
+export const updateNoteInMeasure = ({ measureId, noteId, voiceId, update }) => ({
     type: UPDATE_NOTE_IN_MEASURE,
     payload: {
         noteId,
         voiceId,
         measureId,
-        keys,
+        update,
     }
-})
-
-export const changePitch = ({ keys }) => ({
-    type: CHANGE_PITCH,
-    payload: { keys },
 })
 
 export const addVoiceToMeasures = () => ({

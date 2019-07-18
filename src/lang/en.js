@@ -1,4 +1,5 @@
 export default {
+    author: 'Application author: ',
     navbar: {
         close: 'Close',
         help: 'Help',

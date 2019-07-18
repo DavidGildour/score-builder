@@ -1,4 +1,5 @@
 export default {
+    author: 'Twórca aplikacji: ',
     navbar: {
         close: 'Zamknij',
         help: 'Pomoc',

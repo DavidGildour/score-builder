@@ -2,7 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import M from 'materialize-css/dist/js/materialize.min';
 
-import { setStaveField, addNoteToStave, deleteNoteFromStave, addVoiceToStave, deleteVoiceFromStave, updateNoteInStave, addMeasureToStave } from '../redux/actions';
+import { setStaveField,
+        addNoteToStave,
+        deleteNoteFromStave,
+        addVoiceToStave,
+        deleteVoiceFromStave,
+        updateNoteInStave,
+        addMeasureToStave } from '../redux/actions';
+import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST } from '../redux/actionTypes';
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddMeasure } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
@@ -330,7 +337,7 @@ class StaffContainer extends React.Component {
         return { duration: duration, notePitches: [''] };
     }
 
-    removeNote = (_e) => {
+    removeLastNote = (_e) => {
         let lastNonEmptyMeasureId = this.state.stave.measures.length - 1;
         let note = null;
         let notes;
@@ -352,6 +359,19 @@ class StaffContainer extends React.Component {
         const duration = noteToDuration[note.duration.replace('r', '')];
 
         this.populateVoiceWithRests(lastNonEmptyMeasureId.toString(), this.state.currentVoice, duration);
+    }
+
+    makeNoteARest = (note) => {
+        this.props.updateNoteInStave({  
+            staveId: this.state.id,
+            measureId: note.measureId,
+            voiceId: note.voiceId,
+            noteId: note.noteId,
+            update: {
+                type: MAKE_REST,
+                payload: {},
+            }
+        })
     }
 
     transposeNote = (transposition) => {
@@ -452,7 +472,12 @@ class StaffContainer extends React.Component {
                                         measureId: selected.measureId,
                                         voiceId: selected.voiceId,
                                         noteId: selected.noteId,
-                                        keys: keys || note.keys,
+                                        update: {
+                                            type: CHANGE_PITCH,
+                                            payload: {
+                                                keys: keys || note.keys,
+                                            }
+                                        }
                                     });
     }
 
@@ -591,6 +616,21 @@ class StaffContainer extends React.Component {
         }));
         
         if (selectedNote) {
+            if (!this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId].persistent) {
+                console.log('make not rest');
+                this.props.updateNoteInStave({
+                    staveId: this.state.id,
+                    measureId: selectedNote.measureId,
+                    voiceId: selectedNote.voiceId,
+                    noteId: selectedNote.noteId,
+                    update: {
+                        type: MAKE_NOT_REST,
+                        payload: {
+                            keys: [this.state.note],
+                        }
+                    }
+                })
+            }
             this.setState({
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
@@ -715,8 +755,8 @@ class StaffContainer extends React.Component {
                         measureId: state.selectedNote.measureId,
                     }
             }})
-        } else if (key === ' ') {
-            this.addNote();
+        } else if (key === 'Delete') {
+            if (this.state.selectedNote) this.makeNoteARest(this.state.selectedNote);
         }
         
     }
@@ -778,7 +818,6 @@ class StaffContainer extends React.Component {
         notePositions.push([]);
         for (const n of notes) {
             let voice = voices[voiceId];
-            console.log(measureId, voices, voiceId, n);
             let len = voice.notes.length;
             if (noteId >= len) {
                 noteId = 0;
@@ -902,7 +941,7 @@ class StaffContainer extends React.Component {
                             <AddRandomNote text={this.props.lang.options.notes.add} onSubmit={this.handleRandomNote} />
                         </div>
                         <div className="row">
-                            <RemoveNote text={this.props.lang.options.notes.remove} onClick={this.removeNote} />
+                            <RemoveNote text={this.props.lang.options.notes.remove} onClick={this.removeLastNote} />
                         </div>
                     </div>
                 </div>
