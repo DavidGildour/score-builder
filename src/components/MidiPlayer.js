@@ -31,8 +31,10 @@ import { durToBeats, noteToDuration } from './mappings/durationMappings';
 
 export default class extends React.Component {
     state = {
+        minBpm: 30,
+        maxBpm: 200,
         instrument: 2,
-        bpm: 30,
+        bpm: 80,
         metronome: false,
         stateChange: false,
     }
@@ -119,9 +121,9 @@ export default class extends React.Component {
         this.midiSounds.setEchoLevel(0);
         this.midiSounds.setMasterVolume(1/9);
         // computing pixel shift per one bpm for tempo indicator
-        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/170;
+        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/(this.state.maxBpm - this.state.minBpm);
         window.addEventListener('resize', () => {
-            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/170;
+            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/(this.state.maxBpm - this.state.minBpm);
             this.forceUpdate();
         });
     }
@@ -149,13 +151,26 @@ export default class extends React.Component {
             <div>
                 <div className="row">
                     <p className="range-field">
-                        <input type="range" style={{border: 'none'}} id="tempo" name="bpm" min="30" max="200" value={this.state.bpm} onChange={this.handleChange} />
-                        <span className="thumb active" style={{
-                                                        height: '30px',
-                                                        width: '30px',
-                                                        top: '-30px',
-                                                        marginLeft: '-7px',
-                                                        left: (this.state.bpm - 30)*this.tempoFactor || 0}}>
+                        <input 
+                            type="range"
+                            style={{border: 'none'}}
+                            id="tempo"
+                            name="bpm"
+                            min={this.state.minBpm}
+                            max={this.state.maxBpm}
+                            value={this.state.bpm}
+                            onChange={this.handleChange} />
+                        <span 
+                            hidden={this.tempoFactor ? false : true}
+                            className="thumb active"
+                            style={{
+                                height: '30px',
+                                width: '30px',
+                                top: '-30px',
+                                marginLeft: '-7px',
+                                left: (this.state.bpm - 30)*this.tempoFactor || 0,
+                            }}
+                        >
                             <span className="value">{this.state.bpm}</span>
                         </span>
                     </p>

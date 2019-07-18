@@ -41,7 +41,7 @@ class StaffContainer extends React.Component {
         currentMeasure: '0',
         selectedNote: null,
         duration: '8',
-        bpm: 30,
+        bpm: 80,
     };
 
     getRidOfRests = (measureId, voice) => {
