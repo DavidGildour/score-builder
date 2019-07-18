@@ -9,6 +9,7 @@ export default {
             `Click on the note to select it. 
             Arrows up and down as well as 'PageUp' and 'PageDown' keys change the pitch of the selected note 
             by a halfstep and octave accordingly. Arrows left and right change the selected note to its neighbour in a current voice.`,
+            `To remove a note from the stave either press 'Remove Last Note' button, or press 'Delete' key to remove selected note.`,
             `To change the current voice, either click on a note of that voice, select it from the dropdown list, 
             or press 'Tab' ('Shift' + 'Tab') to switch to the next (previous) voice.
             'Remove Voice' button removes the last added voice (however, only if that voice is empty). 

@@ -8,6 +8,7 @@ export default {
             `Aby zmienić długość i rodzaj dodawanej nuty wybierz jedną z opcji nad pięciolinią.`,
             `Kliknij na nutę, aby ją zaznaczyć. Strzałki w górę i w dół oraz klawisze 'PageUp' i 'PageDown' zmieniają wysokość wybranej nuty
             odpowiednio o półton i oktawę. Strzałki w lewo i prawo zmieniają zaznaczoną nutę na sąsiednią w wybranym głosie.`,
+            `Aby usunąć nutę z pięciolinii użyj przycisku 'Usuń ostatnią nutę', lub wciśnij klawisz 'Delete', by usunąć wybraną nutę.`,
             `Aby zmienić wybrany głos klinkij na nutę w tym głosie, wybierz go z listy,
             lub wciśnij klawisz 'Tab' ('Shift' + 'Tab'), aby zaznaczyć następny (poprzedni) głos.
             Przycisk 'Usuń głos' usuwa ostatni dodany głos (ale tylko gdy jest pusty).
