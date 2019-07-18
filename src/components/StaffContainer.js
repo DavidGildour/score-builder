@@ -878,7 +878,7 @@ class StaffContainer extends React.Component {
                                 onChange={this.timeChangeHandler} />
                     </div>
                     <div className="col s2">
-                        <AddMeasure onClick={this.addMeasure}/>
+                        <AddMeasure text={this.props.lang.options.measure} onClick={this.addMeasure}/>
                     </div>
                 </div>
                 <div className="divider"></div>

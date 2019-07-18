@@ -64,6 +64,7 @@ export default {
         metro: 'Metronome',
     },
     options: {
+        measure: 'Measure',
         clef: {
             label: 'Select clef type',
             clefs: {

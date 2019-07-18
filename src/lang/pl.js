@@ -62,6 +62,7 @@ export default {
         metro: 'Metronom',
     },
     options: {
+        measure: 'Takt',
         clef: {
             label: 'Wybierz klucz',
             clefs: {
