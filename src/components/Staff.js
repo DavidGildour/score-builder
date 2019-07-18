@@ -101,7 +101,6 @@ class Staff extends React.Component {
 
         let measures = [];
         for (const measure of this.props.staves[this.staveId].measures) {
-            console.log(measure);
             let stave;
             if (measure.id === '0') {
                 stave = new VF.Stave(staveXOffset, 50, staveWidth)

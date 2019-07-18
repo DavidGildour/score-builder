@@ -198,11 +198,11 @@ class StaffContainer extends React.Component {
         let durationLeft = this.getRidOfRests('0', voice);
         durationLeft = this.addRandomNote(durationLeft).duration;
         const newNoteId = this.getLastNoteInAVoice(this.state.stave.measures[0].voices[this.state.currentVoice]) + 1;
-        this.setState((state) => ({
+        this.setState((_state) => ({
             selectedNote: {
                 noteId: Math.min(newNoteId, this.state.stave.measures[0].voices[this.state.currentVoice].notes.length - 1).toString(),
                 voiceId: this.state.currentVoice,
-                measureId: state.selectedNote.measureId,
+                measureId: '0',
             },
         }));
         this.populateVoiceWithRests('0', voice.id, durationLeft);
@@ -266,7 +266,6 @@ class StaffContainer extends React.Component {
         }
         const minIndex = Math.max(availableNotes.indexOf(minNote), 0);
         const maxIndex = availableNotes.indexOf(maxNote) === -1 ? availableNotes.length - 1 : availableNotes.indexOf(maxNote);
-        console.log(minNote, minIndex, maxNote, maxIndex);
         return availableNotes.filter((note, i) => note !== centerNote && i <= maxIndex && i >= minIndex);
     }
 
@@ -631,6 +630,58 @@ class StaffContainer extends React.Component {
         })
     }
 
+    setNextNote = (selected) => {
+        let nextMeasureId;
+        let nextNoteId;
+
+        if (this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes.length === (+selected.noteId + 1)) {
+            if (this.state.stave.measures.length === (+selected.measureId + 1)) {
+                nextMeasureId = selected.measureId;
+                nextNoteId = selected.noteId;
+            } else {
+                nextMeasureId = (+selected.measureId + 1).toString();
+                nextNoteId = '0';
+            }
+        } else {
+            nextMeasureId = selected.measureId;
+            nextNoteId = (+selected.noteId + 1).toString();
+        }
+
+        this.setState({
+            selectedNote: {
+                measureId: nextMeasureId,
+                voiceId: selected.voiceId,
+                noteId: nextNoteId,
+            }
+        })
+    }
+
+    setPreviousNote = (selected) => {
+        let nextMeasureId;
+        let nextNoteId;
+
+        if ((+selected.noteId - 1) < 0) {
+            if ((+selected.measureId - 1) < 0) {
+                nextMeasureId = selected.measureId;
+                nextNoteId = selected.noteId;
+            } else {
+                nextMeasureId = (+selected.measureId - 1).toString();
+                nextNoteId = (this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes.length - 1).toString();
+            }
+        } else {
+            nextMeasureId = selected.measureId;
+            nextNoteId = (+selected.noteId - 1).toString();
+        }
+
+        this.setState({
+            selectedNote: {
+                measureId: nextMeasureId,
+                voiceId: selected.voiceId,
+                noteId: nextNoteId,
+            }
+        })
+    }
+
     handleKeyPress = (e) => {
         e.preventDefault();
         const { key, shiftKey } = e;
@@ -644,21 +695,9 @@ class StaffContainer extends React.Component {
         } else if (key === 'PageDown') {
             this.transposeNote('od');
         } else if (key === 'ArrowRight') {
-            if (this.state.selectedNote) this.setState(state => ({
-                selectedNote: {
-                    voiceId: state.selectedNote.voiceId,
-                    noteId: (Math.min(+state.selectedNote.noteId + 1, state.stave.measures[state.selectedNote.measureId].voices[state.selectedNote.voiceId].notes.length - 1)).toString(),
-                    measureId: state.selectedNote.measureId,
-                }
-            }))
+            if (this.state.selectedNote) this.setNextNote(this.state.selectedNote);
         } else if (key === 'ArrowLeft') {
-            if (this.state.selectedNote) this.setState(state => ({
-                selectedNote: {
-                    voiceId: state.selectedNote.voiceId,
-                    noteId: (Math.max(+state.selectedNote.noteId - 1, 0)).toString(),
-                    measureId: state.selectedNote.measureId,
-                }
-            }))
+            if (this.state.selectedNote) this.setPreviousNote(this.state.selectedNote);
         } else if (key === 'Tab') {
             this.setState(state => {
                 const nextVoice = shiftKey 
