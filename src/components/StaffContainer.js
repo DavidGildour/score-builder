@@ -593,7 +593,7 @@ class StaffContainer extends React.Component {
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
             })
-        } else {
+        } else if (this.state.currentMeasure) {
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
             console.log(durationLeft);
