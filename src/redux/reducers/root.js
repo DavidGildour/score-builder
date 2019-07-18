@@ -137,7 +137,6 @@ const rootReducer = (state = defaultState, action) => {
                     notes: [],
                 })
             }
-            console.log(voices);
             return {
                 ...state,
                 staves: state.staves.map((stave, i) => {

@@ -83,7 +83,7 @@ export default class extends React.Component {
     }
 
     shouldComponentUpdate = (nextProps) => {
-        if (this.props.lang !== nextProps.lang) {
+        if (this.props.lang !== nextProps.lang) {                           // > do if only language changed
             this.setState({ stateChange: true });
             return true;
         }

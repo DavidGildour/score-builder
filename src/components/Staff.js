@@ -71,7 +71,7 @@ class Staff extends React.Component {
             // adding notes from these voices inner array 'notes'
             .addTickables(voice.notes.map((note, i) => {
                 const newNote = this.mapNote(note);
-                if (selected && voice.id === selected.voiceId && i.toString() === selected.noteId) {
+                if (selected && voice.id === selected.voiceId && i.toString() === selected.noteId && measure.id === selected.measureId) {
                     newNote.setStyle({fillStyle: '#f00', strokeStyle: '#f00'});
                 } else if (voice.id === this.props.activeVoice) {
                     newNote.setStyle(colorMapping[voice.id]);
@@ -100,8 +100,8 @@ class Staff extends React.Component {
         const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
 
         let measures = [];
-        // let voices = [];
         for (const measure of this.props.staves[this.staveId].measures) {
+            console.log(measure);
             let stave;
             if (measure.id === '0') {
                 stave = new VF.Stave(staveXOffset, 50, staveWidth)
@@ -150,8 +150,11 @@ class Staff extends React.Component {
         this.renderStaff();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(nextProps) {
         this.renderStaff();
+        if (nextProps.staves[this.staveId].measures.length !== this.props.staves[this.staveId].measures.length) {
+            this.props.getBarLines(document.getElementById(`stave${this.staveId}`).childNodes[0]);
+        }
     }
 
     render() {

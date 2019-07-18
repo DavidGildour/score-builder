@@ -38,13 +38,13 @@ class StaffContainer extends React.Component {
         id: this.props.id,
         stave: this.props.staves[this.props.id],
         currentVoice: '0',
-        currentMeasure: null,
+        currentMeasure: '0',
         selectedNote: null,
         duration: '8',
         bpm: 30,
     };
 
-    getRidOfRests = (voice) => {
+    getRidOfRests = (measureId, voice) => {
         const notes = voice.notes;
         const revNotes = notes.slice().reverse();
 
@@ -55,7 +55,7 @@ class StaffContainer extends React.Component {
                     break;
                 }
                 duration += noteToDuration[n.duration.replace('r', '')];
-                this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), measureId: '0', staveId: this.state.id, voiceId: voice.id }); // actually remove the note from store
+                this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), measureId: measureId, staveId: this.state.id, voiceId: voice.id }); // actually remove the note from store
             }
         }
         return duration;
@@ -101,13 +101,15 @@ class StaffContainer extends React.Component {
     }
 
     voiceIsNotEmpty = (voiceId) => {
-        for (const note of this.state.stave.measures[0].voices[voiceId].notes) {
-            if (!note.duration.includes('r')) return true;
+        for (const measure of this.state.stave.measures) {
+            for (const note of measure.voices[voiceId].notes) {
+                if (!note.duration.includes('r')) return true;
+            }
         }
         return false;
     }
 
-    cutMeasure = (voiceId, lackingDuration) => {
+    cutMeasures = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
 
         for (let j = 0; j < this.state.stave.measures.length; j++) {
@@ -145,7 +147,7 @@ class StaffContainer extends React.Component {
                     this.populateVoiceWithRests(j.toString(), voiceId, lackingDuration);
                 }
             } else if (lackingDuration < 0) {
-                this.cutMeasure(voiceId, lackingDuration);
+                this.cutMeasures(voiceId, lackingDuration);
             }
         }
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
@@ -178,29 +180,31 @@ class StaffContainer extends React.Component {
             }
 
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
-            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, measureId: '0', voiceId: this.state.currentVoice });
-            const newNoteId = this.getLastNoteInAVoice(this.state.stave.measures[0].voices[this.state.currentVoice]) + 1;
-            this.setState({
+            this.props.addNoteToStave({ note: newNote, staveId: this.state.id, measureId: this.state.currentMeasure, voiceId: this.state.currentVoice });
+            const newNoteId = this.getLastNoteInAVoice(this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice]) + 1;
+            this.setState((state) => ({
                 selectedNote: {
-                    noteId: Math.min(newNoteId, this.state.stave.measures[0].voices[this.state.currentVoice].notes.length - 1).toString(),
-                    voiceId: this.state.currentVoice,
+                    noteId: Math.min(newNoteId, this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice].notes.length - 1).toString(),
+                    voiceId: state.currentVoice,
+                    measureId: state.currentMeasure,
                 },
-            })
+            }))
         }
         return availableDuration;
     }
 
     handleRandomNote = () => {
         const voice = this.state.stave.measures[0].voices[this.state.currentVoice];
-        let durationLeft = this.getRidOfRests(voice);
+        let durationLeft = this.getRidOfRests('0', voice);
         durationLeft = this.addRandomNote(durationLeft).duration;
         const newNoteId = this.getLastNoteInAVoice(this.state.stave.measures[0].voices[this.state.currentVoice]) + 1;
-        this.setState({
+        this.setState((state) => ({
             selectedNote: {
                 noteId: Math.min(newNoteId, this.state.stave.measures[0].voices[this.state.currentVoice].notes.length - 1).toString(),
                 voiceId: this.state.currentVoice,
+                measureId: state.selectedNote.measureId,
             },
-        })
+        }));
         this.populateVoiceWithRests('0', voice.id, durationLeft);
     }
 
@@ -350,7 +354,7 @@ class StaffContainer extends React.Component {
         const selected = this.state.selectedNote;
         if (!selected) return;
 
-        const note = this.state.stave.measures[0].voices[selected.voiceId].notes[selected.noteId];
+        const note = this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes[selected.noteId];
         let keys = [];
         for (const key of note.keys) {
             if (transposition[0] === 'o') {
@@ -441,7 +445,7 @@ class StaffContainer extends React.Component {
 
         this.props.updateNoteInStave({  
                                         staveId: this.state.id,
-                                        measureId: '0',
+                                        measureId: selected.measureId,
                                         voiceId: selected.voiceId,
                                         noteId: selected.noteId,
                                         keys: keys || note.keys,
@@ -543,7 +547,7 @@ class StaffContainer extends React.Component {
         // console.log(noteToDur, durToNote);
 
         for (const voice of this.state.stave.measures[0].voices) {
-            let durationLeft = this.getRidOfRests(voice);
+            let durationLeft = this.getRidOfRests('0', voice);
             let lastNote = [''];
             while (durationLeft > 0) {
                 const noteAdded = this.addRandomNote(durationLeft, durToNote, noteToDur, voice.id, diatonic, lastNote, allowRests, interval);
@@ -558,7 +562,6 @@ class StaffContainer extends React.Component {
     }
 
     addMeasure = () => {
-        console.log('measure');
         this.props.addMeasureToStave({ staveId: this.state.id, voicesNum: this.state.stave.measures[0].voices.length });
         for (let i = 0; i < this.state.stave.measures[0].voices.length; i++) {
             this.populateVoiceWithRests(this.state.stave.measures.length.toString(), i.toString(), this.state.stave.beatsNum * (1 / this.state.stave.beatsType))
@@ -569,36 +572,42 @@ class StaffContainer extends React.Component {
         e.preventDefault();
         const curY = e.pageY;
         const curX = e.pageX;
-        const notePositions = this.getNotePositions('0');
         let selectedNote = null;
 
-        notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
-            if (curX >= (n.left   + window.scrollX)
-             && curX <= (n.right  + window.scrollX)
-             && curY >= (n.top    + window.scrollY)
-             && curY <= (n.bottom + window.scrollY)) {
-                selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString() };
-            }
+        for (let i = 0; i < this.state.stave.measures.length; i++) {
+            const notePositions = this.getNotePositions(i.toString());
+
+            notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
+                if(curX >= (n.left   + window.scrollX)
+                && curX <= (n.right  + window.scrollX)
+                && curY >= (n.top    + window.scrollY)
+                && curY <= (n.bottom + window.scrollY)) {
+                    selectedNote = { voiceId: voiceId.toString(), noteId: noteId.toString(), measureId: i.toString() };
+                }
         }));
 
+        }
+        
         if (selectedNote) {
             this.setState({
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
             })
         } else {
-            const voice = this.state.stave.measures[0].voices[this.state.currentVoice];
-            let durationLeft = this.getRidOfRests(voice);
+            const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
+            let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
             console.log(durationLeft);
             durationLeft = this.addNote(durationLeft);
-            this.populateVoiceWithRests('0', voice.id, durationLeft);
+            this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
         };
     }
 
     handleMouseMove = (e) => {
         const lines = this.state.lines;
         const curY = e.pageY;
+        const curX = e.pageX;
         let note;
+        let currentMeasure;
 
         if      (curY <=lines[0].top)                               note = clefMapping[this.state.stave.clef][0];
         else if (curY > lines[0].top    && curY <= lines[0].bottom) note = clefMapping[this.state.stave.clef][1];
@@ -612,7 +621,14 @@ class StaffContainer extends React.Component {
         else if (curY > lines[4].top    && curY <= lines[4].bottom) note = clefMapping[this.state.stave.clef][9];
         else if (curY > lines[4].bottom)                            note = clefMapping[this.state.stave.clef][10];
 
-        this.setState({note: note})
+        for (let i = 0; i < this.state.measureBarLines.length; i += 2) {
+            if (curX > this.state.measureBarLines[i].x && curX <= this.state.measureBarLines[i+1].x) currentMeasure = (i / 2).toString();
+        }
+        
+        this.setState({
+            note: note,
+            currentMeasure: currentMeasure,
+        })
     }
 
     handleKeyPress = (e) => {
@@ -631,7 +647,8 @@ class StaffContainer extends React.Component {
             if (this.state.selectedNote) this.setState(state => ({
                 selectedNote: {
                     voiceId: state.selectedNote.voiceId,
-                    noteId: (Math.min(+state.selectedNote.noteId + 1, state.stave.measures[0].voices[state.selectedNote.voiceId].notes.length - 1)).toString(),
+                    noteId: (Math.min(+state.selectedNote.noteId + 1, state.stave.measures[state.selectedNote.measureId].voices[state.selectedNote.voiceId].notes.length - 1)).toString(),
+                    measureId: state.selectedNote.measureId,
                 }
             }))
         } else if (key === 'ArrowLeft') {
@@ -639,6 +656,7 @@ class StaffContainer extends React.Component {
                 selectedNote: {
                     voiceId: state.selectedNote.voiceId,
                     noteId: (Math.max(+state.selectedNote.noteId - 1, 0)).toString(),
+                    measureId: state.selectedNote.measureId,
                 }
             }))
         } else if (key === 'Tab') {
@@ -653,6 +671,7 @@ class StaffContainer extends React.Component {
                     selectedNote: {
                         voiceId: nextVoice.toString(),
                         noteId: '0',
+                        measureId: state.selectedNote.measureId,
                     }
             }})
         } else if (key === ' ') {
@@ -674,6 +693,7 @@ class StaffContainer extends React.Component {
                 selectedNote: {
                     voiceId: value,
                     noteId: '0',
+                    measureId: '0',
                 },
                 currentVoice: value,
             }));
@@ -691,17 +711,22 @@ class StaffContainer extends React.Component {
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
+    getBarLines = (svg) => {
+        this.setState({
+            measureBarLines: [...svg.getElementsByTagName('rect')]
+                .map(e => e.getBoundingClientRect())
+                .filter(e => Math.round(e.height) === 41),
+        });
+    }
+
     getNotePositions = (measureId) => {
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
         const voices = this.state.stave.measures[measureId].voices;
+        console.log(voices);
 
-        const measureBarLines = [...staveSVG.getElementsByTagName('rect')]
-            .map(e => e.getBoundingClientRect())
-            .filter(e => Math.round(e.height) === 41);
-
-        const currentMeasureBarLines = { left: measureBarLines[2*measureId], right: measureBarLines[2*measureId + 1] };
-
+        const currentMeasureBarLines = { left: this.state.measureBarLines[2*measureId], right: this.state.measureBarLines[2*measureId + 1] };
+        
         const notes = [...staveSVG.getElementsByClassName('vf-stavenote')]
             .map(e => e.getElementsByClassName("vf-notehead")[0].getBoundingClientRect())
             // taking into account only notes in currently viewed measure
@@ -757,18 +782,21 @@ class StaffContainer extends React.Component {
 
         this.setState({
             lines: lines,
+            measureBarLines: [...staveSVG.getElementsByTagName('rect')]
+                .map(e => e.getBoundingClientRect())
+                .filter(e => Math.round(e.height) === 41),
         });
     }
 
     render() {
-        let currentNote;
-        const selectedNote = this.state.selectedNote;
-        selectedNote ? currentNote = this.state.stave.measures[0].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
+        // let currentNote;
+        // const selectedNote = this.state.selectedNote;
+        // selectedNote ? currentNote = this.state.stave.measures[0].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         // console.log(this.state.stave);
         return (
             <div>
                 <div className="center red-text">
-                    {this.state.error || <span>&nbsp;</span>}
+                    {this.state.currentMeasure}{this.state.error || <span>&nbsp;</span>}
                 </div>
                 <div>
                     <NoteDuration
@@ -779,20 +807,20 @@ class StaffContainer extends React.Component {
                         dotted={this.state.dotted} />
                 </div>
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
-                    <Staff id="0" selectedNote={this.state.selectedNote} activeVoice={this.state.currentVoice} bpm={this.state.bpm} />
+                    <Staff 
+                        id="0"
+                        getBarLines={this.getBarLines}
+                        selectedNote={this.state.selectedNote}
+                        activeVoice={this.state.currentVoice}
+                        bpm={this.state.bpm} />
                 </div>
-                <div>
-                    {this.state.selectedNote 
-                        ? this.state.stave.measures[0].voices[this.state.selectedNote.voiceId].notes[this.state.selectedNote.noteId].keys.join(' ') 
-                        : <span>&nbsp;</span>}
-                </div>
-                <MidiPlayer 
+                {/* <MidiPlayer 
                     lang={this.props.lang.player}
                     check={selectedNote}
                     currentNote={currentNote}
                     voices={this.state.stave.measures[0].voices}
                     timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
-                    setParentState={this.innerStateChange} />
+                    setParentState={this.innerStateChange} /> */}
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s3">
