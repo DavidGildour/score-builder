@@ -849,6 +849,7 @@ class StaffContainer extends React.Component {
                 <div tabIndex="0" onKeyDown={this.handleKeyPress} onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
                     <Staff 
                         id="0"
+                        stave={this.state.stave}
                         getBarLines={this.getBarLines}
                         selectedNote={this.state.selectedNote}
                         activeVoice={this.state.currentVoice}
