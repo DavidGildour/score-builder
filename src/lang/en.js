@@ -66,6 +66,16 @@ export default {
         metro: 'Metronome',
     },
     options: {
+        errors: {
+            maxVoices: 'Maximum of four voices reached.',
+            minVoices: 'Minimum one voice required.',
+            voiceNotEmpty: 'Voice is not empty.',
+            voicesNotEmpty: 'You need to clear the voices first.',
+            shortGreaterThanLong: 'Shortest note duration exceeds the longest.',
+            noSelectedNote: 'Select a note to edit first.',
+        },
+        addMode: 'Add',
+        editMode: 'Edit',
         measure: 'Measure',
         clef: {
             label: 'Select clef type',

@@ -64,6 +64,16 @@ export default {
         metro: 'Metronom',
     },
     options: {
+        errors: {
+            maxVoices: 'Maksymalna liczba głosów to cztery.',
+            minVoices: 'Wymagany minimum jeden głos',
+            voiceNotEmpty: 'Głos nie jest pusty.',
+            voicesNotEmpty: 'Wyczyść głosy, żeby wygenerować melodię',
+            shortGreaterThanLong: 'Najkrótsza nuta nie może być dłuższa niż najdłuższa.',
+            noSelectedNote: 'Zaznacz nutę, żeby móc wejść w tryb edycji.',
+        },
+        addMode: 'Dodaj',
+        editMode: 'Zmień',
         measure: 'Takt',
         clef: {
             label: 'Wybierz klucz',

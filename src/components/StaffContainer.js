@@ -495,7 +495,7 @@ class StaffContainer extends React.Component {
 
     addVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 4) {
-            this.setState({ error: "Maximum of four voices reached"});
+            this.setState({ error: this.props.lang.options.errors.maxVoices});
             return;
         }
 
@@ -511,14 +511,14 @@ class StaffContainer extends React.Component {
 
     removeVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 1) {
-            this.setState({ error: "Needs to be at least one voice"});
+            this.setState({ error: this.props.lang.options.errors.minVoices});
             return;
         }
 
         const voiceId = (this.state.stave.measures[0].voices.length-1).toString();
 
         if (this.voiceIsNotEmpty(voiceId)) {
-            this.setState({ error: "Voice is not empty"});
+            this.setState({ error: this.props.lang.options.errors.voiceNotEmpty});
             return;
         }
 
@@ -559,7 +559,7 @@ class StaffContainer extends React.Component {
                 for (const note of voice.notes) {
                     if (note.persistent) {
                         this.setState({
-                            error: 'You have to clear the voices first.'
+                            error: this.props.lang.options.errors.voicesNotEmpty,
                         })
                         return;
                     }
@@ -571,7 +571,7 @@ class StaffContainer extends React.Component {
 
         if (noteToDuration[longNote] < noteToDuration[shortNote]) {
             this.setState({
-                error: 'Shortest note exceeds the duration of a longest note',
+                error: this.props.lang.options.errors.shortGreaterThanLong,
             })
             return
         }
