@@ -2,6 +2,7 @@
 import React from 'react';
 import MIDISounds from 'midi-sounds-react';
 
+import SaveMidi from './SaveMidi';
 import { midiMapping } from './mappings/midiMappings';
 import { durToBeats, noteToDuration } from './mappings/durationMappings';
 
@@ -150,6 +151,7 @@ export default class extends React.Component {
         return (
             <div>
                 <div className="row">
+                    <div className="col s11">
                     <p className="range-field">
                         <input 
                             type="range"
@@ -174,6 +176,10 @@ export default class extends React.Component {
                             <span className="value">{this.state.bpm}</span>
                         </span>
                     </p>
+                    </div>
+                    <div className="col s1 center-align top-margin">
+                        <SaveMidi />
+                    </div>
                 </div>
                 <div className="row">
                     <div className="col s5">
