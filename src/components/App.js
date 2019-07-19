@@ -23,7 +23,7 @@ export default class extends React.Component {
                 </li>
             </ul>
             <nav>
-                <div className="nav-wrapper green accent-4">
+                <div className="nav-wrapper teal">
                 <a href="/" className="brand-logo"><i className="material-icons left">library_music</i>Score Builder</a>
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                     <li><a href="#about" className="modal-trigger">{language[this.state.lang].navbar.about}</a></li>
@@ -34,7 +34,7 @@ export default class extends React.Component {
                     </li>
                     <li>
                         <a
-                            className="z-depth-0 btn-floating btn-medium pulse green accent-3 modal-trigger"
+                            className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger"
                             href="#!"
                             data-target="help"
                             ><i className="material-icons">help_outline</i></a>

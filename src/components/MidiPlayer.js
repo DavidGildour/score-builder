@@ -168,7 +168,7 @@ export default class extends React.Component {
                                 width: '30px',
                                 top: '-30px',
                                 marginLeft: '-7px',
-                                left: (this.state.bpm - 30)*this.tempoFactor || 0,
+                                left: (this.state.bpm - this.state.minBpm)*this.tempoFactor || 0,
                             }}
                         >
                             <span className="value">{this.state.bpm}</span>
