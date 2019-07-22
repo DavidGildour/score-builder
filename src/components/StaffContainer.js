@@ -686,8 +686,8 @@ class StaffContainer extends React.Component {
             const measureYOffSet = 200 * Math.floor((i / 2) / Staff.maxMeasuresInRow);
             if (curX >  this.state.measureBarLines[i].x
              && curX <= this.state.measureBarLines[i+1].x
-             && curY >= (lines[0].top + measureYOffSet)
-             && curY <= (lines[4].bottom + measureYOffSet)) currentMeasure = (i / 2).toString();
+             && curY >= (lines[0].top + measureYOffSet - 50)
+             && curY <= (lines[4].bottom + measureYOffSet + 50)) currentMeasure = (i / 2).toString();
         }
         
         this.setState({
@@ -890,21 +890,21 @@ class StaffContainer extends React.Component {
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
 
-    getBarLines = (svg) => {
+    getBarLines = (svg, lines = this.state.lines) => {
         this.setState({
             measureBarLines: [...svg.getElementsByTagName('rect')]
-                .map(e => {
+                .map((e, i) => {
                     const pos = e.getBoundingClientRect();
+                    const measureYOffSet = 200 * Math.floor((i / 2) / Staff.maxMeasuresInRow);
                     return {
                         x: pos.x + window.scrollX,
                         y: pos.y + window.scrollY,
                         height: Math.round(pos.height),
-                        top: pos.top + window.scrollY,
-                        bottom: pos.bottom + window.scrollY,
+                        top: lines[0].top + measureYOffSet,
+                        bottom: lines[4].bottom + measureYOffSet,
                     }
                 })
                 .filter(e => e.height === 41)
-                // .sort((a, b) => (a.x + a.y*10) - (b.x + b.y*10))
                 .sort((a, b) => (a.x) - (b.x))
                 .sort((a, b) => (a.y) - (b.y)),
         });
@@ -917,26 +917,19 @@ class StaffContainer extends React.Component {
 
         const currentMeasureBarLines = { left: this.state.measureBarLines[2*measureId], right: this.state.measureBarLines[2*measureId + 1] };
         
-        if (measureId === '1') console.log(staveSVG.getElementsByClassName('vf-stavenote'));
         const notes = [...staveSVG.getElementsByClassName('vf-stavenote')]
             .map(e => e.getElementsByClassName("vf-notehead")[0].getBoundingClientRect())
             // taking into account only notes in currently viewed measure
-            .filter(e => {
-                if (measureId === '1') {
-                    console.log(e, currentMeasureBarLines.left)
-                    console.log(e.left >= currentMeasureBarLines.left.x, e.right <= currentMeasureBarLines.right.x, e.top >= currentMeasureBarLines.left.top - 50, e.bottom <= currentMeasureBarLines.left.bottom + 50);
-                }
-                return e.left >= currentMeasureBarLines.left.x 
+            .filter(e => e.left >= currentMeasureBarLines.left.x 
                       && e.right <= currentMeasureBarLines.right.x
-                      && e.top >= currentMeasureBarLines.left.top - 50
-                      && e.bottom <= currentMeasureBarLines.left.bottom + 50
-            });
+                      && e.top + window.scrollY >= currentMeasureBarLines.left.top - 50
+                      && e.bottom + window.scrollY <= currentMeasureBarLines.left.bottom + 50
+            );
         let notePositions = [];
         
         let voiceId = 0;
         let noteId = 0;
         notePositions.push([]);
-        if (measureId === '1') console.log(notes);
         for (const n of notes) {
             let voice = voices[voiceId];
             let len = voice.notes.length;
@@ -986,11 +979,9 @@ class StaffContainer extends React.Component {
             });
         }
 
+        this.getBarLines(staveSVG, lines);
         this.setState({
             lines: lines,
-            measureBarLines: [...staveSVG.getElementsByTagName('rect')]
-                .map(e => e.getBoundingClientRect())
-                .filter(e => Math.round(e.height) === 41),
         });
     }
 
