@@ -21,6 +21,8 @@ export default class Staff extends React.Component {
         'b': 7.5,
     }
 
+    static maxMeasuresInRow = 4;
+
     mapNote = (note) => {
         const key = this.props.stave.keySig;
         const mods = note.modifiers.slice();
@@ -91,24 +93,40 @@ export default class Staff extends React.Component {
 
         // neatly rendering the stave based on the width of the renderer's div
         const divWidth = this.ref.current.getBoundingClientRect().width;
-        const staveWidth = (divWidth * (9/10)) / this.props.stave.measures.length; // = 90% of the div width
+        const maxStaffWidth = divWidth * (9/10); // = 90% of the div width
         const staveXOffset = divWidth * (1/20); // = 5% of the div width (which leaves another 5% on the right)
+
+        let measuresNum = this.props.stave.measures.length;
+        const rows = Math.ceil(measuresNum / Staff.maxMeasuresInRow);
+        this.renderer.resize(divWidth, 200 * rows);
+
+        let staveYOffset = 50; // initial Y offset
+        let lastMeasureRightX;
 
         let measures = [];
         for (const measure of this.props.stave.measures) {
+            let measureWidthInCurrentRow;
             let stave;
+            const voices = this.mapVoices(measure, beatsNum, beatsType);
             if (measure.id === '0') {
-                stave = new VF.Stave(staveXOffset, 50, staveWidth)
+                measureWidthInCurrentRow = Math.max(maxStaffWidth / measuresNum, maxStaffWidth / Staff.maxMeasuresInRow);
+                stave = new VF.Stave(staveXOffset, staveYOffset, measureWidthInCurrentRow)
                                 .setClef(this.props.stave.clef)
                                 .setTimeSignature(`${beatsNum}/${beatsType}`)
                                 .addModifier(new VF.KeySignature(this.props.stave.keySig))
                                 .setTempo({duration: 'q', dots: false, bpm: this.props.bpm}, 0);
+                lastMeasureRightX = staveXOffset + measureWidthInCurrentRow;
             } else {
-                const measureXOffset = (staveWidth * parseInt(measure.id, 10)) + staveXOffset;
-                stave = new VF.Stave(measureXOffset, 50, staveWidth);
+                if (!(parseInt(measure.id, 10) % Staff.maxMeasuresInRow)) {
+                    lastMeasureRightX = staveXOffset;
+                    measuresNum -= 4;
+                    staveYOffset += 200;
+                }
+                measureWidthInCurrentRow = Math.max(maxStaffWidth / measuresNum, maxStaffWidth / Staff.maxMeasuresInRow);
+                stave = new VF.Stave(lastMeasureRightX, staveYOffset, measureWidthInCurrentRow);
+                lastMeasureRightX += measureWidthInCurrentRow;
             }
             stave.setContext(context).draw()
-            const voices = this.mapVoices(measure, beatsNum, beatsType);
             
             const beamGroups = voices.map((voice, i) => VF.Beam.generateBeams(voice.getTickables(), {
                 groups: [new VF.Fraction(1, 4)],
@@ -117,9 +135,9 @@ export default class Staff extends React.Component {
             
             if (measure.id === '0') {
                 // 35 px is here due to first measure having clef and time signature
-                this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset - keyOffset - 35);
+                this.formatter.joinVoices(voices).format(voices, measureWidthInCurrentRow - staveXOffset - keyOffset - 35);
             } else {
-                this.formatter.joinVoices(voices).format(voices, staveWidth - staveXOffset)
+                this.formatter.joinVoices(voices).format(voices, measureWidthInCurrentRow - staveXOffset)
             }
 
             voices.forEach((v, i) => {
