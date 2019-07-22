@@ -661,25 +661,33 @@ class StaffContainer extends React.Component {
 
     handleMouseMove = (e) => {
         const lines = this.state.lines;
+        const curYRelativeToClef = e.pageY % 200;
         const curY = e.pageY;
         const curX = e.pageX;
+        const measuresNum = this.state.measureBarLines.length;
         let note;
         let currentMeasure;
 
-        if      (curY <=lines[0].top)                               note = clefMapping[this.state.stave.clef][0];
-        else if (curY > lines[0].top    && curY <= lines[0].bottom) note = clefMapping[this.state.stave.clef][1];
-        else if (curY > lines[0].bottom && curY <= lines[1].top   ) note = clefMapping[this.state.stave.clef][2];
-        else if (curY > lines[1].top    && curY <= lines[1].bottom) note = clefMapping[this.state.stave.clef][3];
-        else if (curY > lines[1].bottom && curY <= lines[2].top   ) note = clefMapping[this.state.stave.clef][4];
-        else if (curY > lines[2].top    && curY <= lines[2].bottom) note = clefMapping[this.state.stave.clef][5];
-        else if (curY > lines[2].bottom && curY <= lines[3].top   ) note = clefMapping[this.state.stave.clef][6];
-        else if (curY > lines[3].top    && curY <= lines[3].bottom) note = clefMapping[this.state.stave.clef][7];
-        else if (curY > lines[3].bottom && curY <= lines[4].top   ) note = clefMapping[this.state.stave.clef][8];
-        else if (curY > lines[4].top    && curY <= lines[4].bottom) note = clefMapping[this.state.stave.clef][9];
-        else if (curY > lines[4].bottom)                            note = clefMapping[this.state.stave.clef][10];
+        if      (curYRelativeToClef <=lines[0].relTop)                                             note = clefMapping[this.state.stave.clef][0];
+        else if (curYRelativeToClef > lines[0].relTop    && curYRelativeToClef <= lines[0].relBot) note = clefMapping[this.state.stave.clef][1];
+        else if (curYRelativeToClef > lines[0].relBot    && curYRelativeToClef <= lines[1].relTop) note = clefMapping[this.state.stave.clef][2];
+        else if (curYRelativeToClef > lines[1].relTop    && curYRelativeToClef <= lines[1].relBot) note = clefMapping[this.state.stave.clef][3];
+        else if (curYRelativeToClef > lines[1].relBot    && curYRelativeToClef <= lines[2].relTop) note = clefMapping[this.state.stave.clef][4];
+        else if (curYRelativeToClef > lines[2].relTop    && curYRelativeToClef <= lines[2].relBot) note = clefMapping[this.state.stave.clef][5];
+        else if (curYRelativeToClef > lines[2].relBot    && curYRelativeToClef <= lines[3].relTop) note = clefMapping[this.state.stave.clef][6];
+        else if (curYRelativeToClef > lines[3].relTop    && curYRelativeToClef <= lines[3].relBot) note = clefMapping[this.state.stave.clef][7];
+        else if (curYRelativeToClef > lines[3].relBot    && curYRelativeToClef <= lines[4].relTop) note = clefMapping[this.state.stave.clef][8];
+        else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) note = clefMapping[this.state.stave.clef][9];
+        else if (curYRelativeToClef > lines[4].relBot)                                             note = clefMapping[this.state.stave.clef][10];
 
-        for (let i = 0; i < this.state.measureBarLines.length; i += 2) {
-            if (curX > this.state.measureBarLines[i].x && curX <= this.state.measureBarLines[i+1].x) currentMeasure = (i / 2).toString();
+        for (let i = 0; i < measuresNum; i += 2) {
+            // y offset of the measures in calculated based on the top-most and bottom-most lines
+            // on the stave, due to some bug with Staff's renderer
+            const measureYOffSet = 200 * Math.floor((i / 2) / Staff.maxMeasuresInRow);
+            if (curX >  this.state.measureBarLines[i].x
+             && curX <= this.state.measureBarLines[i+1].x
+             && curY >= (lines[0].top + measureYOffSet)
+             && curY <= (lines[4].bottom + measureYOffSet)) currentMeasure = (i / 2).toString();
         }
         
         this.setState({
@@ -764,6 +772,7 @@ class StaffContainer extends React.Component {
         } else if (key === 'ArrowLeft') {
             if (this.state.selectedNote) this.setPreviousNote(this.state.selectedNote);
         } else if (key === 'Tab') {
+            if (!this.state.currentMeasure) return;
             this.setState(state => {
                 const nextVoice = shiftKey 
                     ? (state.currentVoice === '0' 
@@ -884,8 +893,20 @@ class StaffContainer extends React.Component {
     getBarLines = (svg) => {
         this.setState({
             measureBarLines: [...svg.getElementsByTagName('rect')]
-                .map(e => e.getBoundingClientRect())
-                .filter(e => Math.round(e.height) === 41),
+                .map(e => {
+                    const pos = e.getBoundingClientRect();
+                    return {
+                        x: pos.x + window.scrollX,
+                        y: pos.y + window.scrollY,
+                        height: Math.round(pos.height),
+                        top: pos.top + window.scrollY,
+                        bottom: pos.bottom + window.scrollY,
+                    }
+                })
+                .filter(e => e.height === 41)
+                // .sort((a, b) => (a.x + a.y*10) - (b.x + b.y*10))
+                .sort((a, b) => (a.x) - (b.x))
+                .sort((a, b) => (a.y) - (b.y)),
         });
     }
 
@@ -896,15 +917,26 @@ class StaffContainer extends React.Component {
 
         const currentMeasureBarLines = { left: this.state.measureBarLines[2*measureId], right: this.state.measureBarLines[2*measureId + 1] };
         
+        if (measureId === '1') console.log(staveSVG.getElementsByClassName('vf-stavenote'));
         const notes = [...staveSVG.getElementsByClassName('vf-stavenote')]
             .map(e => e.getElementsByClassName("vf-notehead")[0].getBoundingClientRect())
             // taking into account only notes in currently viewed measure
-            .filter(e => e.left >= currentMeasureBarLines.left.x && e.right <= currentMeasureBarLines.right.x);
+            .filter(e => {
+                if (measureId === '1') {
+                    console.log(e, currentMeasureBarLines.left)
+                    console.log(e.left >= currentMeasureBarLines.left.x, e.right <= currentMeasureBarLines.right.x, e.top >= currentMeasureBarLines.left.top - 50, e.bottom <= currentMeasureBarLines.left.bottom + 50);
+                }
+                return e.left >= currentMeasureBarLines.left.x 
+                      && e.right <= currentMeasureBarLines.right.x
+                      && e.top >= currentMeasureBarLines.left.top - 50
+                      && e.bottom <= currentMeasureBarLines.left.bottom + 50
+            });
         let notePositions = [];
         
         let voiceId = 0;
         let noteId = 0;
         notePositions.push([]);
+        if (measureId === '1') console.log(notes);
         for (const n of notes) {
             let voice = voices[voiceId];
             let len = voice.notes.length;
@@ -946,7 +978,12 @@ class StaffContainer extends React.Component {
         for (const [i, line] of staveSVG.childNodes.entries()) {
             if (i >= 5) break;
             const linePos = line.getBoundingClientRect();
-            lines.push({ top: linePos.top + window.scrollY, bottom: linePos.bottom + window.scrollY });
+            lines.push({ 
+                top: linePos.top + window.scrollY,
+                relTop: (linePos.top + window.scrollY) % 200,
+                bottom: linePos.bottom + window.scrollY,
+                relBot: (linePos.bottom + window.scrollY) % 200,
+            });
         }
 
         this.setState({
