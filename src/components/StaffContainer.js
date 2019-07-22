@@ -789,7 +789,7 @@ class StaffContainer extends React.Component {
                     }
             }})
         } else if (key === 'Delete') {
-            if (this.state.selectedNote) {
+            if (this.state.selectedNote && !this.state.selectedNote.duration.includes('r')) {
                 this.makeNoteARest(this.state.selectedNote);
                 this.setState(state => ({ selectedNote: {
                     ...state.selectedNote,
