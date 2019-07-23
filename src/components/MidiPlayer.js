@@ -151,7 +151,7 @@ export default class extends React.Component {
             <div>
                 <div className="row">
                     <div className="col s11">
-                    <p className="range-field">
+                    <p className="range-field tooltipped" data-position="left" data-tooltip="Tempo">
                         <input 
                             type="range"
                             style={{border: 'none'}}
