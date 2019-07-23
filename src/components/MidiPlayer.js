@@ -1,4 +1,3 @@
-// import MidiWriter from 'midi-writer-js';
 import React from 'react';
 import MIDISounds from 'midi-sounds-react';
 
@@ -94,16 +93,17 @@ export default class extends React.Component {
     }
 
     shouldComponentUpdate = (nextProps) => {
-        if (this.props.lang !== nextProps.lang) {                           // > do if only language changed
+        if (this.props.lang     !== nextProps.lang                          // > do if language changed (to properly display the buttons)
+         || this.props.measures !== nextProps.measures) {                   //   or when measures changed (to properly handle saving midi)
             this.setState({ stateChange: true });
             return true;
         }
         if (!nextProps.check) return false;                                 // > dont if theres no selectedNote in new props
         else if (!this.props.check) return true;                            // > do if there is a selected note in new props
                                                                             //   and not in the old ones
-        return (nextProps.check.voiceId !== this.props.check.voiceId        // > active voice changed
-            || nextProps.check.noteId !== this.props.check.noteId           // > active note in a voice changed
-            || nextProps.currentNote.keys !== this.props.currentNote.keys); // > active note's pitch changed
+        return (nextProps.check.voiceId    !== this.props.check.voiceId     // > active voice changed
+             || nextProps.check.noteId     !== this.props.check.noteId      // > active note in a voice changed
+             || nextProps.currentNote.keys !== this.props.currentNote.keys);// > active note's pitch changed
     }
 
     componentDidUpdate() {
@@ -178,7 +178,7 @@ export default class extends React.Component {
                     </p>
                     </div>
                     <div className="col s1 center-align top-margin">
-                        <SaveMidi />
+                        <SaveMidi measures={this.props.measures} bpm={this.state.bpm} />
                     </div>
                 </div>
                 <div className="row">

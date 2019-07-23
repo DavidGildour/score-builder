@@ -1,7 +1,51 @@
 import React from 'react';
+import MidiWriter from 'midi-writer-js';
 
-export default () => (
-    <button className="btn-floating waves-effect">
-        <i className="material-icons">save_alt</i>
-    </button>
-);
+import { VFDurToMidi } from './mappings/durationMappings';
+
+export default class extends React.Component {
+    saveMidi = () => {
+        const tracks = this.props.measures[0].voices.map(_ => (
+            new MidiWriter.Track()
+            .setTempo(parseInt(this.props.bpm, 10))
+        ));
+
+        for (const measure of this.props.measures) {
+            for (const voice of measure.voices) {
+                tracks[voice.id].addEvent(voice.notes.map(note => {
+                    const duration = note.duration.includes('r') ? 'wait' : 'duration';
+                    console.log(duration, note.duration, VFDurToMidi[note.duration.replace('r', '')]);
+                    return new MidiWriter.NoteEvent({
+                        pitch: note.keys.map(key => key.replace('/', '')),
+                        duration: VFDurToMidi[note.duration.replace('r', '')],
+                        [duration]: VFDurToMidi[note.duration.replace('r', '')], // every note needs 'duration' field, but rests need additional 'wait' wtf
+                    })
+                }));
+            }
+        }
+
+        const write = new MidiWriter.Writer(tracks);
+        console.log(write.dataUri());
+
+        const downloader = document.createElement('a');
+        downloader.setAttribute('href', write.dataUri());
+        downloader.setAttribute('download', 'score.mid');
+
+        downloader.style.display = 'none';
+        document.body.appendChild(downloader);
+
+        downloader.click();
+
+        document.body.removeChild(downloader);
+    }
+
+    componentDidUpdate = () => {
+        console.log('updated');
+    }
+
+    render = () => (
+        <button className="btn-floating waves-effect" onClick={this.saveMidi}>
+            <i className="material-icons">save_alt</i>
+        </button>
+    )
+};

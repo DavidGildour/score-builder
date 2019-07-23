@@ -1012,13 +1012,13 @@ class StaffContainer extends React.Component {
                         activeVoice={this.state.currentVoice}
                         bpm={this.state.bpm} />
                 </div>
-                <MidiPlayer 
-                    lang={this.props.lang.player}
-                    check={selectedNote}
-                    currentNote={currentNote}
-                    measures={this.state.stave.measures}
-                    timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
-                    setParentState={this.innerStateChange} />
+                    <MidiPlayer
+                        lang={this.props.lang.player}
+                        check={selectedNote}
+                        currentNote={currentNote}
+                        measures={this.state.stave.measures}
+                        timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
+                        setParentState={this.innerStateChange} />
                 <div className="divider"></div>
                 <div className="row section">
                     <div className="col s3">
