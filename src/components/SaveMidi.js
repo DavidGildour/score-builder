@@ -44,7 +44,11 @@ export default class extends React.Component {
     }
 
     render = () => (
-        <button className="btn-floating waves-effect" onClick={this.saveMidi}>
+        <button
+            className="btn-floating waves-effect tooltipped"
+            data-position="right"
+            data-tooltip={this.props.text}
+            onClick={this.saveMidi}>
             <i className="material-icons">save_alt</i>
         </button>
     )

@@ -34,7 +34,9 @@ export default class extends React.Component {
                     </li>
                     <li>
                         <a
-                            className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger"
+                            className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger tooltipped"
+                            data-position="right"
+                            data-tooltip={language[this.state.lang].navbar.help}
                             href="#!"
                             data-target="help"
                             ><i className="material-icons">help_outline</i></a>

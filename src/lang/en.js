@@ -64,6 +64,7 @@ export default {
         playVoice: 'Play the current voice',
         playAll: 'Play all the voices',
         metro: 'Metronome',
+        save: 'Save to file'
     },
     options: {
         errors: {

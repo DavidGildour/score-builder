@@ -177,7 +177,11 @@ export default class extends React.Component {
                     </p>
                     </div>
                     <div className="col s1 center-align top-margin">
-                        <SaveMidi measures={this.props.measures} timeSig={this.props.timeSig} bpm={this.state.bpm} />
+                        <SaveMidi
+                            measures={this.props.measures}
+                            timeSig={this.props.timeSig}
+                            bpm={this.state.bpm}
+                            text={this.props.lang.save} />
                     </div>
                 </div>
                 <div className="row">

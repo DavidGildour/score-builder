@@ -62,6 +62,7 @@ export default {
         playVoice: 'Odtwórz wybrany głos',
         playAll: 'Odtwórz wszystkie głosy',
         metro: 'Metronom',
+        save: 'Zapisz do pliku'
     },
     options: {
         errors: {
