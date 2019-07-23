@@ -41,11 +41,10 @@ export default class extends React.Component {
 
     playVoice = () => {
         this.midiSounds.cancelQueue();
-        if (!this.props.check) return;
         let t = this.midiSounds.contextTime();
         for (const measure of this.props.measures){
             if (this.state.metronome) this.playMetronomeAt(t);
-            const voice =  measure.voices[this.props.check.voiceId];
+            const voice =  measure.voices[this.props.currentVoice];
             for (const note of voice.notes) {
                 if (!note.duration.includes('r')) {
                     this.midiSounds.playBeatAt(t, [

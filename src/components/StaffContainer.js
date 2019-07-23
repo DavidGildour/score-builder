@@ -1016,6 +1016,7 @@ class StaffContainer extends React.Component {
                         lang={this.props.lang.player}
                         check={selectedNote}
                         currentNote={currentNote}
+                        currentVoice={this.state.currentVoice}
                         measures={this.state.stave.measures}
                         timeSig={[this.state.stave.beatsNum, this.state.stave.beatsType]}
                         setParentState={this.innerStateChange} />
