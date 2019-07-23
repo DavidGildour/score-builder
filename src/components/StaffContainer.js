@@ -39,7 +39,6 @@ const mapDispatchToProps = {
 class StaffContainer extends React.Component {
     state = {
         error: '',
-        note: null,
         restMode: false,
         editMode: false,
         dotted: false,
@@ -184,14 +183,14 @@ class StaffContainer extends React.Component {
         return null;
     }
  
-    addNote = (durationLeft) => {
+    addNote = (durationLeft, note) => {
         let availableDuration = durationLeft;
         const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
 
         if (availableDuration >= noteToDuration[declaredDuration]) {
             const newNote = {
                 clef: this.state.stave.clef,
-                keys: [this.state.note],
+                keys: [note],
                 duration: this.state.restMode ? declaredDuration + 'r' : declaredDuration,
                 modifiers: [(declaredDuration.includes('d') ? '.' : '')],
                 persistent: true,
@@ -652,33 +651,37 @@ class StaffContainer extends React.Component {
                 currentVoice: selectedNote.voiceId,
             })
         } else if (!this.state.editMode) {
+            const note = this.getNoteFromMousePos(curY);
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
-            durationLeft = this.addNote(durationLeft);
+            durationLeft = this.addNote(durationLeft, note);
             this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
         };
     }
 
+    getNoteFromMousePos = (y) => {
+        const lines = this.state.lines;
+        const curYRelativeToClef = y % 200;
+        
+        if      (curYRelativeToClef <=lines[0].relTop)                                             return clefMapping[this.state.stave.clef][0];
+        else if (curYRelativeToClef > lines[0].relTop    && curYRelativeToClef <= lines[0].relBot) return clefMapping[this.state.stave.clef][1];
+        else if (curYRelativeToClef > lines[0].relBot    && curYRelativeToClef <= lines[1].relTop) return clefMapping[this.state.stave.clef][2];
+        else if (curYRelativeToClef > lines[1].relTop    && curYRelativeToClef <= lines[1].relBot) return clefMapping[this.state.stave.clef][3];
+        else if (curYRelativeToClef > lines[1].relBot    && curYRelativeToClef <= lines[2].relTop) return clefMapping[this.state.stave.clef][4];
+        else if (curYRelativeToClef > lines[2].relTop    && curYRelativeToClef <= lines[2].relBot) return clefMapping[this.state.stave.clef][5];
+        else if (curYRelativeToClef > lines[2].relBot    && curYRelativeToClef <= lines[3].relTop) return clefMapping[this.state.stave.clef][6];
+        else if (curYRelativeToClef > lines[3].relTop    && curYRelativeToClef <= lines[3].relBot) return clefMapping[this.state.stave.clef][7];
+        else if (curYRelativeToClef > lines[3].relBot    && curYRelativeToClef <= lines[4].relTop) return clefMapping[this.state.stave.clef][8];
+        else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) return clefMapping[this.state.stave.clef][9];
+        else if (curYRelativeToClef > lines[4].relBot)                                             return clefMapping[this.state.stave.clef][10];
+    }
+
     handleMouseMove = (e) => {
         const lines = this.state.lines;
-        const curYRelativeToClef = e.pageY % 200;
         const curY = e.pageY;
         const curX = e.pageX;
         const measuresNum = this.state.measureBarLines.length;
-        let note;
         let currentMeasure;
-
-        if      (curYRelativeToClef <=lines[0].relTop)                                             note = clefMapping[this.state.stave.clef][0];
-        else if (curYRelativeToClef > lines[0].relTop    && curYRelativeToClef <= lines[0].relBot) note = clefMapping[this.state.stave.clef][1];
-        else if (curYRelativeToClef > lines[0].relBot    && curYRelativeToClef <= lines[1].relTop) note = clefMapping[this.state.stave.clef][2];
-        else if (curYRelativeToClef > lines[1].relTop    && curYRelativeToClef <= lines[1].relBot) note = clefMapping[this.state.stave.clef][3];
-        else if (curYRelativeToClef > lines[1].relBot    && curYRelativeToClef <= lines[2].relTop) note = clefMapping[this.state.stave.clef][4];
-        else if (curYRelativeToClef > lines[2].relTop    && curYRelativeToClef <= lines[2].relBot) note = clefMapping[this.state.stave.clef][5];
-        else if (curYRelativeToClef > lines[2].relBot    && curYRelativeToClef <= lines[3].relTop) note = clefMapping[this.state.stave.clef][6];
-        else if (curYRelativeToClef > lines[3].relTop    && curYRelativeToClef <= lines[3].relBot) note = clefMapping[this.state.stave.clef][7];
-        else if (curYRelativeToClef > lines[3].relBot    && curYRelativeToClef <= lines[4].relTop) note = clefMapping[this.state.stave.clef][8];
-        else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) note = clefMapping[this.state.stave.clef][9];
-        else if (curYRelativeToClef > lines[4].relBot)                                             note = clefMapping[this.state.stave.clef][10];
 
         for (let i = 0; i < measuresNum; i += 2) {
             // y offset of the measures in calculated based on the top-most and bottom-most lines
@@ -691,7 +694,6 @@ class StaffContainer extends React.Component {
         }
         
         this.setState({
-            note: note,
             currentMeasure: currentMeasure,
         })
     }

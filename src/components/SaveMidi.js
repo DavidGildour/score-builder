@@ -15,7 +15,6 @@ export default class extends React.Component {
             for (const voice of measure.voices) {
                 tracks[voice.id].addEvent(voice.notes.map(note => {
                     const duration = note.duration.includes('r') ? 'wait' : 'duration';
-                    console.log(duration, note.duration, VFDurToMidi[note.duration.replace('r', '')]);
                     return new MidiWriter.NoteEvent({
                         pitch: note.keys.map(key => key.replace('/', '')),
                         duration: VFDurToMidi[note.duration.replace('r', '')],
@@ -37,10 +36,6 @@ export default class extends React.Component {
         downloader.click();
 
         document.body.removeChild(downloader);
-    }
-
-    componentDidUpdate = () => {
-        console.log('updated');
     }
 
     render = () => (
