@@ -36,7 +36,7 @@ const mapDispatchToProps = {
     addMeasureToStave,
 };
 
-class StaffContainer extends React.Component {
+class StaffContainer extends React.PureComponent {
     state = {
         error: '',
         restMode: false,
