@@ -8,6 +8,7 @@ export default class extends React.Component {
         const tracks = this.props.measures[0].voices.map(_ => (
             new MidiWriter.Track()
             .setTempo(parseInt(this.props.bpm, 10))
+            .setTimeSignature(this.props.timeSig[0], this.props.timeSig[1])
         ));
 
         for (const measure of this.props.measures) {
@@ -25,7 +26,6 @@ export default class extends React.Component {
         }
 
         const write = new MidiWriter.Writer(tracks);
-        console.log(write.dataUri());
 
         const downloader = document.createElement('a');
         downloader.setAttribute('href', write.dataUri());
