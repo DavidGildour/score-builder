@@ -960,11 +960,10 @@ class StaffContainer extends React.PureComponent {
     static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
 
     componentDidMount(){
-        M.AutoInit();
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     const elems = document.querySelectorAll('.sidenav');
-        //     const instances = M.Sidenav.init(elems, {edge: 'right'});
-        // });
+        // materialize-css javascript initialization
+        M.FormSelect.init(document.querySelectorAll('select'));
+        M.Tooltip.init(document.querySelectorAll('.tooltipped'));
+        M.Modal.init(document.querySelectorAll('.modal'));
     
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 

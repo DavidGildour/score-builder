@@ -146,12 +146,14 @@ export const RemoveNote = (props) => (
 );
 
 export class Voices extends React.Component {
-    componentDidUpdate = () => {
-        M.AutoInit();
+    componentDidUpdate = (prevProps) => {
+        if (prevProps.voices !== this.props.voices) {
+            M.FormSelect.init(document.querySelector('select#voices'));
+        }
     }
 
     render = () => (
-        <div className="input-field">
+        <div className="input-field" id="voices">
             <select name="currentVoice" value={this.props.currentVoice} onChange={this.props.onChange}>
             {this.props.voices.map((voice) => (
                 <option key={voice.id} value={voice.id}>
