@@ -1,6 +1,18 @@
 export default {
     author: 'Twórca aplikacji: ',
     navbar: {
+        forms: {
+            register: 'Utwórz konto',
+            login: 'Zaloguj',
+            username: 'Użytkownik',
+            password: 'Hasło',
+            repeat_password: 'Powtórz hasło',
+            logout: 'Wyloguj',
+            info: {
+                logged_in: 'Zalogowano.',
+                logged_out: 'Wylogowano.',
+            }
+        },
         close: 'Zamknij',
         help: 'Pomoc',
         helpContent: [

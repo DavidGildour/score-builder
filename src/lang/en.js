@@ -1,6 +1,18 @@
 export default {
     author: 'Application author: ',
     navbar: {
+        forms: {
+            register: 'Register',
+            login: 'Log in',
+            username: 'Username',
+            password: 'Password',
+            repeat_password: 'Repeat password',
+            logout: 'Log out',
+            info: {
+                logged_in: 'Logged In.',
+                logged_out: 'Logged Out.',
+            }
+        },
         close: 'Close',
         help: 'Help',
         helpContent: [

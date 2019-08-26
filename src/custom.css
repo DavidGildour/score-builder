@@ -10,3 +10,14 @@
     position: relative;
     top: 6px;
 }
+
+.info-box {
+    position: absolute;
+    z-index: 1;
+    top: -10px;
+    left: 50%;
+}
+
+.login {
+    width: 20%;
+}
