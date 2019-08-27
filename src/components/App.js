@@ -3,9 +3,9 @@ import M from 'materialize-css/dist/js/materialize.min'
 
 import StaffContainer from './StaffContainer';
 import language from '../lang/language';
-import { LoginModal, HelpModal, AboutModal, RegisterModal } from './Modals';
-import { NavBar, LangDrop } from './Navbar';
-import { getUser, getAuth, logOutUser, registerUser } from '../utils/Requests';
+import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal } from './Modals';
+import NavBar from './Navbar';
+import { getUser, getAuth, logOutUser, registerUser, updatePassword } from '../utils/Requests';
 
 class InfoBox extends React.Component {
     componentDidUpdate = (prevProps) => {
@@ -26,13 +26,14 @@ export default class extends React.Component {
         user: null,
         loginError: null,
         registerStatus: null,
+        message: null,
     };
 
     componentDidMount = () => {
         getUser()
         .then((json) => {
             this.setState({
-                user: json.content.username,
+                user: json.content,
                 isLogged: true,
             })
         })
@@ -48,9 +49,12 @@ export default class extends React.Component {
             if (json.hasOwnProperty('content')) {
                 const elem = document.querySelector('#login');
                 M.Modal.getInstance(elem).close();
+                const user = json.content;
+                delete user.access_token;
                 this.setState({
-                    user: json.content.username,
+                    user: user,
                     isLogged: true,
+                    loginError: null,
                 });
             } else {
                 throw Error('Invalid credentials!');
@@ -73,13 +77,13 @@ export default class extends React.Component {
                 this.setState({
                     user: null,
                     isLogged: false,
+                    loginError: null,
                 });
             } else {
-            throw new Error('Something went wrong, please try again.');
+            throw Error('Something went wrong, please try again.');
             }
         })
         .catch(err => {
-            console.log(err);
             this.setState({
                 loginError: err.message,
             });
@@ -113,22 +117,54 @@ export default class extends React.Component {
         });
     }
 
+    editUser = (e) => {
+        const { password1, password2, old_password } = e.target;
+        updatePassword(old_password.value, password1.value, password2.value)
+        .then(json => {
+            this.setState({
+                message: json.message,
+            });
+        })
+        .catch(err => {
+            this.setState({
+                message: err.message,
+            })
+        })
+    }
+
     render = () => {
         let logButton;
         let registerButton;
+        let userInfoModal;
 
         if (this.state.isLogged) {
-            logButton = <li><a href="#!" onClick={this.logOut}>{language[this.state.lang].navbar.forms.logout} ({this.state.user})</a></li>;
+            userInfoModal = 
+                <UserInfoModal
+                    message={this.state.message}
+                    text={language[this.state.lang].navbar.forms}
+                    clearMessage={() => this.setState({message: null})}
+                    editUser={this.editUser} 
+                    user={this.state.user}
+                    close={language[this.state.lang].navbar.close} />
+            logButton = null;
             registerButton = null;
         } else {
             logButton = <li><a href="#login" className="modal-trigger">{language[this.state.lang].navbar.forms.login}</a></li>;
             registerButton = <li><a href="#register" className="modal-trigger">{language[this.state.lang].navbar.forms.register}</a></li>;
+            userInfoModal = null;
         }
         return (
             <div id="main" className="App">
-                <LangDrop onChange={this.langChange} />
-                <NavBar text={language[this.state.lang].navbar} logButton={logButton} registerButton={registerButton} />
+                <NavBar
+                    user={this.state.user}
+                    text={language[this.state.lang].navbar}
+                    logButton={logButton}
+                    registerButton={registerButton}
+                    logOut={this.logOut}
+                    langChange={this.langChange}
+                />
                 <InfoBox text={language[this.state.lang].navbar.forms.info} loggedIn={this.state.isLogged} />
+                {userInfoModal}
                 <RegisterModal
                     text={language[this.state.lang].navbar.forms}
                     close={language[this.state.lang].navbar.close}

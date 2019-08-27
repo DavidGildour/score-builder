@@ -52,3 +52,19 @@ export const registerUser = (username, password1, password2) => {
     })
     .then(resp => resp.json());
 }
+
+export const updatePassword = (old, pass1, pass2) => {
+    return fetch('http://127.0.0.1:5000/me', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({
+            'old_password': old,
+            'password1': pass1,
+            'password2': pass2,
+        })
+    })
+    .then(resp => resp.json());
+}

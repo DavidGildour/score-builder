@@ -9,9 +9,9 @@ import store from './redux/store';
 
 ReactDOM.render(
     <div className="container">
-    <Provider store={store}>
-        <App />
-    </Provider>
+        <Provider store={store}>
+            <App />
+        </Provider>
     </div>,
     document.getElementById('root'),
 );

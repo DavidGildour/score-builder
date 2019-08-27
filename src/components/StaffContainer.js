@@ -963,7 +963,6 @@ class StaffContainer extends React.PureComponent {
         // materialize-css javascript initialization
         M.FormSelect.init(document.querySelectorAll('select'));
         M.Tooltip.init(document.querySelectorAll('.tooltipped'));
-        M.Modal.init(document.querySelectorAll('.modal'));
     
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
 
