@@ -9,6 +9,7 @@ export default {
             new_password: 'New password',
             password: 'Password',
             repeat_password: 'Repeat password',
+            email: 'E-mail address',
             logout: 'Log out',
             edit: 'Edit profile',
             user_info: 'User info',

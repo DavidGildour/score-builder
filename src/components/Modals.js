@@ -3,6 +3,7 @@ import React from 'react';
 export class RegisterModal extends React.Component {
     state = {
         username: '',
+        email: '',
         password1: '',
         password2: '',
     }
@@ -20,6 +21,7 @@ export class RegisterModal extends React.Component {
                 <div>{this.props.message}</div>
                 <form onSubmit={(e) => {e.preventDefault();this.props.onSubmit(e);this.setState({password1:'',password2:''})}}>
                     <input type="text" className="validate" onChange={this.handleChange} value={this.state.username} name="username" placeholder={this.props.text.username} />
+                    <input type="email" className="validate" onChange={this.handleChange} value={this.state.email} name="email" placeholder={this.props.text.email} />
                     <input type="password" className="validate" onChange={this.handleChange} value={this.state.password1} name="password1" placeholder={this.props.text.password} />
                     <input type="password" className="validate" onChange={this.handleChange} value={this.state.password2} name="password2" placeholder={this.props.text.repeat_password} />
                     <button className="btn waves-effect waves-light top-margin" type="submit">
@@ -124,9 +126,22 @@ export class UserInfoModal extends React.Component {
                 <div className="lime-text text-darken-2 center-align">{this.props.message}</div>
                 <h5 className="center-align">{this.props.text.user_info}:</h5>
                 <ul className="collection">
-                    <li className="collection-item"><div>{this.props.text.username}: <span className="secondary-content">{this.props.user.username}</span></div></li>
+                    <li className="collection-item">
+                        <div>
+                            {this.props.text.username}: <span className="secondary-content">{this.props.user.username}</span>
+                        </div>
+                    </li>
+                    <li className="collection-item">
+                        <div>
+                            {this.props.text.email}: <span className="secondary-content">{this.props.user.email}</span>
+                        </div>
+                    </li>
                     {this.state.passwordField}
-                    <li className="collection-item"><div>{this.props.text.registration_date}: <span className="secondary-content">{this.props.user.registration_date}</span></div></li>
+                    <li className="collection-item">
+                        <div>
+                            {this.props.text.registration_date}: <span className="secondary-content">{this.props.user.registration_date}</span>
+                        </div>
+                    </li>
                 </ul>
             </div>
             <div className="modal-footer">

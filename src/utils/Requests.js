@@ -37,7 +37,7 @@ export const logOutUser = () => {
     });
 }
 
-export const registerUser = (username, password1, password2) => {
+export const registerUser = (username, password1, password2, email) => {
     return fetch('http://127.0.0.1:5000/register', {
         method: 'POST',
         credentials: 'include',
@@ -48,6 +48,7 @@ export const registerUser = (username, password1, password2) => {
             'username': username,
             'password1': password1,
             'password2': password2,
+            'email': email,
         })
     })
     .then(resp => resp.json());
