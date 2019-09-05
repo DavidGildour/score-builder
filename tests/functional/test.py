@@ -12,9 +12,9 @@ from selenium.webdriver.support import expected_conditions as EC
 ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
 USER = {
-    'name': ''.join([random.choice(ALPHABET) for _ in range(10)]),
-    'email': ''.join([random.choice(ALPHABET) for _ in range(10)]) + '@test.com',
-    'password': ''.join([random.choice(ALPHABET) for _ in range(10)]),
+    'name': ''.join(random.choice(ALPHABET) for _ in range(10)),
+    'email': ''.join(random.choice(ALPHABET) for _ in range(10)) + '@test.com',
+    'password': ''.join(random.choice(ALPHABET) for _ in range(10)),
 }
 
 def test_home_page(driver):
@@ -110,6 +110,8 @@ def test_user_login(driver):
 
     modal.find_element_by_name('username').send_keys(USER['name'])
     modal.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
+
+    time.sleep(0.5)
 
     info = driver.find_element_by_class_name('info-box')
 
