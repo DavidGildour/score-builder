@@ -1,0 +1,50 @@
+.custom-collapsible {
+    height: 1.8em;
+    position: relative;
+}
+
+.expand {
+    animation-name: expand;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+    height: 1.8em;
+}
+
+.collapse {
+    animation-name: collapse;
+    animation-duration: 0.5s;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+    height: 15em;
+}
+
+.content {
+    transition: opacity 0.5s, z-index 0.5s;
+    opacity: 0;
+    z-index: -10;
+    position: absolute;
+    bottom: 0%;
+}
+
+.collapse .content {
+    opacity: 0;
+    z-index: -10;
+}
+
+.expand .content {
+    transition-delay: 0.2s;
+    opacity: 1;
+    z-index: 10;
+}
+
+@keyframes expand {
+    to {
+        height: 15em;
+    }
+}
+
+@keyframes collapse {
+    to {
+        height: 1.8em;
+    }
+}
