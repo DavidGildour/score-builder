@@ -69,54 +69,25 @@ export class LoginModal extends React.Component {
 }
 
 export class UserInfoModal extends React.Component {
-    getFlatPasswordField = () => (
-        <li className="collection-item">
-            <div>
-                {this.props.text.password}: 
-                <span
-                    style={{cursor: 'pointer'}}
-                    onClick={() => this.changePasswordField('edit')}
-                    className="secondary-content">
-                    {this.props.text.change}<i className="material-icons right">create</i>
-                </span>
-            </div>
-        </li>
-    );
-
-    componentDidUpdate = (prevProps) => {
-        if (prevProps.text !== this.props.text) {
-            this.setState({
-                passwordField: this.getFlatPasswordField(),
-            })
+    toggleAnim = id => {
+        const elem = document.querySelector(`.custom-collapsible#${id}`)
+        switch(elem.className) {
+            case 'custom-collapsible collapse':
+                elem.className = 'custom-collapsible expand';
+                break;
+            case 'custom-collapsible expand':
+                elem.className = 'custom-collapsible collapse';
+                break;
+            case 'custom-collapsible':
+                elem.className = 'custom-collapsible expand';
         }
     }
 
-    state = {
-        passwordField: this.getFlatPasswordField(),
-    }
-
-    changePasswordField = (mode) => {
-        if (mode === 'edit') {
-            this.setState({
-                passwordField:
-                <li className="collection-item">
-                    <div>
-                        {this.props.text.password}:
-                        <form className="center-align" onSubmit={(e) => {this.props.editUser(e);this.changePasswordField('flat')}}>
-                            <input id="old_password" type="password" placeholder={this.props.text.old_password} />
-                            <input id="password1" type="password" placeholder={this.props.text.new_password} />
-                            <input id="password2" type="password" placeholder={this.props.text.repeat_password} />
-                            <input type="submit" style={{display: 'none'}} />
-                            <button className="btn waves-effect waves-light" onClick={() => this.changePasswordField('flat')}>{this.props.text.cancel}</button>&nbsp;
-                            <button className="btn waves-effect waves-light" type="submit">{this.props.text.change}</button>
-                        </form>
-                    </div>
-                </li>,
-            });
-        } else {
-            this.setState({
-                passwordField: this.getFlatPasswordField(),
-            });
+    cleanUp = () => {
+        this.props.clearMessage();
+        const elems = document.getElementsByClassName('custom-collapsible');
+        for (const elem of elems) {
+            elem.className = 'custom-collapsible';
         }
     }
 
@@ -136,16 +107,54 @@ export class UserInfoModal extends React.Component {
                             {this.props.text.email}: <span className="secondary-content">{this.props.user.email}</span>
                         </div>
                     </li>
-                    {this.state.passwordField}
+                    <li className="collection-item">
+                    <div id='password' className="custom-collapsible">
+                        {this.props.text.password}: 
+                        <span className="secondary-content" style={{cursor: 'pointer'}} onClick={() => this.toggleAnim('password')}>
+                            {this.props.text.change}<i className="material-icons right">create</i>
+                        </span>
+                        <div className="content">
+                            <form className="center-align" onSubmit={(e) => {this.props.editUser(e);this.toggleAnim('password')}}>
+                                <input id="old_password" type="password" placeholder={this.props.text.old_password} />
+                                <input id="password1" type="password" placeholder={this.props.text.new_password} />
+                                <input id="password2" type="password" placeholder={this.props.text.repeat_password} />
+                                <input type="submit" style={{display: 'none'}} />
+                                <button className="btn waves-effect waves-light" onClick={(e) => {e.preventDefault();this.toggleAnim('password')}}>{this.props.text.cancel}</button>&nbsp;
+                                <button className="btn waves-effect waves-light" type="submit">{this.props.text.change}</button>
+                            </form>
+                        </div>
+                    </div>
+                    </li>
                     <li className="collection-item">
                         <div>
                             {this.props.text.registration_date}: <span className="secondary-content">{this.props.user.registration_date}</span>
                         </div>
                     </li>
                 </ul>
+                <div id='delete-box' className="custom-collapsible">
+                    <button style={{zIndex: 11}} onClick={() => this.toggleAnim('delete-box')} className="btn red waves-effect waves-light fill" id="delete">{this.props.text.delete.delete}</button>
+                    <div className="content" style={{bottom: '-3em'}}>
+                        <div id="info" className="card red lighten-4">
+                            <div className="card-content">
+                                <span className="card-title">{this.props.text.delete.message_header}</span>
+                                <p>{this.props.text.delete.message_content}</p>
+                            </div>
+                            <div className="card-action">
+                                <div className="row">
+                                    <div className="col s6">
+                                        <button onClick={() => this.toggleAnim('delete-box')} className="fill btn green waves-effect" id="cancel">{this.props.text.cancel}</button>
+                                    </div>
+                                    <div className="col s6">
+                                        <button onClick={this.props.deleteMe} className="fill btn red waves-effect" id="confirm">{this.props.text.delete.confirm}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div className="modal-footer">
-                <a href="#!" onClick={() => {this.changePasswordField('flat');this.props.clearMessage();}} className="modal-close btn-flat">{this.props.close}</a>
+                <a href="#!" onClick={this.cleanUp} className="modal-close btn-flat">{this.props.close}</a>
             </div>
         </div>
     );

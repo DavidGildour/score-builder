@@ -15,6 +15,12 @@ export default {
             user_info: 'Dane użytkownika',
             change: 'Zmień',
             cancel: 'Anuluj',
+            delete: {
+                delete: 'Usuń użytkownika',
+                message_header: 'Uwaga!',
+                message_content: 'Tej czynności nie można cofnąć i wiąże się z permanentnym usunięciem użytkownika z bazy danych.',
+                confirm: 'Potwierdź',
+            },
             registration_date: 'Data rejestracji',
             info: {
                 logged_in: 'Zalogowano.',

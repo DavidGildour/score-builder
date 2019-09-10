@@ -15,6 +15,12 @@ export default {
             user_info: 'User info',
             change: 'Change',
             cancel: 'Cancel',
+            delete: {
+                delete: 'Delete user',
+                message_header: 'Warning!',
+                message_content: 'This action is irreversible and will permanently delete this user from our database! Please, confirm your choice.',
+                confirm: 'Confirm',
+            },
             registration_date: 'Registration date',
             info: {
                 logged_in: 'Logged In.',

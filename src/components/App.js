@@ -5,7 +5,7 @@ import StaffContainer from './StaffContainer';
 import language from '../lang/language';
 import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal } from './Modals';
 import NavBar from './Navbar';
-import { getUser, getAuth, logOutUser, registerUser, updatePassword } from '../utils/Requests';
+import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteUser } from '../utils/Requests';
 
 class InfoBox extends React.Component {
     componentDidUpdate = (prevProps) => {
@@ -69,8 +69,7 @@ export default class extends React.Component {
         
     }
 
-    logOut = (e) => {
-        e.preventDefault();
+    logOut = () => {
         logOutUser()
         .then(resp => {
             if (resp.status === 200) {
@@ -132,6 +131,20 @@ export default class extends React.Component {
         })
     }
 
+    deleteMe = () => {
+        deleteUser()
+        .then(_ => {
+            const elem = document.querySelector('#user-info');
+            M.Modal.getInstance(elem).close();
+            this.setState({
+                user: null,
+                isLogged: false,
+                loginError: null,
+            });
+        })
+        .catch(err => this.setState({ message: err.message }))
+    }
+
     render = () => {
         let logButton;
         let registerButton;
@@ -143,6 +156,7 @@ export default class extends React.Component {
                     message={this.state.message}
                     text={language[this.state.lang].navbar.forms}
                     clearMessage={() => this.setState({message: null})}
+                    deleteMe={this.deleteMe}
                     editUser={this.editUser} 
                     user={this.state.user}
                     close={language[this.state.lang].navbar.close} />
