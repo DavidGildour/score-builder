@@ -163,37 +163,87 @@ export class UserInfoModal extends React.Component {
 }
 
 export class UserListModal extends React.Component {
-    state = {
+    static DEFAULT_STATE = {
         loaded: false,
         users: [],
-    }
+        page: 1,
+        max_pages: 0,
+        users_per_page: 10,
+        paginator: null,
+    };
+    state = UserListModal.DEFAULT_STATE;
 
     componentDidUpdate = () => {
         if (this.state.loaded === true) M.Collapsible.init(document.querySelector('#userlist .collapsible'));
         if (JSON.stringify(this.props.users) !== JSON.stringify(this.state.users)) {
+            const links = [];
+            let users_total = this.props.users.length;
+            let page = 1;
+            while (users_total > 0) {
+                const val = page;
+                const link = 
+                <li id={'page' + val} key={page} className={val === 1 ? 'active teal lighten-2' : 'waves-effect'}>
+                    <a onClick={() => this.turnPage(val)} href="#!">{page++}</a>
+                </li>;
+                links.push(link);
+                users_total -= this.state.users_per_page;
+            }
             this.setState({
-                users: this.props.users,
+                users: this.props.users.sort((a, b) => new Date(a.registration_date) > new Date(b.registration_date)),
                 loaded: true,
+                max_pages: links.length,
+                paginator: links.length === 1 ? null :
+                    <ul className="pagination center">
+                        <li id="page_prev" className="disabled">
+                            <a href="#!" onClick={() => this.turnPage(this.state.page -1)}>
+                                <i className="material-icons">chevron_left</i>
+                            </a>
+                        </li>
+                        {links}
+                        <li id="page_next" className={links.length === 1 ? 'disabled' : 'waves-effect'}>
+                            <a href="#!" onClick={() => this.turnPage(this.state.page + 1)}>
+                                <i className="material-icons">chevron_right</i>
+                            </a>
+                        </li>
+                    </ul>
             })
         }
+    }
+
+    turnPage = page => {
+        if (page < 1 || page > this.state.max_pages) return;
+        const collapsibles = M.Collapsible.getInstance(document.querySelector('#userlist .collapsible'));
+        for (let i = 0; i < document.querySelectorAll('#userlist .collapsible li').length; i++) {
+            collapsibles.close(i);
+        }
+        const paginator = document.querySelector('.pagination');
+        const links = paginator.getElementsByTagName('li');
+        for (const link of links) {
+            const id = link.getAttribute('id');
+            if (id === 'page' + page) link.className = 'active teal lighten-2';
+            else link.className = 'waves-effect';
+        }
+        if (page === 1) document.getElementById('page_prev').className = "disabled";
+        if (page === this.state.max_pages) document.getElementById('page_next').className = "disabled";
+        this.setState({
+            page: page,
+        })
     }
 
     close = () => {
         M.Modal.getInstance(document.getElementById('userlist')).close();
         this.props.clearUserList();
-        this.setState({
-            loaded: false,
-            users: [],
-        })
+        this.setState(UserListModal.DEFAULT_STATE);
     }
 
     render = () => {
-        const list = this.state.users.length > 0 ? 
+        const users_total = this.state.users.length;
+        const list = users_total > 0 ? 
         this.state.users
-        .sort((a, b) => new Date(a.registration_date) > new Date(b.registration_date))
+        .slice((this.state.page-1)*this.state.users_per_page, (this.state.page)*this.state.users_per_page)
         .map((user, i) => (
             <li key={i}>
-                <div className="collapsible-header">{i+1}. {user.username} - {user.id}</div>
+                <div className="collapsible-header teal lighten-4">{(this.state.page-1)*this.state.users_per_page + i+1}. {user.username} - {user.id}</div>
                 <div className="collapsible-body">
                     <p>role: {user.role_id === 1 ? 'ADMIN' : 'USER'}</p>
                     <p>e-mail: {user.email}</p>
@@ -205,9 +255,10 @@ export class UserListModal extends React.Component {
         <div className="modal-content">
             <span className="red-text">{this.props.message}</span>
             <h4 className="center">Registered users:</h4>
-            <ul className="collapsible">
+            <ul className="collapsible popout">
                 {list}
             </ul>
+            {this.state.paginator}
         </div>
         : 
         <div className="modal-content">
