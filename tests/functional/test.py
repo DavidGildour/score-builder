@@ -259,7 +259,16 @@ def test_admin_panel(driver):
         EC.text_to_be_present_in_element((By.ID, 'userlist'), 'Registered users:')
     )
 
-    usernames = list(map(lambda x: x.text.split(' ')[1], modal.find_elements_by_class_name('collapsible-header')))
+    found = False
 
-    assert USER['name'] in usernames, f'{USER["name"]} is not present in the users list: {usernames} '
-    assert 'admin' in usernames
+    while not found:
+        try:
+            usernames = list(
+                map(lambda x: x.text.split(' ')[1], modal.find_elements_by_class_name('collapsible-header')))
+            assert USER['name'] in usernames
+            found = True
+        except AssertionError:
+            next = modal.find_element_by_id('page_next')
+            if next.get_attribute('class') == 'disabled':
+                pytest.fail(f'{USER["name"]} not found, probably registration failed.')
+            next.click()
