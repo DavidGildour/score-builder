@@ -3,9 +3,9 @@ import M from 'materialize-css/dist/js/materialize.min'
 
 import StaffContainer from './StaffContainer';
 import language from '../lang/language';
-import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal } from './Modals';
+import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal, UserListModal } from './Modals';
 import NavBar from './Navbar';
-import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteUser } from '../utils/Requests';
+import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteUser, getUsers } from '../utils/Requests';
 
 class InfoBox extends React.Component {
     componentDidUpdate = (prevProps) => {
@@ -27,6 +27,7 @@ export default class extends React.Component {
         loginError: null,
         registerStatus: null,
         message: null,
+        userList: [],
     };
 
     componentDidMount = () => {
@@ -110,6 +111,24 @@ export default class extends React.Component {
         })
     }
 
+    getUserList = () => {
+        getUsers()
+        .then(data => {
+            if (data.message === "Success.") {
+                this.setState({
+                    userList: data.content,
+                })
+            } else {
+                throw Error(data.message)
+            }
+        })
+        .catch(err => this.setState({ message: err.message }))
+    }
+
+    clearUserList = () => {
+        this.setState({ userList: [], message: null });
+    }
+
     langChange = (lang) => {
         this.setState({
             lang: lang,
@@ -170,6 +189,7 @@ export default class extends React.Component {
         return (
             <div id="main" className="App">
                 <NavBar
+                    getUserList={this.getUserList}
                     user={this.state.user}
                     text={language[this.state.lang].navbar}
                     logButton={logButton}
@@ -202,6 +222,10 @@ export default class extends React.Component {
                     helpContent={language[this.state.lang].navbar.helpContent}
                     close={language[this.state.lang].navbar.close}
                 />
+                <UserListModal
+                    users={this.state.userList}
+                    message={this.state.message}
+                    clearUserList={this.clearUserList} />
                 <StaffContainer lang={language[this.state.lang]} id="0" />
             </div>
         )

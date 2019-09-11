@@ -41,6 +41,11 @@ export default class extends React.Component {
         M.Modal.init(document.querySelectorAll('.modal'));
     }
 
+    openUserList = () => {
+        M.Modal.getInstance(document.getElementById('userlist')).open();
+        this.props.getUserList();
+    }
+
     render = () => {
         // this is ugly, but due to some error with initializing the dropdown I had to do this that way
         // upside - it works; downsides - it's ugly
@@ -51,6 +56,10 @@ export default class extends React.Component {
                 </a>
             </li>;
 
+        let userList;
+        if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>User list</a></li>;
+        else userList = null;
+
         return (
             <nav>
                 <LangDrop onChange={this.props.langChange} />
@@ -58,6 +67,7 @@ export default class extends React.Component {
                 <div className="nav-wrapper teal">
                 <a href="/" className="brand-logo"><i className="material-icons left">library_music</i>Score Builder</a>
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
+                    {userList}
                     {userOptions}
                     {this.props.registerButton}
                     {this.props.logButton}

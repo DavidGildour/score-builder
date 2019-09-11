@@ -77,3 +77,9 @@ export const deleteUser = () => {
     })
     .then(resp => resp.json())
 }
+
+export const getUsers = () => {
+    return fetch('http://127.0.0.1:5000/users', {
+        credentials: 'include'})
+    .then(resp => resp.json())
+}

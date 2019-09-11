@@ -1,4 +1,5 @@
 import React from 'react';
+import M from 'materialize-css/dist/js/materialize.min';
 
 export class RegisterModal extends React.Component {
     state = {
@@ -78,7 +79,7 @@ export class UserInfoModal extends React.Component {
             case 'custom-collapsible expand':
                 elem.className = 'custom-collapsible collapse';
                 break;
-            case 'custom-collapsible':
+            default:
                 elem.className = 'custom-collapsible expand';
         }
     }
@@ -158,7 +159,71 @@ export class UserInfoModal extends React.Component {
             </div>
         </div>
     );
-} 
+}
+
+export class UserListModal extends React.Component {
+    state = {
+        loaded: false,
+        users: [],
+    }
+
+    componentDidUpdate = () => {
+        if (this.state.loaded === true) M.Collapsible.init(document.querySelector('#userlist .collapsible'));
+        if (JSON.stringify(this.props.users) !== JSON.stringify(this.state.users)) {
+            this.setState({
+                users: this.props.users,
+                loaded: true,
+            })
+        }
+    }
+
+    close = () => {
+        M.Modal.getInstance(document.getElementById('userlist')).close();
+        this.props.clearUserList();
+        this.setState({
+            loaded: false,
+            users: [],
+        })
+    }
+
+    render = () => {
+        const list = this.state.users.length > 0 ? 
+        this.state.users.map((user, i) => (
+            <li>
+                <div className="collapsible-header">{i+1}. {user.username} - {user.id}</div>
+                <div className="collapsible-body">
+                    <p>role: {user.role_id === 1 ? 'ADMIN' : 'USER'}</p>
+                    <p>e-mail: {user.email}</p>
+                    <p>registration date: {user.registration_date}</p>
+                </div>
+            </li>
+        )) : <span>No users to display. What are you doing here?</span>;
+        const content = this.state.loaded ?
+        <div className="modal-content">
+            <span className="red-text">{this.props.message}</span>
+            <h4 className="center">Registered users:</h4>
+            <ul className="collapsible">
+                {list}
+            </ul>
+        </div>
+        : 
+        <div className="modal-content">
+            <span className="red-text">{this.props.message}</span>
+            <h4 className="center">Loading...</h4>
+            <div className="progress">
+                <div className="indeterminate"></div>
+            </div>
+        </div>;
+        return (
+            <div id="userlist" className="modal modal-fixed-footer">
+                {content}
+                <div className="modal-footer">
+                    <a href="#!" className="btn-flat" onClick={this.close}>Close</a>
+                </div>
+            </div>
+        )
+    }
+}
 
 export const AboutModal = (props) => (
     <div id="about" className="modal modal-fixed-footer">
