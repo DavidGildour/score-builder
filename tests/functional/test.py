@@ -11,11 +11,15 @@ from selenium.webdriver.support import expected_conditions as EC
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
-USER = {
-    'name': ''.join(random.choice(ALPHABET) for _ in range(10)),
-    'email': ''.join(random.choice(ALPHABET) for _ in range(10)) + '@test.com',
-    'password': ''.join(random.choice(ALPHABET) for _ in range(10)),
-}
+USER = {}
+
+def get_random_userdata():
+    return {
+        'name': ''.join(random.choice(ALPHABET) for _ in range(10)),
+        'email': ''.join(random.choice(ALPHABET) for _ in range(10)) + '@test.com',
+        'password': ''.join(random.choice(ALPHABET) for _ in range(10)),
+    }
+
 
 def get_user_dropdown_options(driver) -> list:
     user_menu = driver.find_element_by_id('user-opt')
@@ -84,6 +88,8 @@ def test_help_modal(driver):
     modal.find_element_by_class_name("modal-close").click()
 
 def test_user_register(driver):
+    global USER
+    USER = get_random_userdata()
     register = driver.find_element_by_link_text('Register')
     ActionChains(driver).move_to_element(register).click().perform()
 
@@ -102,8 +108,6 @@ def test_user_register(driver):
         )
     except:
         pytest.fail('Failed to register.')
-
-    assert modal.text.startswith('User successfully created.')
 
     modal.find_element_by_class_name("modal-close").click()
 
@@ -223,3 +227,39 @@ def test_deleting_a_user(driver):
         )
     except:
         pytest.fail('Probably some internal server error.')
+
+    modal.find_element_by_class_name('modal-close').click()
+
+def test_admin_panel(driver):
+    # first lets register a user
+    test_user_register(driver)
+    # lets login as an admin
+    login = driver.find_element_by_link_text('Log in')
+    ActionChains(driver).move_to_element(login).click().perform()
+    modal = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, 'login'))
+    )
+
+    modal.find_element_by_name('username').send_keys('admin')
+    modal.find_element_by_name('password').send_keys('admin', Keys.ENTER)
+
+    try:
+        WebDriverWait(driver, 5).until(
+            EC.text_to_be_present_in_element((By.TAG_NAME, 'nav'), 'User list')
+        )
+    except:
+        pytest.fail('Failed to log in as an admin.')
+    driver.find_element_by_link_text('User list').click()
+
+    modal = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, 'userlist'))
+    )
+
+    WebDriverWait(driver, 5).until(
+        EC.text_to_be_present_in_element((By.ID, 'userlist'), 'Registered users:')
+    )
+
+    usernames = list(map(lambda x: x.text.split(' ')[1], modal.find_elements_by_class_name('collapsible-header')))
+
+    assert USER['name'] in usernames, f'{USER["name"]} is not present in the users list: {usernames} '
+    assert 'admin' in usernames
