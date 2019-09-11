@@ -807,7 +807,7 @@ class StaffContainer extends React.PureComponent {
     }
 
     selectedNoteChange = (event) => {
-        const { name, value } = event.target;
+        const { name } = event.target;
         
         switch (name) {
             case 'editMode' : {

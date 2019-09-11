@@ -189,8 +189,10 @@ export class UserListModal extends React.Component {
 
     render = () => {
         const list = this.state.users.length > 0 ? 
-        this.state.users.map((user, i) => (
-            <li>
+        this.state.users
+        .sort((a, b) => new Date(a.registration_date) > new Date(b.registration_date))
+        .map((user, i) => (
+            <li key={i}>
                 <div className="collapsible-header">{i+1}. {user.username} - {user.id}</div>
                 <div className="collapsible-body">
                     <p>role: {user.role_id === 1 ? 'ADMIN' : 'USER'}</p>
