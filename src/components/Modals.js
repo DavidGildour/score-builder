@@ -2,12 +2,13 @@ import React from 'react';
 import M from 'materialize-css/dist/js/materialize.min';
 
 export class RegisterModal extends React.Component {
-    state = {
+    static DEFAULT_STATE = {
         username: '',
         email: '',
         password1: '',
         password2: '',
-    }
+    };
+    state = RegisterModal.DEFAULT_STATE
 
     handleChange = (e) => {
         const { value, name } = e.target;
@@ -31,7 +32,7 @@ export class RegisterModal extends React.Component {
                 </form>
                 </div>
             <div className="modal-footer">
-                <a href="#!" className="modal-close btn-flat">{this.props.close}</a>
+                <a href="#!" className="modal-close btn-flat" onClick={() => this.setState(RegisterModal.DEFAULT_STATE)}>{this.props.close}</a>
             </div>
         </div>
     )
