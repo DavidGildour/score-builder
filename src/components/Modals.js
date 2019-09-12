@@ -182,9 +182,9 @@ export class UserListModal extends React.Component {
             while (users_total > 0) {
                 const val = page;
                 const link = 
-                <li id={'page' + val} key={page} className={val === 1 ? 'active teal lighten-2' : 'waves-effect'}>
-                    <a onClick={() => this.turnPage(val)} href="#!">{page++}</a>
-                </li>;
+                    <li id={'page' + val} key={page} className={val === 1 ? 'active teal lighten-2' : 'waves-effect'}>
+                        <a onClick={() => this.turnPage(val)} href="#!">{page++}</a>
+                    </li>;
                 links.push(link);
                 users_total -= this.state.users_per_page;
             }
@@ -211,7 +211,7 @@ export class UserListModal extends React.Component {
     }
 
     turnPage = page => {
-        if (page < 1 || page > this.state.max_pages) return;
+        if (page < 1 || page > this.state.max_pages || page === this.state.page) return;
         const collapsibles = M.Collapsible.getInstance(document.querySelector('#userlist .collapsible'));
         for (let i = 0; i < document.querySelectorAll('#userlist .collapsible li').length; i++) {
             collapsibles.close(i);
