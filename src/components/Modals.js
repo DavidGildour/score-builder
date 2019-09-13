@@ -173,9 +173,9 @@ export class UserListModal extends React.Component {
     };
     state = UserListModal.DEFAULT_STATE;
 
-    componentDidUpdate = () => {
+    componentDidUpdate = (prevProps) => {
         if (this.state.loaded === true) M.Collapsible.init(document.querySelector('#userlist .collapsible'));
-        if (JSON.stringify(this.props.users) !== JSON.stringify(this.state.users)) {
+        if (JSON.stringify(this.props.users) !== JSON.stringify(prevProps.users)) {
             const links = [];
             let users_total = this.props.users.length;
             let page = 1;
@@ -192,7 +192,7 @@ export class UserListModal extends React.Component {
                 users: this.props.users.sort((a, b) => new Date(a.registration_date) > new Date(b.registration_date)),
                 loaded: true,
                 max_pages: links.length,
-                paginator: links.length === 1 ? null :
+                paginator: links.length < 2 ? null :
                     <ul className="pagination center">
                         <li id="page_prev" className="disabled">
                             <a href="#!" onClick={() => this.turnPage(this.state.page -1)}>
@@ -210,12 +210,16 @@ export class UserListModal extends React.Component {
         }
     }
 
-    turnPage = page => {
-        if (page < 1 || page > this.state.max_pages || page === this.state.page) return;
+    closeAllCollapsibles = () => {
         const collapsibles = M.Collapsible.getInstance(document.querySelector('#userlist .collapsible'));
         for (let i = 0; i < document.querySelectorAll('#userlist .collapsible li').length; i++) {
             collapsibles.close(i);
         }
+    }
+
+    turnPage = page => {
+        if (page < 1 || page > this.state.max_pages || page === this.state.page) return;
+        this.closeAllCollapsibles();
         const paginator = document.querySelector('.pagination');
         const links = paginator.getElementsByTagName('li');
         for (const link of links) {
@@ -236,6 +240,15 @@ export class UserListModal extends React.Component {
         this.setState(UserListModal.DEFAULT_STATE);
     }
 
+    deleteUser = (id) => {
+        this.props.deleteUser(id);
+        this.closeAllCollapsibles();
+        this.setState(state => ({
+            ...state,
+            users: state.users.filter(user => user.id !== id),
+        }))
+    }
+
     render = () => {
         const users_total = this.state.users.length;
         const list = users_total > 0 ? 
@@ -243,19 +256,58 @@ export class UserListModal extends React.Component {
         .slice((this.state.page-1)*this.state.users_per_page, (this.state.page)*this.state.users_per_page)
         .map((user, i) => (
             <li key={i}>
-                <div className="collapsible-header teal lighten-4">{(this.state.page-1)*this.state.users_per_page + i+1}. {user.username} - {user.id}</div>
-                <div className="collapsible-body">
-                    <p>role: {user.role_id === 1 ? 'ADMIN' : 'USER'}</p>
-                    <p>e-mail: {user.email}</p>
-                    <p>registration date: {user.registration_date}</p>
+                <div className="collapsible-header teal lighten-4 row">
+                    <div className="col s1">
+                        {(this.state.page-1)*this.state.users_per_page + i+1}.
+                    </div>
+                    <div className="col s7">
+                        {user.username}
+                    </div>
+                    <div className="col s4">
+                        {user.id}
+                    </div>
+                </div>
+                <div className="collapsible-body teal lighten-5">
+                    <table className="highlighted">
+                        <tbody>
+                            <tr>
+                                <td>Role:</td>
+                                <td>{user.role_id === 1 ? 'ADMIN' : 'USER'}</td>
+                            </tr>
+                            <tr>
+                                <td>E-mail:</td>
+                                <td>{user.email}</td>
+                            </tr>
+                            <tr style={{border: 'none'}}>
+                                <td>Registration:</td>
+                                <td>{user.registration_date}</td>
+                                <td>
+                                    <button id="delete_user" className="btn waves-effect red fill" onClick={() => this.deleteUser(user.id)}>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </li>
         )) : <span>No users to display. What are you doing here?</span>;
         const content = this.state.loaded ?
         <div className="modal-content">
-            <span className="red-text">{this.props.message}</span>
+            <div className="red-text center">{this.props.message}</div>
             <h4 className="center">Registered users:</h4>
             <ul className="collapsible popout">
+                <div className="list-header row teal lighten-3 z-depth-1">
+                    <div className="col s1">
+                        No.
+                    </div>
+                    <div className="col s7">
+                        Username
+                    </div>
+                    <div className="col s4">
+                        ID
+                    </div>
+                </div>
                 {list}
             </ul>
             {this.state.paginator}

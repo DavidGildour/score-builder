@@ -25,3 +25,28 @@
 .user-info {
     width: 30%;
 }
+
+#userlist .collapsible-body {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+#userlist .row {
+    margin-bottom: 0px;
+}
+
+#userlist .list-header {
+    margin: auto;
+    width: 94.5%;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    font-weight: 700;
+}
+
+#userlist .collapsible-header {
+    transition: background-color 0.2s;
+}
+
+#userlist .collapsible-header:hover {
+    background-color: #80cbc4 !important;
+}

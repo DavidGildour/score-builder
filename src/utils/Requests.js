@@ -70,7 +70,7 @@ export const updatePassword = (old, pass1, pass2) => {
     .then(resp => resp.json());
 }
 
-export const deleteUser = () => {
+export const deleteMe = () => {
     return fetch('http://127.0.0.1:5000/me', {
         method: 'DELETE',
         credentials: 'include'
@@ -81,5 +81,13 @@ export const deleteUser = () => {
 export const getUsers = () => {
     return fetch('http://127.0.0.1:5000/users', {
         credentials: 'include'})
+    .then(resp => resp.json())
+}
+
+export const deleteUser = (id) => {
+    return fetch(`http://127.0.0.1:5000/user/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+    })
     .then(resp => resp.json())
 }

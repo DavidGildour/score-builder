@@ -5,7 +5,7 @@ import StaffContainer from './StaffContainer';
 import language from '../lang/language';
 import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal, UserListModal } from './Modals';
 import NavBar from './Navbar';
-import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteUser, getUsers } from '../utils/Requests';
+import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteMe, deleteUser, getUsers } from '../utils/Requests';
 
 class InfoBox extends React.Component {
     componentDidUpdate = (prevProps) => {
@@ -151,7 +151,7 @@ export default class extends React.Component {
     }
 
     deleteMe = () => {
-        deleteUser()
+        deleteMe()
         .then(_ => {
             const elem = document.querySelector('#user-info');
             M.Modal.getInstance(elem).close();
@@ -162,6 +162,20 @@ export default class extends React.Component {
             });
         })
         .catch(err => this.setState({ message: err.message }))
+    }
+
+    deleteUser = (id) => {
+        deleteUser(id)
+        .then(data => {
+            this.setState({
+                message: data.message,
+            })
+        })
+        .catch(err => {
+            this.setState({
+                message: err.message,
+            })
+        })
     }
 
     render = () => {
@@ -187,7 +201,7 @@ export default class extends React.Component {
             userInfoModal = null;
         }
         return (
-            <div id="main" className="App">
+            <div id="main">
                 <NavBar
                     getUserList={this.getUserList}
                     user={this.state.user}
@@ -223,6 +237,7 @@ export default class extends React.Component {
                     close={language[this.state.lang].navbar.close}
                 />
                 <UserListModal
+                    deleteUser={this.deleteUser}
                     users={this.state.userList}
                     message={this.state.message}
                     clearUserList={this.clearUserList} />

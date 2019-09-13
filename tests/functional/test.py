@@ -230,6 +230,7 @@ def test_deleting_a_user(driver):
 
     modal.find_element_by_class_name('modal-close').click()
 
+
 def test_admin_panel(driver):
     # first lets register a user
     test_user_register(driver)
@@ -259,16 +260,31 @@ def test_admin_panel(driver):
         EC.text_to_be_present_in_element((By.ID, 'userlist'), 'Registered users:')
     )
 
-    found = False
+    found = None
 
     while not found:
         try:
+            headers = modal.find_elements_by_class_name('collapsible-header')
             usernames = list(
-                map(lambda x: x.text.split(' ')[1], modal.find_elements_by_class_name('collapsible-header')))
+                map(lambda x: x.find_elements_by_class_name('col')[1].text, headers))
             assert USER['name'] in usernames
-            found = True
+            found = list(filter(lambda header: USER['name'] in header.text, headers))[0]
         except AssertionError:
             next = modal.find_element_by_id('page_next')
             if next.get_attribute('class') == 'disabled':
+                import time
+                time.sleep(5)
                 pytest.fail(f'{USER["name"]} not found, probably registration failed.')
             next.click()
+
+    found.click()
+    body = WebDriverWait(driver, 5).until(
+        EC.visibility_of_any_elements_located((By.CLASS_NAME, 'collapsible-body'))
+    )[0]
+    body.find_element_by_id('delete_user').click()
+
+    WebDriverWait(driver, 5).until(
+        lambda _: modal.find_element_by_class_name('red-text').text.startswith(f'User {USER["name"]}')
+    )
+
+    modal.find_element_by_class_name('btn-flat').click()
