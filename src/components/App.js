@@ -5,7 +5,7 @@ import StaffContainer from './StaffContainer';
 import language from '../lang/language';
 import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal, UserListModal } from './Modals';
 import NavBar from './Navbar';
-import { getUser, getAuth, logOutUser, registerUser, updatePassword, deleteMe, deleteUser, getUsers } from '../utils/Requests';
+import { getUser, getAuth, logOutUser, registerUser, updateUser, deleteMe, deleteUser, getUsers } from '../utils/Requests';
 
 class InfoBox extends React.Component {
     componentDidUpdate = (prevProps) => {
@@ -36,6 +36,7 @@ export default class extends React.Component {
             this.setState({
                 user: json.content,
                 isLogged: true,
+                lang: json.content.language,
             })
         })
         .catch(err => {
@@ -56,6 +57,7 @@ export default class extends React.Component {
                     user: user,
                     isLogged: true,
                     loginError: null,
+                lang: json.content.language,
                 });
             } else {
                 throw Error('Invalid credentials!');
@@ -130,14 +132,26 @@ export default class extends React.Component {
     }
 
     langChange = (lang) => {
-        this.setState({
-            lang: lang,
-        });
+        updateUser({language: lang})
+        .then(json => {
+            this.setState({
+                lang: lang,
+            });
+        })
+        .catch(err => {
+            this.setState({
+                message: err.message
+            })
+        })
     }
 
-    editUser = (e) => {
+    changePassword = (e) => {
         const { password1, password2, old_password } = e.target;
-        updatePassword(old_password.value, password1.value, password2.value)
+        updateUser({
+            'old_password': old_password.value, 
+            'password1': password1.value, 
+            'password2': password2.value
+        })
         .then(json => {
             this.setState({
                 message: json.message,
@@ -190,7 +204,7 @@ export default class extends React.Component {
                     text={language[this.state.lang].navbar.forms}
                     clearMessage={() => this.setState({message: null})}
                     deleteMe={this.deleteMe}
-                    editUser={this.editUser} 
+                    editUser={this.changePassword} 
                     user={this.state.user}
                     close={language[this.state.lang].navbar.close} />
             logButton = null;
