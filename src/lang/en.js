@@ -27,6 +27,22 @@ export default {
                 logged_out: 'Logged Out.',
             }
         },
+        userlist: {
+            header: 'Registered users',
+            button: 'User list',
+            loading: 'Loading',
+            close: 'Close',
+            table: {
+                'no': 'No',
+                'username': 'Username',
+            },
+            user: {
+                role: 'Role',
+                email: 'E-mail',
+                registered: 'Registered',
+                delete: 'Delete'
+            }
+        },
         close: 'Close',
         help: 'Help',
         helpContent: [

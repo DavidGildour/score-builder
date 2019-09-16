@@ -27,6 +27,22 @@ export default {
                 logged_out: 'Wylogowano.',
             }
         },
+        userlist: {
+            header: 'Zarejestrowani użytkownicy',
+            button: 'Użytkownicy',
+            loading: 'Wczytywanie',
+            close: 'Zamknij',
+            table: {
+                'no': 'Lp',
+                'username': 'Nazwa',
+            },
+            user: {
+                role: 'Uprawnienia',
+                email: 'E-mail',
+                registered: 'Rejestracja',
+                delete: 'Usuń'
+            }
+        },
         close: 'Zamknij',
         help: 'Pomoc',
         helpContent: [

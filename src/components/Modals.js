@@ -271,19 +271,19 @@ export class UserListModal extends React.Component {
                     <table className="highlighted">
                         <tbody>
                             <tr>
-                                <td>Role:</td>
+                                <td>{this.props.text.user.role}:</td>
                                 <td>{user.role_id === 1 ? 'ADMIN' : 'USER'}</td>
                             </tr>
                             <tr>
-                                <td>E-mail:</td>
+                                <td>{this.props.text.user.email}:</td>
                                 <td>{user.email}</td>
                             </tr>
                             <tr style={{border: 'none'}}>
-                                <td>Registration:</td>
+                                <td>{this.props.text.user.registered}:</td>
                                 <td>{user.registration_date}</td>
                                 <td>
                                     <button id="delete_user" className="btn waves-effect red fill" onClick={() => this.deleteUser(user.id)}>
-                                        Delete
+                                        {this.props.text.user.delete}
                                     </button>
                                 </td>
                             </tr>
@@ -295,14 +295,14 @@ export class UserListModal extends React.Component {
         const content = this.state.loaded ?
         <div className="modal-content">
             <div className="red-text center">{this.props.message}</div>
-            <h4 className="center">Registered users:</h4>
+            <h4 className="center">{this.props.text.header}:</h4>
             <ul className="collapsible popout">
                 <div className="list-header row teal lighten-3 z-depth-1">
                     <div className="col s1">
-                        No.
+                        {this.props.text.table.no}.
                     </div>
                     <div className="col s7">
-                        Username
+                        {this.props.text.table.username}
                     </div>
                     <div className="col s4">
                         ID
@@ -315,7 +315,7 @@ export class UserListModal extends React.Component {
         : 
         <div className="modal-content">
             <span className="red-text">{this.props.message}</span>
-            <h4 className="center">Loading...</h4>
+            <h4 className="center">{this.props.text.loading}...</h4>
             <div className="progress">
                 <div className="indeterminate"></div>
             </div>
@@ -324,7 +324,7 @@ export class UserListModal extends React.Component {
             <div id="userlist" className="modal modal-fixed-footer">
                 {content}
                 <div className="modal-footer">
-                    <a href="#!" className="btn-flat" onClick={this.close}>Close</a>
+                    <a href="#!" className="btn-flat" onClick={this.close}>{this.props.text.close}</a>
                 </div>
             </div>
         )

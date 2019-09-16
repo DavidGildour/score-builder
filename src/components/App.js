@@ -237,6 +237,7 @@ export default class extends React.Component {
                     close={language[this.state.lang].navbar.close}
                 />
                 <UserListModal
+                    text={language[this.state.lang].navbar.userlist}
                     deleteUser={this.deleteUser}
                     users={this.state.userList}
                     message={this.state.message}

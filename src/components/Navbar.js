@@ -57,7 +57,7 @@ export default class extends React.Component {
             </li>;
 
         let userList;
-        if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>User list</a></li>;
+        if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>{this.props.text.userlist.button}</a></li>;
         else userList = null;
 
         return (
