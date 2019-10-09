@@ -2,54 +2,8 @@
 import changeStave from './changeStave';
 import { setField, addNoteToMeasure, deleteNoteFromMeasure, updateNoteInMeasure, addVoiceToMeasures } from '../actions';
 
-const defaultState = {
-    message: '',
-    staves: [
-        {
-            clef: 'treble',
-            beatsNum: '4',
-            beatsType: '4',
-            keySig: 'C',
-            measures: [
-                {
-                    id: '0',
-                    voices: [
-                        {
-                            // every note has a 'modifiers' field that is used to map a single key from this note to
-                            // corresponding modifier with the same index as a note.
-                            // That's why sometimes 'modifiers' array have an empty element
-                            id: '0',
-                            notes: [
-                                {
-                                    clef: 'treble',
-                                    keys: ['A/4'],
-                                    duration: 'wr',
-                                    modifiers: [''],
-                                    persistent: false,
-                                },
-                            ],
-                        },
-                        {       
-                            id: '1',
-                            notes: [
-                                {
-                                    clef: 'treble',
-                                    keys: ['E/5'],
-                                    duration: 'wr',
-                                    modifiers: [''],
-                                    persistent: false,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-};
 
-
-const rootReducer = (state = defaultState, action) => {
+const rootReducer = (state = {}, action) => {
     switch (action.type) {
         case 'SET_STAVE_FIELD': {
             const { id, field, value } = action.payload;

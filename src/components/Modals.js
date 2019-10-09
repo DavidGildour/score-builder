@@ -20,7 +20,7 @@ export class RegisterModal extends React.Component {
     render = () => (
         <div id="register" className="modal login">
             <div className="modal-content center-align">
-                <div>{this.props.message}</div>
+                <div className="red-text">{this.props.message}</div>
                 <form onSubmit={(e) => {e.preventDefault();this.props.onSubmit(e);this.setState({password1:'',password2:''})}}>
                     <input type="text" className="validate" onChange={this.handleChange} value={this.state.username} name="username" placeholder={this.props.text.username} />
                     <input type="email" className="validate" onChange={this.handleChange} value={this.state.email} name="email" placeholder={this.props.text.email} />
