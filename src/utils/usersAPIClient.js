@@ -56,7 +56,7 @@ export default class {
       })
     })
     const json = await resp.json();
-    if (resp.status == 201) return json;
+    if (resp.status === 201) return json;
     throw new Error(json.message);
   }
 

@@ -3,9 +3,16 @@ import M from 'materialize-css/dist/js/materialize.min'
 
 import StaffContainer from './StaffContainer';
 import language from '../lang/language';
-import { LoginModal, HelpModal, AboutModal, RegisterModal, UserInfoModal, UserListModal } from './Modals';
 import NavBar from './Navbar';
 import usersAPIClient from '../utils/usersAPIClient';
+
+import LoginModal from './modals/login';
+import HelpModal from './modals/help';
+import AboutModal from './modals/about';
+import RegisterModal from './modals/register';
+import UserInfoModal from './modals/userinfo';
+import UserListModal from './modals/userlist';
+
 
 class InfoBox extends React.Component {
   componentDidUpdate = (prevProps) => {
@@ -33,7 +40,6 @@ export default class extends React.Component {
   componentDidMount = async () => {
     try {
       const user = await usersAPIClient.getUser();
-      console.log(user);
       this.setState({
         user: user.content,
         isLogged: true,
@@ -60,7 +66,6 @@ export default class extends React.Component {
         lang: json.content.language,
       });
     } catch (err) {
-      console.log(err);
       this.setState({
         loginError: err.message,
       });
