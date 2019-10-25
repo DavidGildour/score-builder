@@ -26,16 +26,16 @@
     width: 30%;
 }
 
-#userlist .collapsible-body {
+.collapsible-list .collapsible-body {
     padding-top: 1rem;
     padding-bottom: 1rem;
 }
 
-#userlist .row {
+.collapsible-list .row {
     margin-bottom: 0px;
 }
 
-#userlist .list-header {
+.collapsible-list .list-header {
     margin: auto;
     width: 94.5%;
     padding: 1rem;
@@ -43,10 +43,10 @@
     font-weight: 700;
 }
 
-#userlist .collapsible-header {
+.collapsible-list .collapsible-header {
     transition: background-color 0.2s;
 }
 
-#userlist .collapsible-header:hover {
+.collapsible-list .collapsible-header:hover {
     background-color: #80cbc4 !important;
 }

@@ -1,10 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import M from 'materialize-css/dist/js/materialize.min'
 
 import StaffContainer from './StaffContainer';
 import language from '../lang/language';
 import NavBar from './Navbar';
 import usersAPIClient from '../utils/usersAPIClient';
+import { loadScore } from '../redux/actions'
 
 import LoginModal from './modals/login';
 import HelpModal from './modals/help';
@@ -12,7 +14,11 @@ import AboutModal from './modals/about';
 import RegisterModal from './modals/register';
 import UserInfoModal from './modals/userinfo';
 import UserListModal from './modals/userlist';
+import UserScores from './modals/userscores';
 
+
+const mapStateToProps = state => (state);
+const mapDispatchToProps = { loadScore };
 
 class InfoBox extends React.Component {
   componentDidUpdate = (prevProps) => {
@@ -26,11 +32,12 @@ class InfoBox extends React.Component {
   render = () => <div className="tooltipped info-box" data-tooltip={this.props.loggedIn ? this.props.text.logged_in : this.props.text.logged_out} data-position="bottom" />
 }
 
-export default class extends React.Component {
+class App extends React.Component {
   state = {
     lang: 'EN',
     isLogged: false,
     user: null,
+    scoreChangeIndicator: Date.now(),
     loginError: null,
     registerStatus: null,
     message: null,
@@ -49,6 +56,11 @@ export default class extends React.Component {
     catch (err) {
       console.log(err.message);
     };
+  }
+
+  loadScore = (score) => {
+    this.props.loadScore(score.data);
+    this.setState({ scoreChangeIndicator: Date.now() });
   }
 
   logIn = async (e) => {
@@ -187,6 +199,7 @@ export default class extends React.Component {
     let logButton;
     let registerButton;
     let userInfoModal;
+    let userScoresModal;
 
     if (this.state.isLogged) {
       userInfoModal = 
@@ -198,6 +211,8 @@ export default class extends React.Component {
           editUser={this.changePassword} 
           user={this.state.user}
           close={language[this.state.lang].navbar.close} />
+      userScoresModal =
+        <UserScores loadScore={this.loadScore} user={this.state.user} />
       logButton = null;
       registerButton = null;
     } else {
@@ -218,6 +233,7 @@ export default class extends React.Component {
         />
         <InfoBox text={language[this.state.lang].navbar.forms.info} loggedIn={this.state.isLogged} />
         {userInfoModal}
+        {userScoresModal}
         <RegisterModal
           text={language[this.state.lang].navbar.forms}
           close={language[this.state.lang].navbar.close}
@@ -247,8 +263,13 @@ export default class extends React.Component {
           users={this.state.userList}
           message={this.state.message}
           clearUserList={this.clearUserList} />
-        <StaffContainer lang={language[this.state.lang]} id="0" />
+        <StaffContainer lang={language[this.state.lang]} id="0" changeIndicator={this.state.scoreChangeIndicator} />
       </div>
     )
   };
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

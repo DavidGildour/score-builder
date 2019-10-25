@@ -1,8 +1,8 @@
-export default class {
+export default class Client {
   static URL = 'http://127.0.0.1:5000';
 
   static getUser = async () => {
-    const resp = await fetch(this.URL + '/me', {
+    const resp = await fetch(Client.URL + '/me', {
       credentials: 'include',
     });
     if (resp.status === 200) {
@@ -12,7 +12,7 @@ export default class {
   }
 
   static getAuth = async (username, password) => {
-    const resp = await fetch(this.URL + '/login', {
+    const resp = await fetch(Client.URL + '/login', {
       method: 'POST',
       credentials: 'include',
       headers: new Headers({
@@ -31,7 +31,7 @@ export default class {
   }
 
   static logOutUser = async () => {
-    const resp = await fetch(this.URL + '/logout', {
+    const resp = await fetch(Client.URL + '/logout', {
       credentials: 'include',
     })
     const json = await resp.json();
@@ -42,7 +42,7 @@ export default class {
   }
 
   static registerUser = async (username, password1, password2, email) => {
-    const resp = await fetch(this.URL + '/register', {
+    const resp = await fetch(Client.URL + '/register', {
       method: 'POST',
       credentials: 'include',
       headers: new Headers({
@@ -61,7 +61,7 @@ export default class {
   }
 
   static updateUser = async (args) => {
-    const resp = await fetch(this.URL + '/me', {
+    const resp = await fetch(Client.URL + '/me', {
       method: 'PUT',
       credentials: 'include',
       headers: new Headers({
@@ -77,7 +77,7 @@ export default class {
   }
 
   static deleteMe = async () => {
-    const resp = await fetch(this.URL + '/me', {
+    const resp = await fetch(Client.URL + '/me', {
       method: 'DELETE',
       credentials: 'include'
     })
@@ -89,7 +89,7 @@ export default class {
   }
 
   static getUsers = async () => {
-    const resp = await fetch(this.URL + '/users', {
+    const resp = await fetch(Client.URL + '/users', {
       credentials: 'include'
     })
     const json = await resp.json();
@@ -100,7 +100,7 @@ export default class {
   }
 
   static deleteUser = async (id) => {
-    const resp = await fetch(this.URL + `/user/${id}`, {
+    const resp = await fetch(Client.URL + `/user/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     })

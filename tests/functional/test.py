@@ -131,7 +131,8 @@ def test_user_dropdown(driver):
     menu_options = get_user_dropdown_options(driver)
 
     assert menu_options[0].text.startswith('Edit profile')
-    assert menu_options[1].text.startswith('Log out')
+    assert menu_options[1].text.startswith('My scores')
+    assert menu_options[2].text.startswith('Log out')
 
     menu_options[0].click()
 
@@ -167,7 +168,7 @@ def test_editing_profile(driver):
     modal.find_element_by_class_name("modal-close").click()
 
 def test_logout(driver):
-    logout = get_user_dropdown_options(driver)[1]
+    logout = get_user_dropdown_options(driver)[2]
 
     logout.click()
 

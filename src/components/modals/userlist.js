@@ -163,7 +163,7 @@ export default class extends React.Component {
       </div>
     </div>;
     return (
-      <div id="userlist" className="modal modal-fixed-footer">
+      <div id="userlist" className="modal modal-fixed-footer collapsible-list">
         {content}
         <div className="modal-footer">
           <a href="#!" className="btn-flat" onClick={this.close}>{this.props.text.close}</a>

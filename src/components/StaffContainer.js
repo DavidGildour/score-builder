@@ -43,6 +43,7 @@ class StaffContainer extends React.PureComponent {
         editMode: false,
         dotted: false,
         id: this.props.id,
+        timeOpened: this.props.changeIndicator,
         stave: this.props.staves[this.props.id],
         currentVoice: '0',
         currentMeasure: '0',
@@ -957,7 +958,16 @@ class StaffContainer extends React.PureComponent {
         return lastNote;
     }
 
-    static getDerivedStateFromProps = (props, state) => ({ stave: props.staves[state.id] })
+    static getDerivedStateFromProps = (props, state) => {
+        let selectedNote;
+        if (props.changeIndicator !== state.timeOpened) selectedNote = null;
+        else selectedNote = state.selectedNote;
+        return {
+            stave: props.staves[state.id],
+            selectedNote: selectedNote,
+            timeOpened: props.changeIndicator
+        }
+    }
 
     componentDidMount(){
         // materialize-css javascript initialization

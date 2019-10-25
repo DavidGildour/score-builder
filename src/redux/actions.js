@@ -1,20 +1,28 @@
-import { SET_STAVE_FIELD, 
-        SET_FIELD,
-        SET_CLEF,
-        ADD_NOTE_TO_VOICE,
-        ADD_NOTE_TO_STAVE,
-        DELETE_NOTE_FROM_STAVE,
-        DELETE_NOTE_FROM_VOICE,
-        UPDATE_NOTE_IN_STAVE,
-        UPDATE_NOTE_IN_MEASURE,
-        UPDATE_NOTE_IN_VOICE,
-        ADD_MEASURE_TO_STAVE,
-        ADD_NOTE_TO_MEASURE, 
-        DELETE_NOTE_FROM_MEASURE,
-        ADD_VOICE_TO_MEASURES,
-        ADD_VOICE_TO_MEASURE,
-        ADD_VOICE_TO_STAVE, 
-        REMOVE_VOICE_FROM_STAVE} from './actionTypes';
+import { 
+    SET_STAVE_FIELD, 
+    SET_FIELD,
+    SET_CLEF,
+    ADD_NOTE_TO_VOICE,
+    ADD_NOTE_TO_STAVE,
+    DELETE_NOTE_FROM_STAVE,
+    DELETE_NOTE_FROM_VOICE,
+    UPDATE_NOTE_IN_STAVE,
+    UPDATE_NOTE_IN_MEASURE,
+    UPDATE_NOTE_IN_VOICE,
+    ADD_MEASURE_TO_STAVE,
+    ADD_NOTE_TO_MEASURE, 
+    DELETE_NOTE_FROM_MEASURE,
+    ADD_VOICE_TO_MEASURES,
+    ADD_VOICE_TO_MEASURE,
+    ADD_VOICE_TO_STAVE, 
+    REMOVE_VOICE_FROM_STAVE,
+    LOAD_SCORE
+} from './actionTypes';
+
+export const loadScore = score => ({
+    type: LOAD_SCORE,
+    payload: score
+})
 
 export const setStaveField = content => ({
     type: SET_STAVE_FIELD,

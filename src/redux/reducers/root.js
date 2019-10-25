@@ -5,6 +5,9 @@ import { setField, addNoteToMeasure, deleteNoteFromMeasure, updateNoteInMeasure,
 
 const rootReducer = (state = {}, action) => {
     switch (action.type) {
+        case 'LOAD_SCORE': {
+            return action.payload;
+        }
         case 'SET_STAVE_FIELD': {
             const { id, field, value } = action.payload;
             return {
