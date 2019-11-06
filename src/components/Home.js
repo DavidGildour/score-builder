@@ -52,12 +52,6 @@ export default class extends React.Component {
 
   register = async (e) => {
     const { username, password1, password2, email } = e.target;
-    if (password1.value !== password2.value) {
-      this.setState({
-        registerStatus: 'Passwords do not match!'
-      })
-      return;
-    }
     try {
       const json = await usersAPIClient.registerUser(username.value, password1.value, password2.value, email.value, this.state.language);
       this.setState({
