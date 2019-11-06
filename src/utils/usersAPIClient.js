@@ -41,7 +41,7 @@ export default class Client {
     throw new Error(json.message);
   }
 
-  static registerUser = async (username, password1, password2, email) => {
+  static registerUser = async (username, password1, password2, email, lang) => {
     const resp = await fetch(Client.URL + '/register', {
       method: 'POST',
       credentials: 'include',
@@ -53,6 +53,7 @@ export default class Client {
         'password1': password1,
         'password2': password2,
         'email': email,
+        'lang': lang,
       })
     })
     const json = await resp.json();
