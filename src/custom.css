@@ -18,8 +18,34 @@
     left: 50%;
 }
 
-.login {
-    width: 20%;
+.row .user-form {
+    position: relative;
+    border: 1px solid rgb(196, 196, 196);
+    background-color: white;
+    height: 70vh;
+    padding: 30px;
+}
+
+.user-form form {
+    width: 50%;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.user-form .form-footer {
+    color: rgb(100, 100, 100);
+    font-size: 0.74rem;
+    position: absolute;
+    bottom: 10px;
+    left:0px;
+    width: 100%;
+}
+
+.page-content {
+    margin-top: 3%;
+    height: 80%;
+    margin-left: 4.5%;
+    margin-right: 4.5%;
 }
 
 .user-info {

@@ -57,6 +57,14 @@ export default class extends React.Component {
                 </a>
             </li>;
 
+        const helpButton = this.props.user ? 
+            <a
+                className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger tooltipped"
+                data-position="right"
+                data-tooltip={this.props.text.help}
+                href="#help"
+            ><i className="material-icons">help_outline</i></a> :
+            null;
         let userList;
         if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>{this.props.text.userlist.button}</a></li>;
         else userList = null;
@@ -70,8 +78,6 @@ export default class extends React.Component {
                 <ul id="nav-mobile" className="right hide-on-med-and-down">
                     {userList}
                     {userOptions}
-                    {this.props.registerButton}
-                    {this.props.logButton}
                     <li><a href="#about" className="modal-trigger">{this.props.text.about}</a></li>
                     <li>
                         <a href="#!" id="lang" data-target="lang-dropdown" className="dropdown-trigger">
@@ -79,12 +85,7 @@ export default class extends React.Component {
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger tooltipped"
-                            data-position="right"
-                            data-tooltip={this.props.text.help}
-                            href="#help"
-                        ><i className="material-icons">help_outline</i></a>
+                        {helpButton}
                     </li>
                 </ul>
                 </div>
