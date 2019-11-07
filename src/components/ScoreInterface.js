@@ -59,7 +59,7 @@ class ScoreInterface extends React.Component {
   }
 
   componentDidMount = () => {
-    M.Modal.init(document.querySelectorAll('#main .modal'));
+    M.Modal.init(document.querySelectorAll('#main .modal:not(#scores)'));
   }
 
   render = () => {
