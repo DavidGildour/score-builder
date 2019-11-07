@@ -80,3 +80,7 @@
     color: initial;
     line-height: initial;
 }
+
+#user-dropdown, #user-opt {
+    min-width: 110px;
+}
