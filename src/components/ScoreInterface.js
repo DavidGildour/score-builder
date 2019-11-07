@@ -15,17 +15,6 @@ import UserScores from './modals/userscores';
 const mapStateToProps = state => (state);
 const mapDispatchToProps = { loadScore };
 
-// class InfoBox extends React.Component {
-//   componentDidUpdate = (prevProps) => {
-//     if (prevProps.loggedIn !== this.props.loggedIn) {
-//       const info = M.Tooltip.init(document.querySelector('.tooltipped.info-box'), {margin: 0, transitionMovement: 7, exitDelay: 1200});
-//       info.open();
-//       info.close();
-//     }
-//   }
-
-//   render = () => <div className="tooltipped info-box" data-tooltip={this.props.loggedIn ? this.props.text.logged_in : this.props.text.logged_out} data-position="bottom" />
-// }
 
 class ScoreInterface extends React.Component {
   state = {
@@ -93,7 +82,6 @@ class ScoreInterface extends React.Component {
 
     return (
       <div id="main">
-        {/* <InfoBox text={this.props.lang.navbar.forms.info} loggedIn={this.state.isLogged} /> */}
         {userInfoModal}
         {userScoresModal}
         <HelpModal

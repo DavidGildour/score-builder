@@ -23,6 +23,16 @@ export default class extends React.Component {
     message: null,
     userList: [],
   }
+
+  componentDidUpdate = (_, prevState) => {
+    if (prevState.isLogged !== this.state.isLogged) {
+      M.toast({
+        html: this.state.isLogged ? "Logged in." : "Logged out.",
+        displayLength: 1000,
+        classes: 'info-box rounded',
+      });
+    }
+  }
   
   langChange = async (lang) => {
     if (this.state.user) {
