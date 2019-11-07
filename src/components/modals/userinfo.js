@@ -6,13 +6,13 @@ export default class extends React.Component {
     const elem = document.querySelector(`.custom-collapsible#${id}`)
     switch(elem.className) {
       case 'custom-collapsible collapse':
-      elem.className = 'custom-collapsible expand';
-      break;
+        elem.className = 'custom-collapsible expand';
+        break;
       case 'custom-collapsible expand':
-      elem.className = 'custom-collapsible collapse';
-      break;
+        elem.className = 'custom-collapsible collapse';
+        break;
       default:
-      elem.className = 'custom-collapsible expand';
+        elem.className = 'custom-collapsible expand';
     }
   }
 
@@ -22,6 +22,11 @@ export default class extends React.Component {
     for (const elem of elems) {
       elem.className = 'custom-collapsible';
     }
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.props.editUser(e);
   }
 
   render = () => (
@@ -47,7 +52,7 @@ export default class extends React.Component {
               {this.props.text.change}<i className="material-icons right">create</i>
             </span>
             <div className="content">
-              <form className="center-align" onSubmit={(e) => {this.props.editUser(e);this.toggleAnim('password')}}>
+              <form className="center-align" onSubmit={this.handleSubmit}>
                 <input id="old_password" type="password" placeholder={this.props.text.old_password} />
                 <input id="password1" type="password" placeholder={this.props.text.new_password} />
                 <input id="password2" type="password" placeholder={this.props.text.repeat_password} />

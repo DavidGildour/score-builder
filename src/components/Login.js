@@ -6,6 +6,7 @@ export default class extends React.Component {
     username: '',
     password: '',
     processing: false,
+    elemRef: React.createRef(),
   }
 
   handleChange = (e) => {
@@ -15,17 +16,21 @@ export default class extends React.Component {
     })
   }
 
+  _isMounted = () => this.state.elemRef.current !== null;
+
   onSubmit = async (e) => {
     e.preventDefault();
     this.setState({processing: true});
 
     await this.props.onSubmit(e);
 
-    this.setState({
-      username: '',
-      password: '',
-      processing: false
-    });
+    if (this._isMounted()) {
+      this.setState({
+        username: '',
+        password: '',
+        processing: false
+      });
+    }
   }
 
   render = () => {
@@ -45,7 +50,7 @@ export default class extends React.Component {
         {this.props.text.login}
       </button>;
     return (
-      <div className="user-form col s5 center-align z-depth-2">
+      <div ref={this.state.elemRef} className="user-form col s5 center-align z-depth-2">
         <div className="header"><h4>{this.props.text.login}</h4></div>
         <form onSubmit={this.onSubmit}>
           <input type="text" className="validate" onChange={this.handleChange} value={this.state.username} name="username" placeholder={this.props.text.username} />

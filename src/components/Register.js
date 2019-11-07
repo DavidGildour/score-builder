@@ -2,15 +2,12 @@ import React from 'react';
 
 
 export default class extends React.Component {
-  get DEFAULT_STATE() {
-    return {
-      username: '',
-      email: '',
-      password1: '',
-      password2: '',
-    }
+  state = {
+    username: '',
+    email: '',
+    password1: '',
+    password2: '',
   };
-  state = this.DEFAULT_STATE;
 
   handleChange = (e) => {
     const { value, name } = e.target;

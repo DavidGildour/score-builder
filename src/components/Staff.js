@@ -152,19 +152,25 @@ export default class Staff extends React.Component {
 
     }
 
+    handleResize = () => {
+        const div = this.ref.current;
+        this.renderer.resize(div.getBoundingClientRect().width, 200);
+        this.renderStaff();
+    }
+
     componentDidMount() {
         const div = this.ref.current;
 
         this.renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
         this.renderer.resize(div.getBoundingClientRect().width, 200);
-        window.addEventListener('resize', () => {
-            const div = this.ref.current;
-            this.renderer.resize(div.getBoundingClientRect().width, 200);
-            this.renderStaff();
-        })
+        window.addEventListener('resize', this.handleResize)
 
         this.renderStaff();
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
     }
 
     componentDidUpdate(nextProps) {

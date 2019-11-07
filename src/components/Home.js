@@ -1,35 +1,19 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 
-import language from '../lang/language';
-import NavBar from './Navbar';
 import usersAPIClient from '../utils/usersAPIClient';
 
 import Register from './Register';
 import Login from './Login';
-import AboutModal from './modals/about';
 
 
 export default class extends React.Component {
   state = {
-    lang: 'EN',
     loginError: null,
+    loginSuccess: false,
     registerStatus: null,
     message: null,
   };
-
-  componentDidMount = async () => {
-    try {
-      const user = await usersAPIClient.getUser();
-      this.setState({
-        user: user.content,
-        isLogged: true,
-        lang: user.content.language,
-      })
-    }
-    catch (err) {
-      console.log(err.message);
-    };
-  }
 
   logIn = async (e) => {
     const { username, password } = e.target;
@@ -37,11 +21,13 @@ export default class extends React.Component {
       const json = await usersAPIClient.getAuth(username.value, password.value);
       const user = json.content;
       delete user.access_token;
-      this.setState({
+      this.props.appStateChange({
         user: user,
         isLogged: true,
-        loginError: null,
         lang: json.content.language,
+      });
+      this.setState({
+        loginSuccess: true,
       });
     } catch (err) {
       this.setState({
@@ -63,41 +49,28 @@ export default class extends React.Component {
       })
     }
   }
-  
-  langChange = (lang) => {
-    this.setState({
-      lang: lang,
-    });
-  }
 
-  render = () => (
-    <div id="main">
-      <NavBar
-        user={null}
-        text={language[this.state.lang].navbar}
-        langChange={this.langChange}
-      />
-      <div className="row page-content">
-        <Register
-          text={language[this.state.lang].navbar.forms}
-          close={language[this.state.lang].navbar.close}
-          message={this.state.registerStatus}
-          onSubmit={this.register}
-        />
-        <div className="col s2" />
-        <Login
-          text={language[this.state.lang].navbar.forms}
-          onSubmit={this.logIn}
-          close={language[this.state.lang].navbar.close}
-          error={this.state.loginError}
-        />
+  render = () => {
+    if (this.state.loginSuccess) return <Redirect to='/' />
+
+    return (
+      <div id="main">
+        <div className="row page-content">
+          <Register
+            text={this.props.lang.navbar.forms}
+            close={this.props.lang.navbar.close}
+            message={this.state.registerStatus}
+            onSubmit={this.register}
+          />
+          <div className="col s2" />
+          <Login
+            text={this.props.lang.navbar.forms}
+            onSubmit={this.logIn}
+            close={this.props.lang.navbar.close}
+            error={this.state.loginError}
+          />
+        </div>
       </div>
-      <AboutModal
-        about={language[this.state.lang].navbar.about}
-        aboutContent={language[this.state.lang].navbar.aboutContent}
-        author={language[this.state.lang].author}
-        close={language[this.state.lang].navbar.close}
-      />
-    </div>
-  )
+    )
+  }
 }

@@ -117,15 +117,21 @@ export default class extends React.Component {
         })
     }
 
+    handleResize = () => {
+        this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/(this.state.maxBpm - this.state.minBpm);
+        this.forceUpdate();
+    }
+
     componentDidMount() {
         this.midiSounds.setEchoLevel(0);
         this.midiSounds.setMasterVolume(1/9);
         // computing pixel shift per one bpm for tempo indicator
         this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/(this.state.maxBpm - this.state.minBpm);
-        window.addEventListener('resize', () => {
-            this.tempoFactor = (document.getElementById('tempo').getBoundingClientRect().width - 14)/(this.state.maxBpm - this.state.minBpm);
-            this.forceUpdate();
-        });
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
     }
 
     handleChange = (e) => {
