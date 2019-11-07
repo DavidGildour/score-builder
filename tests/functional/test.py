@@ -13,6 +13,7 @@ ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
 USER = {}
 
+
 def get_random_userdata():
     return {
         'name': ''.join(random.choice(ALPHABET) for _ in range(10)),
@@ -29,20 +30,23 @@ def get_user_dropdown_options(driver) -> list:
     )
     return modal.find_elements_by_tag_name('a')
 
+
 def test_home_page(driver):
     assert driver.title == 'Score Builder', f"Page title doesn't match.\n Expected 'Score Builder', got {driver.title}"
 
+
 def test_changing_lang(driver):
-    lang = driver.find_element_by_id('lang')
+    lang = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, 'lang'))
+    )
 
     assert 'Language' in lang.text
 
-    actions = ActionChains(driver)
-    actions.move_to_element(lang)
-    actions.perform()
+    ActionChains(driver).move_by_offset(1, 1).move_to_element(lang).perform()
 
-    languages = driver.find_element_by_id('lang-dropdown').find_elements_by_tag_name('a')
-
+    languages = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, 'lang-dropdown'))
+    ).find_elements_by_tag_name('a')
     # testing changing to polish
     languages[0].click()
 
@@ -52,6 +56,7 @@ def test_changing_lang(driver):
     languages[1].click()
 
     assert 'Language' in lang.text
+
 
 def test_about_modal(driver):
     about = driver.find_element_by_partial_link_text('About')
@@ -70,6 +75,40 @@ def test_about_modal(driver):
 
     modal.find_element_by_class_name("modal-close").click()
 
+
+def test_user_register(driver):
+    global USER
+    USER = get_random_userdata()
+    register = driver.find_elements_by_class_name('user-form')[0]
+
+    register.find_element_by_name('email').send_keys(USER['email'])
+    register.find_element_by_name('username').send_keys(USER['name'])
+    register.find_element_by_name('password1').send_keys(USER['password'])
+    register.find_element_by_name('password2').send_keys(USER['password'], Keys.ENTER)
+
+    try:
+        WebDriverWait(driver, 5).until(
+            lambda _: register.find_element_by_class_name('red-text').text.startswith(f'User successfully created.')
+        )
+    except:
+        pytest.fail('Failed to register.')
+
+
+def test_user_login(driver):
+    login = driver.find_elements_by_class_name('user-form')[1]
+
+    login.find_element_by_name('username').send_keys(USER['name'])
+    login.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
+
+    time.sleep(1)
+
+    info = driver.find_element_by_class_name('info-box')
+
+    assert info.text == 'Logged in.'
+
+    time.sleep(1)
+
+
 def test_help_modal(driver):
     navbar = driver.find_element_by_tag_name('nav')
     help = navbar.find_element_by_xpath("//a[@data-tooltip='Help']")
@@ -87,45 +126,6 @@ def test_help_modal(driver):
 
     modal.find_element_by_class_name("modal-close").click()
 
-def test_user_register(driver):
-    global USER
-    USER = get_random_userdata()
-    register = driver.find_element_by_link_text('Register')
-    ActionChains(driver).move_to_element(register).click().perform()
-
-    modal = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.ID, 'register'))
-    )
-
-    modal.find_element_by_name('username').send_keys(USER['name'])
-    modal.find_element_by_name('email').send_keys(USER['email'])
-    modal.find_element_by_name('password1').send_keys(USER['password'])
-    modal.find_element_by_name('password2').send_keys(USER['password'], Keys.ENTER)
-
-    try:
-        WebDriverWait(driver, 5).until(
-            EC.text_to_be_present_in_element((By.ID, 'register'), 'User successfully created.')
-        )
-    except:
-        pytest.fail('Failed to register.')
-
-    modal.find_element_by_class_name("modal-close").click()
-
-def test_user_login(driver):
-    login = driver.find_element_by_link_text('Log in')
-    ActionChains(driver).move_to_element(login).click().perform()
-    modal = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.ID, 'login'))
-    )
-
-    modal.find_element_by_name('username').send_keys(USER['name'])
-    modal.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
-
-    time.sleep(0.5)
-
-    info = driver.find_element_by_class_name('info-box')
-
-    assert info.get_attribute('data-tooltip') == 'Logged In.'
 
 def test_user_dropdown(driver):
     menu_options = get_user_dropdown_options(driver)
@@ -145,6 +145,7 @@ def test_user_dropdown(driver):
     fields = modal.find_elements_by_class_name('collection-item')[:2]
     for field in fields:
         assert field.find_element_by_class_name('secondary-content').text in USER.values()
+
 
 def test_editing_profile(driver):
     modal = driver.find_element_by_id('user-info')
@@ -167,6 +168,7 @@ def test_editing_profile(driver):
 
     modal.find_element_by_class_name("modal-close").click()
 
+
 def test_logout(driver):
     logout = get_user_dropdown_options(driver)[2]
 
@@ -174,10 +176,13 @@ def test_logout(driver):
 
     info = driver.find_element_by_class_name('info-box')
 
-    assert info.get_attribute('data-tooltip') == 'Logged Out.'
+    assert info.text == 'Logged out.'
+
 
 def test_login_with_new_password(driver):
+    time.sleep(1)
     test_user_login(driver)
+
 
 def test_deleting_a_user(driver):
     edit_profile = get_user_dropdown_options(driver)[0]
@@ -206,44 +211,34 @@ def test_deleting_a_user(driver):
 
     try:
         WebDriverWait(driver, 5).until(
-            EC.text_to_be_present_in_element((By.TAG_NAME, 'nav'), 'Log in')
+            EC.presence_of_element_located((By.CLASS_NAME, 'user-form'))
         )
     except:
         pytest.fail('Didn\'t actually delete the user or something went wrong.')
 
     # so lets try to login on our now-nonexistent user's credentials
 
-    login = driver.find_element_by_link_text('Log in')
-    ActionChains(driver).move_to_element(login).click().perform()
-    modal = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.ID, 'login'))
-    )
+    login = driver.find_elements_by_class_name('user-form')[1]
 
-    modal.find_element_by_name('username').send_keys(USER['name'])
-    modal.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
+    login.find_element_by_name('username').send_keys(USER['name'])
+    login.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
 
     try:
         WebDriverWait(driver, 5).until(
-            EC.text_to_be_present_in_element((By.ID, 'login'), 'Invalid credentials')
+            lambda _: login.find_element_by_class_name('red-text').text.startswith(f'Invalid credentials')
         )
     except:
         pytest.fail('Probably some internal server error.')
-
-    modal.find_element_by_class_name('modal-close').click()
 
 
 def test_admin_panel(driver):
     # first lets register a user
     test_user_register(driver)
     # lets login as an admin
-    login = driver.find_element_by_link_text('Log in')
-    ActionChains(driver).move_to_element(login).click().perform()
-    modal = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.ID, 'login'))
-    )
+    login = driver.find_elements_by_class_name('user-form')[1]
 
-    modal.find_element_by_name('username').send_keys('admin')
-    modal.find_element_by_name('password').send_keys('admin', Keys.ENTER)
+    login.find_element_by_name('username').send_keys('admin')
+    login.find_element_by_name('password').send_keys('admin', Keys.ENTER)
 
     try:
         WebDriverWait(driver, 5).until(
@@ -251,6 +246,8 @@ def test_admin_panel(driver):
         )
     except:
         pytest.fail('Failed to log in as an admin.')
+    global time # ?!?!?!
+    time.sleep(1)
     driver.find_element_by_link_text('User list').click()
 
     modal = WebDriverWait(driver, 5).until(
