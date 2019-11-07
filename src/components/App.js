@@ -12,7 +12,6 @@ import Home from './Home';
 import NavBar from './Navbar';
 import ScoreInterface from './ScoreInterface';
 import usersAPIClient from '../utils/usersAPIClient';
-import AboutModal from './modals/about';
 
 export default class extends React.Component {
   state = {
@@ -124,15 +123,9 @@ export default class extends React.Component {
 
     return (
       <Router>
-        <AboutModal
-          about={language[this.state.lang].navbar.about}
-          aboutContent={language[this.state.lang].navbar.aboutContent}
-          author={language[this.state.lang].author}
-          close={language[this.state.lang].navbar.close}
-        />
         <NavBar
           user={this.state.user}
-          text={language[this.state.lang].navbar}
+          lang={language[this.state.lang].navbar}
           logOut={this.logOut}
           langChange={this.langChange}
           getUserList={this.getUserList}

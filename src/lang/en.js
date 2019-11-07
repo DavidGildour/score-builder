@@ -1,6 +1,6 @@
 export default {
-    author: 'Application author: ',
     navbar: {
+        author: 'Application author: ',
         forms: {
             register: 'Register',
             login: 'Log in',

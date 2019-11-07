@@ -30,7 +30,6 @@ export const TimeSigOptions = (props) => (
                     type="number"
                     className="validate"
                     value={props.beatsNum}
-                    placeholder="4"
                     onChange={props.onChange} />
                     <label htmlFor="beatsNum">{props.lang.numLabel}</label>
             </div>

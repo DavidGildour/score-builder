@@ -8,15 +8,20 @@ export default class extends React.Component {
     return {
       scores: [],
       loaded: false,
+      ref: React.createRef()
     }
   }
   state = this.DEFAULT_STATE;
 
   componentDidMount = () => {
-    M.Modal.init(document.querySelector('.modal#scores'), {
-      onOpenStart: this.loadScores,
-      onCloseEnd: () => this.setState(this.DEFAULT_STATE)
-    })
+    M.Modal.init(
+      this.state.ref.current,
+      {
+        onOpenStart: this.loadScores,
+        onCloseEnd: () => this.setState(this.DEFAULT_STATE),
+      }
+    )
+    console.log(M.Modal.getInstance(document.querySelector('.modal#scores')));
   }
 
   componentDidUpdate = () => {
@@ -29,6 +34,7 @@ export default class extends React.Component {
   }
 
   loadScores = async () => {
+    console.log("loading");
     try {
       const resp = await scoresAPIClient.getUserScores(this.props.user.id);
       this.setState({
@@ -89,7 +95,7 @@ export default class extends React.Component {
       </div>
     </div>
     return (
-      <div className="modal collapsible-list" id="scores">
+      <div ref={this.state.ref} className="modal collapsible-list" id="scores">
           {content}  
           <div className="modal-footer">
           <a href="#!" className="modal-close waves-effect waves-green btn-flat">Close</a>

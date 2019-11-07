@@ -75,3 +75,8 @@
 .collapsible-list .collapsible-header:hover {
     background-color: #80cbc4 !important;
 }
+
+#about {
+    color: initial;
+    line-height: initial;
+}

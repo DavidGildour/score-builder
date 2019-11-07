@@ -1,6 +1,6 @@
 export default {
-    author: 'Twórca aplikacji: ',
     navbar: {
+        author: 'Twórca aplikacji: ',
         forms: {
             register: 'Utwórz konto',
             login: 'Zaloguj',
