@@ -1,5 +1,5 @@
 export default class Client {
-  static URL = 'http://127.0.0.1:5000';
+  static URL = process.env.REACT_APP_USER_SERVICE;
 
   static getUser = async () => {
     const resp = await fetch(Client.URL + '/me', {
