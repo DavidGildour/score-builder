@@ -21,7 +21,8 @@
     position: relative;
     border: 1px solid rgb(196, 196, 196);
     background-color: white;
-    height: 70vh;
+    /* min-height: 500px; */
+    height: 30rem;
     padding: 30px;
 }
 
