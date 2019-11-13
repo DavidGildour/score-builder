@@ -21,7 +21,6 @@ export default class extends React.Component {
         onCloseEnd: () => this.setState(this.DEFAULT_STATE),
       }
     )
-    console.log(M.Modal.getInstance(document.querySelector('.modal#scores')));
   }
 
   componentDidUpdate = () => {
