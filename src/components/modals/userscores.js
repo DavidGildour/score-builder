@@ -33,7 +33,6 @@ export default class extends React.Component {
   }
 
   loadScores = async () => {
-    console.log("loading");
     try {
       const resp = await scoresAPIClient.getUserScores(this.props.user.id);
       this.setState({

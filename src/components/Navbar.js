@@ -33,12 +33,6 @@ const UserDrop = (props) => (
 )
 
 export default class extends React.Component {
-  componentDidUpdate = (prevProps) => {
-    if (this.props.user !== prevProps.user) {
-      M.Modal.init(document.querySelector('#user-info'));
-    }
-  }
-
   componentDidMount = () => {
     M.Dropdown.init(document.querySelector('#lang'), DROPDOWN_OPTIONS);
     M.Dropdown.init(document.querySelector("a.dropdown-trigger[data-target='user-dropdown']"), DROPDOWN_OPTIONS);

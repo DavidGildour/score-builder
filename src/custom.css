@@ -85,3 +85,20 @@
 #user-dropdown, #user-opt {
     min-width: 110px;
 }
+
+.score-name {
+    width: 15%;
+    position: fixed;
+    margin-left: 15px;
+    left: 0;
+    top: 0;
+}
+
+.score-name .input-field {
+    margin: 0;
+}
+
+.score-name #name {
+    width: 50%;
+    margin-left: 10px;
+}

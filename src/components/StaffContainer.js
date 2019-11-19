@@ -14,6 +14,7 @@ import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddMeasure } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
+import SaveScore from './SaveScore';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -1013,14 +1014,19 @@ class StaffContainer extends React.PureComponent {
                         restMode={this.state.editMode ? selectedNote.duration.includes('r') : this.state.restMode}
                         dotted={this.state.editMode ? selectedNote.duration.includes('d') : this.state.dotted} />
                 </div>
-                <div tabIndex="0" onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
-                    <Staff 
-                        id="0"
-                        stave={this.state.stave}
-                        getBarLines={this.getBarLines}
-                        selectedNote={this.state.selectedNote}
-                        activeVoice={this.state.currentVoice}
-                        bpm={this.state.bpm} />
+                <div className="row valign-wrapper">
+                    <div className="col s11" tabIndex="0" onClick={this.handleClick} onMouseMove={this.handleMouseMove}>
+                        <Staff 
+                            id="0"
+                            stave={this.state.stave}
+                            getBarLines={this.getBarLines}
+                            selectedNote={this.state.selectedNote}
+                            activeVoice={this.state.currentVoice}
+                            bpm={this.state.bpm} />
+                    </div>
+                    <div className="col s1">
+                        <SaveScore onClick={this.props.saveScore} />
+                    </div>
                 </div>
                     <MidiPlayer
                         lang={this.props.lang.player}

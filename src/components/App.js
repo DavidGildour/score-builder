@@ -18,6 +18,7 @@ export default class extends React.Component {
     loaded: false,
     isLogged: false,
     user: null,
+    score: null,
     lang: 'EN',
     message: null,
     userList: [],
