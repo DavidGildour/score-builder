@@ -31,6 +31,7 @@ class ScoreInterface extends React.Component {
   loadScore = (score) => {
     this.props.loadScore(score.data);
     this.setState({ scoreChangeIndicator: Date.now() });
+    if (this._isMounted()) this.setState({ score: score, scoreName: score.name });
   }
 
   deleteUser = async (id) => {
@@ -113,7 +114,7 @@ class ScoreInterface extends React.Component {
     if (score) {
       this.loadScore(score);
     }
-    if (this._isMounted()) this.setState({ loaded: true, score: score, scoreName: score ? score.name : null });
+    if (this._isMounted()) this.setState({ loaded: true});
   }
 
   _isMounted = () => this.state.elemRef.current !== null;
