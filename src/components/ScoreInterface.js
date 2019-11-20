@@ -78,7 +78,7 @@ class ScoreInterface extends React.Component {
         });
       } else {
         resp = await scoresAPIClient.updateScore(this.props.user.id, this.state.score.name, {
-          name: this.state.scoreName,
+          name: this.state.scoreName !== this.state.score.name ? this.state.scoreName : null,
           notes: {
             message: '',
             staves: this.props.staves
@@ -89,7 +89,11 @@ class ScoreInterface extends React.Component {
     } catch (err) {
       resp = err;
     } finally {
-      console.log(resp.message);
+      M.toast({
+        html: resp.message,
+        displayLength: 2000,
+        classes: 'info-box rounded'
+      });
     }
   }
 
