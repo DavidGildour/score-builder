@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 import usersAPIClient from '../utils/usersAPIClient';
-import scoresAPIClient from '../utils/scoresAPIClient';
 
 import Register from './Register';
 import Login from './Login';
@@ -22,14 +21,11 @@ export default class extends React.Component {
       const json = await usersAPIClient.getAuth(username.value, password.value);
       const user = json.content;
 
-      const score = await scoresAPIClient.getLatestScore(user.id);
-
       delete user.access_token;
       this.props.appStateChange({
         user: user,
-        score: score,
         isLogged: true,
-        lang: json.content.language,
+        lang: user.language,
       });
       this.setState({
         loginSuccess: true,

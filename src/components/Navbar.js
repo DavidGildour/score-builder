@@ -28,7 +28,7 @@ const UserDrop = (props) => (
   <ul id="user-dropdown" className="dropdown-content">
     <li><a href="#user-info" className="modal-trigger">{props.text.edit}</a></li>
     <li><a href="#scores" className="modal-trigger">My scores</a></li>
-    <li><Link to="/" onClick={props.logOut}>{props.text.logout}</Link></li>
+    <li><Link to="/login" onClick={props.logOut}>{props.text.logout}</Link></li>
   </ul>
 )
 

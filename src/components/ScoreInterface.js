@@ -30,8 +30,7 @@ class ScoreInterface extends React.Component {
 
   loadScore = (score) => {
     this.props.loadScore(score.data);
-    this.setState({ scoreChangeIndicator: Date.now() });
-    if (this._isMounted()) this.setState({ score: score, scoreName: score.name });
+    if (this._isMounted()) this.setState({ score: score, scoreName: score.name, scoreChangeIndicator: Date.now() });
   }
 
   deleteUser = async (id) => {
