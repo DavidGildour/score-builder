@@ -24,7 +24,7 @@ class ScoreInterface extends React.Component {
     scoreLoadedTime: Date.now(),
     changeIndicator: Date.now(),
     elemRef: React.createRef(),
-    scoreName: null,
+    scoreName: "",
     message: null,
     score: null,
     loaded: false,
@@ -114,9 +114,9 @@ class ScoreInterface extends React.Component {
   }
 
   newScore = async () => {
-    this.props.loadScore();
     const name = await namesAPIClient.getRandomName();
     this.setState({ score: null, scoreName: name.content, scoreLoadedTime: Date.now() });
+    this.props.loadScore();
   }
 
   componentDidUpdate = (_, prevState) => {
@@ -132,6 +132,8 @@ class ScoreInterface extends React.Component {
     const score = await scoresAPIClient.getLatestScore(this.props.user.id);
     if (score) {
       this.loadScore(score);
+    } else {
+      this.newScore();
     }
     if (this._isMounted()) this.setState({ loaded: true});
   }

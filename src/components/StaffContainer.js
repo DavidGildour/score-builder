@@ -44,7 +44,7 @@ class StaffContainer extends React.PureComponent {
         editMode: false,
         dotted: false,
         id: this.props.id,
-        timeOpened: this.props.changeIndicator,
+        timeOpened: this.props.scoreLoadedTime,
         stave: this.props.staves[this.props.id],
         currentVoice: '0',
         currentMeasure: '0',
@@ -213,8 +213,8 @@ class StaffContainer extends React.PureComponent {
                     duration: newNote.duration,
                 },
             }))
+            this.props.updateChange();
         }
-        this.props.updateChange();
         return availableDuration;
     }
 
@@ -854,6 +854,7 @@ class StaffContainer extends React.PureComponent {
                         }
                     })
                 }
+                this.props.updateChange();
                 this.setState(state => ({
                     selectedNote: {
                         ...state.selectedNote,
@@ -1037,7 +1038,7 @@ class StaffContainer extends React.PureComponent {
                             bpm={this.state.bpm} />
                     </div>
                     <div className="col s1">
-                        <SaveScore onClick={this.props.saveScore} changeIndicator={this.props.changeIndicator} />
+                        <SaveScore onClick={this.props.saveScore} changeIndicator={this.props.changeIndicator} justLoaded={Date.now() - this.state.timeOpened < 50} />
                     </div>
                 </div>
                     <MidiPlayer

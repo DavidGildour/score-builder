@@ -12,9 +12,17 @@ export default class extends React.Component {
     })
   }
 
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.justLoaded !== this.props.justLoaded) {
+      this.setState({
+        lastChange: this.props.changeIndicator,
+      })
+    }
+  }
+
   render = () => {
     let icon, text, callback, cls;
-    if (this.state.lastChange === this.props.changeIndicator) {
+    if (this.state.lastChange === this.props.changeIndicator || this.props.justLoaded) {
       icon = <i className="material-icons">done</i>;
       text = "Everything's saved!";
       callback = null;
