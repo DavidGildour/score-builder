@@ -161,6 +161,7 @@ class StaffContainer extends React.PureComponent {
             }
         }
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
+        this.props.updateChange();
         this.setState({
             [name]: value,
         });
@@ -213,6 +214,7 @@ class StaffContainer extends React.PureComponent {
                 },
             }))
         }
+        this.props.updateChange();
         return availableDuration;
     }
 
@@ -234,6 +236,7 @@ class StaffContainer extends React.PureComponent {
                 duration: durationToNote[durationLeft - durationLeftAfterAdding],
             },
         }));
+        this.props.updateChange();
     }
 
     getAvailableNotes = (interval, declaredNote, diatonic) => {
@@ -381,6 +384,7 @@ class StaffContainer extends React.PureComponent {
         const duration = noteToDuration[note.duration.replace('r', '')];
 
         this.populateVoiceWithRests(lastNonEmptyMeasureId.toString(), this.state.currentVoice, duration);
+        this.props.updateChange();
     }
 
     makeNoteARest = (note) => {
@@ -489,6 +493,7 @@ class StaffContainer extends React.PureComponent {
             }
         }
 
+        this.props.updateChange();
         this.props.updateNoteInStave({  
                                         staveId: this.state.id,
                                         measureId: selected.measureId,
@@ -517,6 +522,7 @@ class StaffContainer extends React.PureComponent {
             this.populateVoiceWithRests(j.toString(), voiceId, this.state.stave.beatsNum * (1 / this.state.stave.beatsType));
         }
         this.setState({ error: "" });
+        this.props.updateChange();
     }
 
     removeVoice = (e) => {
@@ -532,6 +538,7 @@ class StaffContainer extends React.PureComponent {
             return;
         }
 
+        this.props.updateChange();
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: voiceId });
         this.setState(state => ({ 
             error: "",
@@ -555,6 +562,7 @@ class StaffContainer extends React.PureComponent {
                 this.populateVoiceWithRests(j.toString(), i.toString(), this.state.stave.beatsNum * (1 / this.state.stave.beatsType));
             }
         }
+        this.props.updateChange();
         this.setState({
             selectedNote: null,
             error: '',
@@ -612,6 +620,7 @@ class StaffContainer extends React.PureComponent {
                 // does not have to populate with rests - the melody will always fill the measure
             }
         }
+        this.props.updateChange();
         this.setState({
             error: '',
         })
@@ -622,6 +631,7 @@ class StaffContainer extends React.PureComponent {
         for (let i = 0; i < this.state.stave.measures[0].voices.length; i++) {
             this.populateVoiceWithRests(this.state.stave.measures.length.toString(), i.toString(), this.state.stave.beatsNum * (1 / this.state.stave.beatsType))
         }
+        this.props.updateChange();
     }
 
     handleClick = (e) => {
@@ -794,6 +804,7 @@ class StaffContainer extends React.PureComponent {
             }})
         } else if (key === 'Delete') {
             if (this.state.selectedNote && !this.state.selectedNote.duration.includes('r')) {
+                this.props.updateChange();
                 this.makeNoteARest(this.state.selectedNote);
                 this.setState(state => ({ selectedNote: {
                     ...state.selectedNote,
@@ -889,6 +900,7 @@ class StaffContainer extends React.PureComponent {
 
     storeChange = (event) => {
         this.innerStateChange(event);
+        this.props.updateChange();
         const { name, value } = event.target;
 
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
@@ -961,12 +973,12 @@ class StaffContainer extends React.PureComponent {
 
     static getDerivedStateFromProps = (props, state) => {
         let selectedNote;
-        if (props.changeIndicator !== state.timeOpened) selectedNote = null;
+        if (props.scoreLoadedTime !== state.timeOpened) selectedNote = null;
         else selectedNote = state.selectedNote;
         return {
             stave: props.staves[state.id],
             selectedNote: selectedNote,
-            timeOpened: props.changeIndicator
+            timeOpened: props.scoreLoadedTime
         }
     }
 
@@ -1025,7 +1037,7 @@ class StaffContainer extends React.PureComponent {
                             bpm={this.state.bpm} />
                     </div>
                     <div className="col s1">
-                        <SaveScore onClick={this.props.saveScore} />
+                        <SaveScore onClick={this.props.saveScore} changeIndicator={this.props.changeIndicator} />
                     </div>
                 </div>
                     <MidiPlayer

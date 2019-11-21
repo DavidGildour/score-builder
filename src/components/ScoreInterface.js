@@ -21,7 +21,8 @@ const mapDispatchToProps = { loadScore };
 
 class ScoreInterface extends React.Component {
   state = {
-    scoreChangeIndicator: Date.now(),
+    scoreLoadedTime: Date.now(),
+    changeIndicator: Date.now(),
     elemRef: React.createRef(),
     scoreName: null,
     message: null,
@@ -31,7 +32,7 @@ class ScoreInterface extends React.Component {
 
   loadScore = (score) => {
     this.props.loadScore(score.data);
-    if (this._isMounted()) this.setState({ score: score, scoreName: score.name, scoreChangeIndicator: Date.now() });
+    if (this._isMounted()) this.setState({ score: score, scoreName: score.name, scoreLoadedTime: Date.now() });
   }
 
   deleteUser = async (id) => {
@@ -102,13 +103,20 @@ class ScoreInterface extends React.Component {
     const { value } = e.target;
     this.setState({
       scoreName: value,
+      changeIndicator: Date.now()
     });
+  }
+
+  updateChange = () => {
+    this.setState({
+      changeIndicator: Date.now()
+    })
   }
 
   newScore = async () => {
     this.props.loadScore();
     const name = await namesAPIClient.getRandomName();
-    this.setState({ score: null, scoreName: name.content, scoreChangeIndicator: Date.now() });
+    this.setState({ score: null, scoreName: name.content, scoreLoadedTime: Date.now() });
   }
 
   componentDidUpdate = (_, prevState) => {
@@ -150,7 +158,8 @@ class ScoreInterface extends React.Component {
           deleteMe={this.props.deleteMe}
           editUser={this.changePassword} 
           user={this.props.user}
-          close={this.props.lang.navbar.close} />
+          close={this.props.lang.navbar.close}
+        />
       userScoresModal =
         <UserScores loadScore={this.loadScore} user={this.props.user} />
     }
@@ -175,8 +184,10 @@ class ScoreInterface extends React.Component {
         <StaffContainer
           lang={this.props.lang}
           id="0"
-          changeIndicator={this.state.scoreChangeIndicator}
+          scoreLoadedTime={this.state.scoreLoadedTime}
+          changeIndicator={this.state.changeIndicator}
           saveScore={this.saveScore}
+          updateChange={this.updateChange}
         />
       </div>
     )
