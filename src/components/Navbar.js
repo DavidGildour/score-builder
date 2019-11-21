@@ -62,6 +62,11 @@ export default class extends React.Component {
         href="#help"
       ><i className="material-icons">help_outline</i></a> :
       null;
+
+    const addScoreButton = this.props.user ?
+      <li><a href="#!" id="addscore"><i className="material-icons left">add</i>New score</a></li> :
+      null;
+    
     let userList;
     if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>{this.props.lang.userlist.button}</a></li>;
     else userList = null;
@@ -79,6 +84,7 @@ export default class extends React.Component {
         <div className="nav-wrapper teal">
         <a href="/" className="brand-logo"><i className="material-icons left">library_music</i>Score Builder</a>
         <ul id="nav-mobile" className="right hide-on-med-and-down">
+          {addScoreButton}
           {userList}
           {userOptions}
           <li><a href="#about" className="modal-trigger">{this.props.lang.about}</a></li>

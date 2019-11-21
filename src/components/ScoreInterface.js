@@ -6,6 +6,7 @@ import StaffContainer from './StaffContainer';
 import ScoreName from './ScoreName';
 import usersAPIClient from '../utils/usersAPIClient';
 import scoresAPIClient from '../utils/scoresAPIClient';
+import namesAPIClient from '../utils/namesAPIClient';
 import { loadScore } from '../redux/actions';
 
 import HelpModal from './modals/help';
@@ -104,6 +105,12 @@ class ScoreInterface extends React.Component {
     });
   }
 
+  newScore = async () => {
+    this.props.loadScore();
+    const name = await namesAPIClient.getRandomName();
+    this.setState({ score: null, scoreName: name.content, scoreChangeIndicator: Date.now() });
+  }
+
   componentDidUpdate = (_, prevState) => {
     if (prevState.loaded === false && this.state.loaded === true) {
       M.Modal.init(document.querySelectorAll('#main .modal:not(#scores)'));
@@ -113,6 +120,7 @@ class ScoreInterface extends React.Component {
 
   componentDidMount = async () => {
     M.Modal.init(document.querySelectorAll('#main .modal:not(#scores)'));
+    document.querySelector('#addscore').addEventListener('click', this.newScore)
     const score = await scoresAPIClient.getLatestScore(this.props.user.id);
     if (score) {
       this.loadScore(score);

@@ -1,12 +1,13 @@
 /* eslint-disable object-shorthand */
 import changeStave from './changeStave';
 import { setField, addNoteToMeasure, deleteNoteFromMeasure, updateNoteInMeasure, addVoiceToMeasures } from '../actions';
+import { preloadedState } from '../store';
 
 
-const rootReducer = (state = {}, action) => {
+const rootReducer = (state = preloadedState, action) => {
     switch (action.type) {
         case 'LOAD_SCORE': {
-            return action.payload;
+            return action.payload || preloadedState;
         }
         case 'SET_STAVE_FIELD': {
             const { id, field, value } = action.payload;

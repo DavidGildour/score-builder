@@ -2,7 +2,7 @@ import { configureStore, getDefaultMiddleware } from 'redux-starter-kit';
 
 import rootReducer from './reducers/root';
 
-const preloadedState = {
+export const preloadedState = {
     message: '',
     staves: [
         {
