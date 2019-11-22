@@ -1,4 +1,3 @@
-import time
 import random
 import pytest
 
@@ -79,6 +78,9 @@ def test_about_modal(driver):
 def test_user_register(driver):
     global USER
     USER = get_random_userdata()
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'user-form'))
+    )
     register = driver.find_elements_by_class_name('user-form')[0]
 
     register.find_element_by_name('email').send_keys(USER['email'])
@@ -88,7 +90,8 @@ def test_user_register(driver):
 
     try:
         WebDriverWait(driver, 5).until(
-            lambda _: register.find_element_by_class_name('red-text').text.startswith(f'User successfully created.')
+            lambda _: any(map(lambda e: e.text.startswith(f'User successfully created.'),
+                              driver.find_elements_by_class_name('info-box')))
         )
     except:
         pytest.fail('Failed to register.')
@@ -100,13 +103,13 @@ def test_user_login(driver):
     login.find_element_by_name('username').send_keys(USER['name'])
     login.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
 
-    time.sleep(1)
-
-    info = driver.find_element_by_class_name('info-box')
-
-    assert info.text == 'Logged in.'
-
-    time.sleep(1)
+    try:
+        WebDriverWait(driver, 5).until(
+            lambda _: any(map(lambda e: e.text.startswith(f'Logged in.'),
+                              driver.find_elements_by_class_name('info-box')))
+        )
+    except:
+        pytest.fail('Failed to login.')
 
 
 def test_help_modal(driver):
@@ -161,7 +164,8 @@ def test_editing_profile(driver):
 
     try:
         WebDriverWait(driver, 5).until(
-            EC.text_to_be_present_in_element((By.CLASS_NAME, 'lime-text'), 'Password changed.')
+            lambda _: any(map(lambda e: e.text.startswith(f'Password changed.'),
+                              driver.find_elements_by_class_name('info-box')))
         )
     except:
         pytest.fail('Failed to change password.')
@@ -174,13 +178,16 @@ def test_logout(driver):
 
     logout.click()
 
-    info = driver.find_element_by_class_name('info-box')
-
-    assert info.text == 'Logged out.'
+    try:
+        WebDriverWait(driver, 5).until(
+            lambda _: any(map(lambda e: e.text.startswith(f'Logged out.'),
+                              driver.find_elements_by_class_name('info-box')))
+        )
+    except:
+        pytest.fail('Failed to log out.')
 
 
 def test_login_with_new_password(driver):
-    time.sleep(1)
     test_user_login(driver)
 
 
@@ -225,7 +232,8 @@ def test_deleting_a_user(driver):
 
     try:
         WebDriverWait(driver, 5).until(
-            lambda _: login.find_element_by_class_name('red-text').text.startswith(f'Invalid credentials')
+            lambda _: any(map(lambda e: e.text.startswith(f'Invalid credentials'),
+                              driver.find_elements_by_class_name('info-box')))
         )
     except:
         pytest.fail('Probably some internal server error.')
@@ -246,8 +254,8 @@ def test_admin_panel(driver):
         )
     except:
         pytest.fail('Failed to log in as an admin.')
-    global time # ?!?!?!
-    time.sleep(1)
+    import time
+    time.sleep(2)
     driver.find_element_by_link_text('User list').click()
 
     modal = WebDriverWait(driver, 5).until(
@@ -270,8 +278,6 @@ def test_admin_panel(driver):
         except AssertionError:
             next = modal.find_element_by_id('page_next')
             if next.get_attribute('class') == 'disabled':
-                import time
-                time.sleep(5)
                 pytest.fail(f'{USER["name"]} not found, probably registration failed.')
             next.click()
 
@@ -281,8 +287,11 @@ def test_admin_panel(driver):
     )[0]
     body.find_element_by_id('delete_user').click()
 
-    WebDriverWait(driver, 5).until(
-        lambda _: modal.find_element_by_class_name('red-text').text.startswith(f'User {USER["name"]}')
-    )
+    try:
+        WebDriverWait(driver, 5).until(
+            lambda _: any(map(lambda e: e.text.startswith(f'User {USER["name"]}'), driver.find_elements_by_class_name('info-box')))
+        )
+    except:
+        pytest.fail('Failed to delete a user.')
 
     modal.find_element_by_class_name('btn-flat').click()
