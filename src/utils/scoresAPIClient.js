@@ -41,14 +41,25 @@ export default class {
     throw new Error(json.message);
   }
 
+  static deleteScore = async (id, scoreName) => {
+    const resp = await fetch(this.URL + `/scores/${id}/${scoreName}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    const json = await resp.json();
+    if (resp.status === 200) {
+      return json;
+    }
+    throw new Error(json.message);
+  }
+
   static getScore = async (id, scoreName) => {
     const resp = await fetch(this.URL + `/scores/${id}/${scoreName}`, {
       credentials: 'include'
     });
     const json = await resp.json();
-    console.log(json);
     if (resp.status === 200) {
-      return await json.content;
+      return json.content;
     }
     return null;
   }

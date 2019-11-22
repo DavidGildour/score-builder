@@ -2,6 +2,7 @@ import React from 'react';
 import M from 'materialize-css/dist/js/materialize.min';
 
 import scoresAPIClient from '../../utils/scoresAPIClient';
+import toastMessage from '../../utils/toast';
 
 export default class extends React.Component {
   get DEFAULT_STATE() {
@@ -32,6 +33,19 @@ export default class extends React.Component {
     M.Modal.getInstance(document.querySelector('.modal#scores')).close();
   }
 
+  deleteScore = async (score) => {
+    let msg;
+    try {
+      const resp = await scoresAPIClient.deleteScore(this.props.user.id, score.name);
+      msg = resp.message;
+      this.setState({ loaded: false });
+      this.loadScores();
+    } catch (err) {
+      msg = err.message;
+    }
+    toastMessage(msg);
+  }
+
   loadScores = async () => {
     try {
       const resp = await scoresAPIClient.getUserScores(this.props.user.id);
@@ -40,7 +54,7 @@ export default class extends React.Component {
         scores: resp.content,
       })
     } catch (err) {
-      console.log(err.message);
+      toastMessage(err.message);
     }
   }
 
@@ -79,6 +93,7 @@ export default class extends React.Component {
               Last edited: {score.last_edit}
             </div>
             <div className="right-align">
+              <a href="#!" className="btn-flat" onClick={() => this.deleteScore(score)}>Delete</a>
               <a href="#!" className="btn-flat" onClick={() => this.openScore(score)}>Open</a>
             </div>
           </div>
