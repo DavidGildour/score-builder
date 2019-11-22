@@ -4,6 +4,7 @@ import pytest
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -23,7 +24,7 @@ def get_random_userdata():
 
 def get_user_dropdown_options(driver) -> list:
     user_menu = driver.find_element_by_id('user-opt')
-    ActionChains(driver).move_by_offset(1,1).move_to_element(user_menu).perform()
+    ActionChains(driver).move_by_offset(1, 1).move_to_element(user_menu).perform()
     modal = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.ID, 'user-dropdown'))
     )
@@ -93,7 +94,7 @@ def test_user_register(driver):
             lambda _: any(map(lambda e: e.text.startswith(f'User successfully created.'),
                               driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to register.')
 
 
@@ -108,14 +109,14 @@ def test_user_login(driver):
             lambda _: any(map(lambda e: e.text.startswith(f'Logged in.'),
                               driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to login.')
 
 
 def test_help_modal(driver):
     navbar = driver.find_element_by_tag_name('nav')
-    help = navbar.find_element_by_xpath("//a[@data-tooltip='Help']")
-    ActionChains(driver).move_to_element(help).click().perform()
+    help_button = navbar.find_element_by_xpath("//a[@data-tooltip='Help']")
+    ActionChains(driver).move_to_element(help_button).click().perform()
 
     modal = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.ID, 'help'))
@@ -167,7 +168,7 @@ def test_editing_profile(driver):
             lambda _: any(map(lambda e: e.text.startswith(f'Password changed.'),
                               driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to change password.')
 
     modal.find_element_by_class_name("modal-close").click()
@@ -183,7 +184,7 @@ def test_logout(driver):
             lambda _: any(map(lambda e: e.text.startswith(f'Logged out.'),
                               driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to log out.')
 
 
@@ -220,7 +221,7 @@ def test_deleting_a_user(driver):
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'user-form'))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Didn\'t actually delete the user or something went wrong.')
 
     # so lets try to login on our now-nonexistent user's credentials
@@ -235,7 +236,7 @@ def test_deleting_a_user(driver):
             lambda _: any(map(lambda e: e.text.startswith(f'Invalid credentials'),
                               driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Probably some internal server error.')
 
 
@@ -252,7 +253,7 @@ def test_admin_panel(driver):
         WebDriverWait(driver, 5).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, 'nav'), 'User list')
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to log in as an admin.')
     import time
     time.sleep(2)
@@ -276,10 +277,10 @@ def test_admin_panel(driver):
             assert USER['name'] in usernames
             found = list(filter(lambda header: USER['name'] in header.text, headers))[0]
         except AssertionError:
-            next = modal.find_element_by_id('page_next')
-            if next.get_attribute('class') == 'disabled':
+            next_page = modal.find_element_by_id('page_next')
+            if next_page.get_attribute('class') == 'disabled':
                 pytest.fail(f'{USER["name"]} not found, probably registration failed.')
-            next.click()
+            next_page.click()
 
     found.click()
     body = WebDriverWait(driver, 5).until(
@@ -289,9 +290,10 @@ def test_admin_panel(driver):
 
     try:
         WebDriverWait(driver, 5).until(
-            lambda _: any(map(lambda e: e.text.startswith(f'User {USER["name"]}'), driver.find_elements_by_class_name('info-box')))
+            lambda _: any(map(lambda e: e.text.startswith(f'User {USER["name"]}'),
+                              driver.find_elements_by_class_name('info-box')))
         )
-    except:
+    except TimeoutException:
         pytest.fail('Failed to delete a user.')
 
     modal.find_element_by_class_name('btn-flat').click()
