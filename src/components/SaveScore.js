@@ -35,7 +35,9 @@ export default class extends React.Component {
     }
 
     return (
-      <button onClick={callback}
+      <button
+        id="save-score"
+        onClick={callback}
         className={cls}
         data-position="right"
         data-tooltip={text}
