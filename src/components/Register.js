@@ -57,7 +57,6 @@ export default class extends React.Component {
           {button}
         </form>
         <div className="form-footer">If you do not have an account yet, in order to use Score Builder you need to create one. Go ahead, it's free!</div>
-        <div className="red-text">{this.props.message}</div>
       </div>
     )
   }

@@ -12,6 +12,7 @@ import Home from './Home';
 import NavBar from './Navbar';
 import ScoreInterface from './ScoreInterface';
 import usersAPIClient from '../utils/usersAPIClient';
+import toastMessage from '../utils/toast';
 
 export default class extends React.Component {
   state = {
@@ -20,17 +21,12 @@ export default class extends React.Component {
     user: null,
     score: null,
     lang: 'EN',
-    message: null,
     userList: [],
   }
 
   componentDidUpdate = (_, prevState) => {
     if (prevState.isLogged !== this.state.isLogged) {
-      M.toast({
-        html: this.state.isLogged ? "Logged in." : "Logged out.",
-        displayLength: 1000,
-        classes: 'info-box rounded',
-      });
+      toastMessage(this.state.isLogged ? "Logged in." : "Logged out.", 1000);
     }
   }
   
@@ -39,9 +35,7 @@ export default class extends React.Component {
       try {
         await usersAPIClient.updateUser({ language: lang });
       } catch(err) {
-        this.setState({
-          message: err.message
-        })
+        toastMessage(err.message);
       }
     }
     this.setState({
@@ -61,14 +55,12 @@ export default class extends React.Component {
         isLogged: false,
       });
     } catch (err) {
-      this.setState({
-        message: err.message,
-      });
+      toastMessage(err.message);
     };
   }
 
   clearUserList = () => {
-    this.setState({ userList: [], message: null });
+    this.setState({ userList: [] });
   }
 
   deleteMe = async () => {
@@ -93,7 +85,7 @@ export default class extends React.Component {
         userList: data.content,
       })
     } catch (err) {
-      this.setState({ message: err.message });
+      toastMessage(err.message);
     }
   }
 

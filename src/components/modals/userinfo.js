@@ -32,7 +32,6 @@ export default class extends React.Component {
   render = () => (
     <div id="user-info" className="modal user-info modal-fixed-footer">
       <div className="modal-content">
-        <div className="lime-text text-darken-2 center-align">{this.props.message}</div>
         <h5 className="center-align">{this.props.text.user_info}:</h5>
         <ul className="collection">
           <li className="collection-item">

@@ -94,74 +94,73 @@ export default class extends React.Component {
   render = () => {
     const users_total = this.state.users.length;
     const list = users_total > 0 ? 
-    this.state.users
-    .slice((this.state.page-1)*this.state.users_per_page, (this.state.page)*this.state.users_per_page)
-    .map((user, i) => (
-      <li key={i}>
-        <div className="collapsible-header teal lighten-4 row">
-          <div className="col s1">
-            {(this.state.page-1)*this.state.users_per_page + i+1}.
+      this.state.users
+      .slice((this.state.page-1)*this.state.users_per_page, (this.state.page)*this.state.users_per_page)
+      .map((user, i) => (
+        <li key={i}>
+          <div className="collapsible-header teal lighten-4 row">
+            <div className="col s1">
+              {(this.state.page-1)*this.state.users_per_page + i+1}.
+            </div>
+            <div className="col s7">
+              {user.username}
+            </div>
+            <div className="col s4">
+              {user.id}
+            </div>
           </div>
-          <div className="col s7">
-            {user.username}
+          <div className="collapsible-body teal lighten-5">
+            <table className="highlighted">
+              <tbody>
+                <tr>
+                  <td>{this.props.text.user.role}:</td>
+                  <td>{user.role_id === 1 ? 'ADMIN' : 'USER'}</td>
+                </tr>
+                <tr>
+                  <td>{this.props.text.user.email}:</td>
+                  <td>{user.email}</td>
+                </tr>
+                <tr style={{border: 'none'}}>
+                  <td>{this.props.text.user.registered}:</td>
+                  <td>{user.registration_date}</td>
+                  <td>
+                    <button id="delete_user" className="btn waves-effect red fill" onClick={() => this.deleteUser(user.id)}>
+                      {this.props.text.user.delete}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="col s4">
-            {user.id}
-          </div>
-        </div>
-        <div className="collapsible-body teal lighten-5">
-          <table className="highlighted">
-            <tbody>
-              <tr>
-                <td>{this.props.text.user.role}:</td>
-                <td>{user.role_id === 1 ? 'ADMIN' : 'USER'}</td>
-              </tr>
-              <tr>
-                <td>{this.props.text.user.email}:</td>
-                <td>{user.email}</td>
-              </tr>
-              <tr style={{border: 'none'}}>
-                <td>{this.props.text.user.registered}:</td>
-                <td>{user.registration_date}</td>
-                <td>
-                  <button id="delete_user" className="btn waves-effect red fill" onClick={() => this.deleteUser(user.id)}>
-                    {this.props.text.user.delete}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </li>
-    )) : <span>No users to display. What are you doing here?</span>;
+        </li>
+      )) : 
+      <span>No users to display. What are you doing here?</span>;
     const content = this.state.loaded ?
-    <div className="modal-content">
-      <div className="red-text center">{this.props.message}</div>
-      <h4 className="center">{this.props.text.header}:</h4>
-      <ul className="collapsible popout">
-        <div className="list-header row teal lighten-3 z-depth-1">
-          <div className="col s1">
-            {this.props.text.table.no}.
+      <div className="modal-content">
+        <h4 className="center">{this.props.text.header}:</h4>
+        <ul className="collapsible popout">
+          <div className="list-header row teal lighten-3 z-depth-1">
+            <div className="col s1">
+              {this.props.text.table.no}.
+            </div>
+            <div className="col s7">
+              {this.props.text.table.username}
+            </div>
+            <div className="col s4">
+              ID
+            </div>
           </div>
-          <div className="col s7">
-            {this.props.text.table.username}
-          </div>
-          <div className="col s4">
-            ID
-          </div>
-        </div>
-        {list}
-      </ul>
-      {this.state.paginator}
-    </div>
-    : 
-    <div className="modal-content">
-      <span className="red-text">{this.props.message}</span>
-      <h4 className="center">{this.props.text.loading}...</h4>
-      <div className="progress">
-        <div className="indeterminate"></div>
+          {list}
+        </ul>
+        {this.state.paginator}
       </div>
-    </div>;
+      : 
+      <div className="modal-content">
+        <h4 className="center">{this.props.text.loading}...</h4>
+        <div className="progress">
+          <div className="indeterminate"></div>
+        </div>
+      </div>;
     return (
       <div id="userlist" className="modal modal-fixed-footer collapsible-list">
         {content}

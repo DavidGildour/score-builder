@@ -58,7 +58,6 @@ export default class extends React.Component {
           {button}
         </form>
         <div className="form-footer">If you already have an account, this is where you can log yourself in.</div>
-        <div className="red-text">{this.props.error}</div>
       </div>
     )
   }

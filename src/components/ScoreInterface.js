@@ -7,6 +7,7 @@ import ScoreName from './ScoreName';
 import usersAPIClient from '../utils/usersAPIClient';
 import scoresAPIClient from '../utils/scoresAPIClient';
 import namesAPIClient from '../utils/namesAPIClient';
+import toastMessage from '../utils/toast';
 import { loadScore } from '../redux/actions';
 
 import HelpModal from './modals/help';
@@ -25,7 +26,6 @@ class ScoreInterface extends React.Component {
     changeIndicator: Date.now(),
     elemRef: React.createRef(),
     scoreName: "",
-    message: null,
     score: null,
     loaded: false,
   };
@@ -38,13 +38,9 @@ class ScoreInterface extends React.Component {
   deleteUser = async (id) => {
     try {
       const data = await usersAPIClient.deleteUser(id);
-      this.setState({
-        message: data.message,
-      })
+      toastMessage(data.message);
     } catch (err) {
-      this.setState({
-        message: err.message,
-      })
+      toastMessage(err.message);
     }
   }
 
@@ -56,13 +52,9 @@ class ScoreInterface extends React.Component {
         'password1': password1.value, 
         'password2': password2.value
       })
-      this.setState({
-        message: json.message,
-      });
+      toastMessage(json.message);
     } catch (err) {
-      this.setState({
-        message: err.message,
-      })
+      toastMessage(err.message);
     }
   }
 
@@ -91,11 +83,7 @@ class ScoreInterface extends React.Component {
     } catch (err) {
       resp = err;
     } finally {
-      M.toast({
-        html: resp.message,
-        displayLength: 2000,
-        classes: 'info-box rounded'
-      });
+      toastMessage(resp.message);
     }
   }
 
@@ -154,9 +142,7 @@ class ScoreInterface extends React.Component {
     if (this.props.user) {
       userInfoModal = 
         <UserInfoModal
-          message={this.state.message}
           text={this.props.lang.navbar.forms}
-          clearMessage={() => this.setState({message: null})}
           deleteMe={this.props.deleteMe}
           editUser={this.changePassword} 
           user={this.props.user}
@@ -179,7 +165,6 @@ class ScoreInterface extends React.Component {
           text={this.props.lang.navbar.userlist}
           deleteUser={this.deleteUser}
           users={this.props.userList}
-          message={this.state.message}
           clearUserList={this.props.clearUserList}
         />
         <ScoreName name={this.state.scoreName} onChange={this.changeName} />

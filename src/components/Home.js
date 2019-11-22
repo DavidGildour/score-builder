@@ -2,6 +2,7 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 import usersAPIClient from '../utils/usersAPIClient';
+import toastMessage from '../utils/toast';
 
 import Register from './Register';
 import Login from './Login';
@@ -9,10 +10,7 @@ import Login from './Login';
 
 export default class extends React.Component {
   state = {
-    loginError: null,
     loginSuccess: false,
-    registerStatus: null,
-    message: null,
   };
 
   logIn = async (e) => {
@@ -31,24 +29,20 @@ export default class extends React.Component {
         loginSuccess: true,
       });
     } catch (err) {
-      this.setState({
-        loginError: err.message,
-      });
+      toastMessage(err.message);
     };
   }
 
   register = async (e) => {
     const { username, password1, password2, email } = e.target;
+    let msg;
     try {
       const json = await usersAPIClient.registerUser(username.value, password1.value, password2.value, email.value, this.state.language);
-      this.setState({
-        registerStatus: json.message,
-      })
+      msg = json.message;
     } catch (err) {
-      this.setState({
-        registerStatus: err.message,
-      })
+      msg = err.message;
     }
+    toastMessage(msg);
   }
 
   render = () => {
@@ -60,7 +54,6 @@ export default class extends React.Component {
           <Register
             text={this.props.lang.navbar.forms}
             close={this.props.lang.navbar.close}
-            message={this.state.registerStatus}
             onSubmit={this.register}
           />
           <div className="col s2" />
@@ -68,7 +61,6 @@ export default class extends React.Component {
             text={this.props.lang.navbar.forms}
             onSubmit={this.logIn}
             close={this.props.lang.navbar.close}
-            error={this.state.loginError}
           />
         </div>
       </div>
