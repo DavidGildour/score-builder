@@ -17,7 +17,6 @@ export default class extends React.Component {
   }
 
   cleanUp = () => {
-    this.props.clearMessage();
     const elems = document.getElementsByClassName('custom-collapsible');
     for (const elem of elems) {
       elem.className = 'custom-collapsible';
