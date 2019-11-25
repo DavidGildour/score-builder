@@ -2,7 +2,7 @@ import React from 'react';
 import M from 'materialize-css/dist/js/materialize.min';
 
 export const ClefOptions = (props) => (
-    <div className="input-field">
+    <div className="input-field" name="clef">
         <select name="clef" value={props.clef} onChange={props.onChange}>
             <option value="treble" data-icon={process.env.PUBLIC_URL + '/clefs/treble.png'}>{props.lang.clefs.treble}</option>
             <option value="bass" data-icon={process.env.PUBLIC_URL + '/clefs/bass.png'}>{props.lang.clefs.bass}</option>
@@ -35,7 +35,7 @@ export const TimeSigOptions = (props) => (
             </div>
         </div>
         <div className="col s6">
-            <div className="input-field">
+            <div className="input-field" name="beatsType">
                 <select id="beatsType" name="beatsType" value={props.beatsType} onChange={props.onChange}>
                     <option value="2">2</option>
                     <option value="4">4</option>
@@ -50,7 +50,7 @@ export const TimeSigOptions = (props) => (
 )
 
 export const KeyOptions = (props) => (
-    <div className="input-field">
+    <div className="input-field" name="keySig">
         <select name="keySig" value={props.keySig} onChange={props.onChange}>
             <option value="Cb" data-icon={process.env.PUBLIC_URL + '/keys/Cb.png'}>{props.lang.keys.Cb}</option>
             <option value="Gb" data-icon={process.env.PUBLIC_URL + '/keys/Gb.png'}>{props.lang.keys.Gb}</option>
