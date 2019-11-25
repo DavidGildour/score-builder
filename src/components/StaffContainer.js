@@ -15,6 +15,7 @@ import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, Not
 import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
 import SaveScore from './SaveScore';
+import toastMessage from '../utils/toast';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -39,7 +40,6 @@ const mapDispatchToProps = {
 
 class StaffContainer extends React.PureComponent {
     state = {
-        error: '',
         restMode: false,
         editMode: false,
         dotted: false,
@@ -205,7 +205,6 @@ class StaffContainer extends React.PureComponent {
             const maxIndex = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice].notes.length - 1;
             const actualIndex = Math.min(newNoteId, maxIndex);
             this.setState((state) => ({
-                error: null,
                 selectedNote: {
                     noteId: actualIndex.toString(),
                     voiceId: state.currentVoice,
@@ -510,7 +509,7 @@ class StaffContainer extends React.PureComponent {
 
     addVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 4) {
-            this.setState({ error: this.props.lang.options.errors.maxVoices});
+            toastMessage(this.props.lang.options.errors.maxVoices);
             return;
         }
 
@@ -521,33 +520,31 @@ class StaffContainer extends React.PureComponent {
         for (let j = 0; j < this.state.stave.measures.length; j++) {
             this.populateVoiceWithRests(j.toString(), voiceId, this.state.stave.beatsNum * (1 / this.state.stave.beatsType));
         }
-        this.setState({ error: "" });
         this.props.updateChange();
     }
 
     removeVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 1) {
-            this.setState({ error: this.props.lang.options.errors.minVoices});
+            toastMessage(this.props.lang.options.errors.minVoices);
             return;
         }
 
         const voiceId = (this.state.stave.measures[0].voices.length-1).toString();
 
         if (this.voiceIsNotEmpty(voiceId)) {
-            this.setState({ error: this.props.lang.options.errors.voiceNotEmpty});
+            toastMessage(this.props.lang.options.errors.voiceNotEmpty);
             return;
         }
 
         this.props.updateChange();
         this.props.deleteVoiceFromStave({ staveId: this.state.id, voiceId: voiceId });
-        this.setState(state => ({ 
-            error: "",
+        this.setState(state => ({
             currentVoice: state.currentVoice === voiceId ? (+voiceId-1).toString() : state.currentVoice,
-            selectedNote: !state.selectedNote // if there was no selected note before removing the voice - it remains null
-                          ? null                                    // however, if there was, we need to
+            selectedNote: !state.selectedNote                         // if there was no selected note before removing the voice - it remains null
+                          ? null                                      // however, if there was, we need to
                           : ((state.selectedNote.voiceId === voiceId) // check if maybe it was a part of the removed voice
-                            ? null // if so - we 'unselect' the note
-                            : { voiceId: voiceId, noteId: state.selectedNote.noteId, measureId: state.selectedNote.measureId }), // if it was a part of a different voice though - we can keep it
+                            ? null                                    // if so - we 'unselect' the note
+                            : state.selectedNote),                    // if it was a part of a different voice though - we can keep it
         }));
     }
 
@@ -565,7 +562,6 @@ class StaffContainer extends React.PureComponent {
         this.props.updateChange();
         this.setState({
             selectedNote: null,
-            error: '',
             editMode: false,
         })
     }
@@ -577,9 +573,7 @@ class StaffContainer extends React.PureComponent {
             for (const voice of measure.voices) {
                 for (const note of voice.notes) {
                     if (note.persistent) {
-                        this.setState({
-                            error: this.props.lang.options.errors.voicesNotEmpty,
-                        })
+                        toastMessage(this.props.lang.options.errors.voicesNotEmpty);
                         return;
                     }
                 }
@@ -589,9 +583,7 @@ class StaffContainer extends React.PureComponent {
         const { shortNote, longNote, diatonic, allowRests, interval } = options;
 
         if (noteToDuration[longNote] < noteToDuration[shortNote]) {
-            this.setState({
-                error: this.props.lang.options.errors.shortGreaterThanLong,
-            })
+            toastMessage(this.props.lang.options.errors.shortGreaterThanLong);
             return
         }
 
@@ -621,9 +613,6 @@ class StaffContainer extends React.PureComponent {
             }
         }
         this.props.updateChange();
-        this.setState({
-            error: '',
-        })
     }
 
     addMeasure = () => {
@@ -658,7 +647,6 @@ class StaffContainer extends React.PureComponent {
         
         if (selectedNote) {
             this.setState({
-                error: null,
                 selectedNote: selectedNote,
                 currentVoice: selectedNote.voiceId,
             })
@@ -872,17 +860,16 @@ class StaffContainer extends React.PureComponent {
 
         if (type === 'checkbox') {
             if (name === 'editMode' && !this.state.selectedNote) {
-                this.setState({ error: this.props.lang.options.errors.noSelectedNote});
+                
+                toastMessage(this.props.lang.options.errors.noSelectedNote);
                 return;
             }
             this.setState((state) => ({
-                error: null,
                 [name]: !state[name],
             }));
         } else if (name === 'currentVoice') {
             this.setState((state) => ({
                 ...state,
-                error: null,
                 selectedNote: {
                     voiceId: value,
                     noteId: '0',
@@ -893,7 +880,6 @@ class StaffContainer extends React.PureComponent {
             }));
         } else {
             this.setState({
-                error: null,
                 [name]: value,
             });
         }
@@ -1015,9 +1001,6 @@ class StaffContainer extends React.PureComponent {
         selectedNote ? currentNote = this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div onKeyDown={this.handleKeyPress}>
-                <div className="center red-text">
-                    {this.state.error || <span>&nbsp;</span>}
-                </div>
                 <div>
                     <NoteDuration
                         editMode={this.state.editMode}

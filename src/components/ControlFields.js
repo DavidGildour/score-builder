@@ -127,27 +127,27 @@ export const NoteDuration = (props) => (
 );
 
 export const AddMeasure = (props) => (
-    <button className="btn top-margin fill" onClick={props.onClick}>
+    <button name="addMeasure" className="btn top-margin fill" onClick={props.onClick}>
         {props.text}<i className="material-icons right">add</i>
     </button>
 );
 
 export const AddRandomNote = (props) => (
-    <button className="waves-effect waves-light btn fill" onClick={props.onSubmit}>
+    <button name="addRandomNote" className="waves-effect waves-light btn fill" onClick={props.onSubmit}>
         {props.text}<i className="material-icons right">cached</i>
     </button>
 );
 
 export const RemoveNote = (props) => (
-    <button className="waves-effect waves-light btn fill" onClick={props.onClick}>
+    <button name="removeNote" className="waves-effect waves-light btn fill" onClick={props.onClick}>
         {props.text}<i className="material-icons right">remove</i>
     </button>
 );
 
 export class Voices extends React.Component {
     componentDidUpdate = (prevProps) => {
-        if (prevProps.voices !== this.props.voices) {
-            M.FormSelect.init(document.querySelector('select#voices'));
+        if (prevProps.voices.length !== this.props.voices.length) {
+            M.FormSelect.init(document.querySelector('#voices select'));
         }
     }
 
