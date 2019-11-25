@@ -1,6 +1,7 @@
 import random
 
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -64,3 +65,10 @@ def add_random_note(staff, driver):
     x_offset = staff.get_property('width')['animVal']['value'] - 60
     y_offset = random.randrange(88, 128)
     ActionChains(driver).move_to_element_with_offset(staff, x_offset, y_offset).click().perform()
+
+
+def check_if_this_changes_the_pitch(transposition):
+    return (
+        transposition.count(Keys.ARROW_DOWN) != transposition.count(Keys.ARROW_UP) or
+        transposition.count(Keys.PAGE_DOWN) != transposition.count(Keys.PAGE_UP)
+    )

@@ -1,11 +1,19 @@
 import pytest
+import random
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-from .utils import with_wait, get_number_of_notes, get_number_of_voices, open_scores_modal, add_random_note
+from .utils import (
+    with_wait,
+    get_number_of_notes,
+    get_number_of_voices,
+    open_scores_modal,
+    add_random_note,
+    check_if_this_changes_the_pitch
+)
 
 
 @pytest.mark.first
@@ -35,7 +43,7 @@ def test_adding_new_score(driver, wait):
     assert before != after
 
 
-@pytest.mark.order2
+@pytest.mark.run(order=2)
 @with_wait
 def test_changing_score_name(driver, wait):
     score_name = driver.find_element_by_css_selector('.score-name input#name')
@@ -65,7 +73,7 @@ def test_changing_score_name(driver, wait):
     )
 
 
-@pytest.mark.order3
+@pytest.mark.run(order=3)
 def test_adding_eightnotes(driver):
     staff = driver.find_element_by_tag_name('svg')
     notes_before = get_number_of_notes(staff)
@@ -77,8 +85,8 @@ def test_adding_eightnotes(driver):
     assert notes_after - notes_before == 7 # not eight, since we're replacing the first pause with the note
 
 
+@pytest.mark.run(order=4)
 @with_wait
-@pytest.mark.order4
 def test_adding_and_removing_voices(driver, wait):
     assert get_number_of_voices(driver) == 2
 
@@ -104,6 +112,34 @@ def test_adding_and_removing_voices(driver, wait):
     driver.find_element_by_name('removeVoice').click()
 
     assert get_number_of_voices(driver) == 2
+
+
+@pytest.mark.run(order=5)
+def test_changing_note_pitch(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    keys = [Keys.PAGE_UP, Keys.PAGE_DOWN, Keys.ARROW_UP, Keys.ARROW_DOWN]
+    for _ in range(5):
+        before_notes = staff.find_elements_by_class_name('vf-note')
+        before_positions = [tuple(note.location.values()) for note in before_notes]
+        note = random.choice(before_notes)
+
+        # sanity check
+        assert before_notes == staff.find_elements_by_class_name('vf-note')
+
+        # generating a random set of 6 keys to press; it's even to allow for the situation where the keys lead to the
+        # same note it started with (eg. up a half-step, down a half-step)
+        transposition = [random.choice(keys) for __ in range(6)]
+
+        ActionChains(driver)\
+            .move_to_element(note).click()\
+            .send_keys(*transposition)\
+            .perform()
+
+        after_notes = staff.find_elements_by_class_name('vf-note')
+        after_positions = [tuple(note.location.values()) for note in after_notes]
+
+        # this checks if the positions should change (the second part) and then checks if they actually changed
+        assert (sorted(after_positions) == sorted(before_positions)) != check_if_this_changes_the_pitch(transposition)
 
 
 @pytest.mark.second_to_last
