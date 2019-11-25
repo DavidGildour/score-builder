@@ -57,7 +57,7 @@ export default {
             'Remove Voice' button removes the last added voice (however, only if that voice is empty). 
             'Clear All' button removes every note from EVERY active voice. Use with caution!`,
             `To change the playback tempo use the slider beneath the stave. 'Metronome' checkbox toggles metronome playing alongside the track.`,
-            `This app gives the option to randomly generate a melody in every voice in somehow controlled way.
+            `This app gives the option to randomly generate a melody in every voice in somewhat controlled way.
             'Allow Rests' checkbox determines whether the melody will include rests. 'Diatonic' checkbox determines whether the melody will include
             only notes from the current key (will be diatonic) or notes from the entire chromatic scale (will not be diatonic).
             'Shortest' and 'Longest note' dropdowns allow to set the shortest and longest available note duration in the melody, accordingly.
