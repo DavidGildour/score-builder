@@ -12,7 +12,7 @@ ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 USER = {}
 
 
-def generate_random_string(length = 10) -> str:
+def generate_random_string(length: int = 10) -> str:
     return ''.join([random.choice(ALPHABET) for _ in range(length)])
 
 
