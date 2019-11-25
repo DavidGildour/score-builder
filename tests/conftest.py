@@ -2,6 +2,7 @@ import pytest
 
 from selenium import webdriver
 
+
 @pytest.fixture(scope='module')
 def driver():
     """ selenium driver for functional testing """

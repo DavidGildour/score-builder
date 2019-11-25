@@ -1,4 +1,3 @@
-import random
 import pytest
 
 from selenium.webdriver.common.action_chains import ActionChains
@@ -8,35 +7,16 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
-ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
-
-USER = {}
-
-
-def get_random_userdata():
-    return {
-        'name': ''.join(random.choice(ALPHABET) for _ in range(10)),
-        'email': ''.join(random.choice(ALPHABET) for _ in range(10)) + '@test.com',
-        'password': ''.join(random.choice(ALPHABET) for _ in range(10)),
-    }
-
-
-def get_user_dropdown_options(driver) -> list:
-    user_menu = driver.find_element_by_id('user-opt')
-    ActionChains(driver).move_by_offset(1, 1).move_to_element(user_menu).perform()
-    modal = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.ID, 'user-dropdown'))
-    )
-    return modal.find_elements_by_tag_name('a')
+from .utils import get_random_userdata, get_user_dropdown_options, generate_random_string, with_wait
 
 
 def test_home_page(driver):
     assert driver.title == 'Score Builder', f"Page title doesn't match.\n Expected 'Score Builder', got {driver.title}"
 
 
-def test_changing_lang(driver):
-    lang = WebDriverWait(driver, 5).until(
+@with_wait
+def test_changing_lang(driver, wait):
+    lang = wait.until(
         EC.element_to_be_clickable((By.ID, 'lang'))
     )
 
@@ -44,7 +24,7 @@ def test_changing_lang(driver):
 
     ActionChains(driver).move_by_offset(1, 1).move_to_element(lang).perform()
 
-    languages = WebDriverWait(driver, 5).until(
+    languages = wait.until(
         EC.element_to_be_clickable((By.ID, 'lang-dropdown'))
     ).find_elements_by_tag_name('a')
     # testing changing to polish
@@ -58,11 +38,12 @@ def test_changing_lang(driver):
     assert 'Language' in lang.text
 
 
-def test_about_modal(driver):
+@with_wait
+def test_about_modal(driver, wait):
     about = driver.find_element_by_partial_link_text('About')
     about.click()
 
-    modal = WebDriverWait(driver, 5).until(
+    modal = wait.until(
         EC.element_to_be_clickable((By.ID, 'about'))
     )
     header = modal.find_element_by_tag_name('h4')
@@ -76,10 +57,11 @@ def test_about_modal(driver):
     modal.find_element_by_class_name("modal-close").click()
 
 
-def test_user_register(driver):
+@with_wait
+def test_user_register(driver, wait):
     global USER
     USER = get_random_userdata()
-    WebDriverWait(driver, 5).until(
+    wait.until(
         EC.presence_of_element_located((By.CLASS_NAME, 'user-form'))
     )
     register = driver.find_elements_by_class_name('user-form')[0]
@@ -90,7 +72,7 @@ def test_user_register(driver):
     register.find_element_by_name('password2').send_keys(USER['password'], Keys.ENTER)
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'User successfully created.'),
                               driver.find_elements_by_class_name('info-box')))
         )
@@ -98,14 +80,15 @@ def test_user_register(driver):
         pytest.fail('Failed to register.')
 
 
-def test_user_login(driver):
+@with_wait
+def test_user_login(driver, wait):
     login = driver.find_elements_by_class_name('user-form')[1]
 
     login.find_element_by_name('username').send_keys(USER['name'])
     login.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'Logged in.'),
                               driver.find_elements_by_class_name('info-box')))
         )
@@ -113,12 +96,13 @@ def test_user_login(driver):
         pytest.fail('Failed to login.')
 
 
-def test_help_modal(driver):
+@with_wait
+def test_help_modal(driver, wait):
     navbar = driver.find_element_by_tag_name('nav')
     help_button = navbar.find_element_by_xpath("//a[@data-tooltip='Help']")
     ActionChains(driver).move_to_element(help_button).click().perform()
 
-    modal = WebDriverWait(driver, 5).until(
+    modal = wait.until(
         EC.element_to_be_clickable((By.ID, 'help'))
     )
 
@@ -131,7 +115,8 @@ def test_help_modal(driver):
     modal.find_element_by_class_name("modal-close").click()
 
 
-def test_user_dropdown(driver):
+@with_wait
+def test_user_dropdown(driver, wait):
     menu_options = get_user_dropdown_options(driver)
 
     assert menu_options[0].text.startswith('Edit profile')
@@ -140,7 +125,7 @@ def test_user_dropdown(driver):
 
     menu_options[0].click()
 
-    modal = WebDriverWait(driver, 5).until(
+    modal = wait.until(
         EC.element_to_be_clickable((By.ID, 'user-info'))
     )
 
@@ -151,20 +136,21 @@ def test_user_dropdown(driver):
         assert field.find_element_by_class_name('secondary-content').text in USER.values()
 
 
-def test_editing_profile(driver):
+@with_wait
+def test_editing_profile(driver, wait):
     modal = driver.find_element_by_id('user-info')
 
     password_change = modal.find_elements_by_tag_name('span')[2]
     password_change.click()
 
     modal.find_element_by_id('old_password').send_keys(USER['password'])
-    new_pass = ''.join([random.choice(ALPHABET) for _ in range(10)])
+    new_pass = generate_random_string()
     modal.find_element_by_id('password1').send_keys(new_pass)
     modal.find_element_by_id('password2').send_keys(new_pass, Keys.ENTER)
     USER['password'] = new_pass
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'Password changed.'),
                               driver.find_elements_by_class_name('info-box')))
         )
@@ -174,13 +160,14 @@ def test_editing_profile(driver):
     modal.find_element_by_class_name("modal-close").click()
 
 
-def test_logout(driver):
+@with_wait
+def test_logout(driver, wait):
     logout = get_user_dropdown_options(driver)[2]
 
     logout.click()
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'Logged out.'),
                               driver.find_elements_by_class_name('info-box')))
         )
@@ -188,15 +175,17 @@ def test_logout(driver):
         pytest.fail('Failed to log out.')
 
 
-def test_login_with_new_password(driver):
-    test_user_login(driver)
+@with_wait
+def test_login_with_new_password(driver, wait):
+    test_user_login(driver, wait)
 
 
-def test_deleting_a_user(driver):
+@with_wait
+def test_deleting_a_user(driver, wait):
     edit_profile = get_user_dropdown_options(driver)[0]
     edit_profile.click()
 
-    modal = WebDriverWait(driver, 5).until(
+    modal = wait.until(
         EC.element_to_be_clickable((By.ID, 'user-info'))
     )
 
@@ -218,7 +207,7 @@ def test_deleting_a_user(driver):
     # this should automatically logout
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             EC.presence_of_element_located((By.CLASS_NAME, 'user-form'))
         )
     except TimeoutException:
@@ -232,7 +221,7 @@ def test_deleting_a_user(driver):
     login.find_element_by_name('password').send_keys(USER['password'], Keys.ENTER)
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'Invalid credentials'),
                               driver.find_elements_by_class_name('info-box')))
         )
@@ -240,9 +229,10 @@ def test_deleting_a_user(driver):
         pytest.fail('Probably some internal server error.')
 
 
-def test_admin_panel(driver):
+@with_wait
+def test_admin_panel(driver, wait):
     # first lets register a user
-    test_user_register(driver)
+    test_user_register(driver, wait)
     # lets login as an admin
     login = driver.find_elements_by_class_name('user-form')[1]
 
@@ -250,7 +240,7 @@ def test_admin_panel(driver):
     login.find_element_by_name('password').send_keys('admin', Keys.ENTER)
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             EC.text_to_be_present_in_element((By.TAG_NAME, 'nav'), 'User list')
         )
     except TimeoutException:
@@ -259,11 +249,11 @@ def test_admin_panel(driver):
     time.sleep(2)
     driver.find_element_by_link_text('User list').click()
 
-    modal = WebDriverWait(driver, 5).until(
+    modal = wait.until(
         EC.element_to_be_clickable((By.ID, 'userlist'))
     )
 
-    WebDriverWait(driver, 5).until(
+    wait.until(
         EC.text_to_be_present_in_element((By.ID, 'userlist'), 'Registered users:')
     )
 
@@ -283,13 +273,13 @@ def test_admin_panel(driver):
             next_page.click()
 
     found.click()
-    body = WebDriverWait(driver, 5).until(
+    body = wait.until(
         EC.visibility_of_any_elements_located((By.CLASS_NAME, 'collapsible-body'))
     )[0]
     body.find_element_by_id('delete_user').click()
 
     try:
-        WebDriverWait(driver, 5).until(
+        wait.until(
             lambda _: any(map(lambda e: e.text.startswith(f'User {USER["name"]}'),
                               driver.find_elements_by_class_name('info-box')))
         )
