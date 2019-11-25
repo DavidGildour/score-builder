@@ -10,10 +10,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from .utils import get_random_userdata, get_user_dropdown_options, generate_random_string, with_wait
 
 
+@pytest.mark.run(order=1)
 def test_home_page(driver):
     assert driver.title == 'Score Builder', f"Page title doesn't match.\n Expected 'Score Builder', got {driver.title}"
 
 
+@pytest.mark.run(order=2)
 @with_wait
 def test_changing_lang(driver, wait):
     lang = wait.until(
@@ -38,6 +40,7 @@ def test_changing_lang(driver, wait):
     assert 'Language' in lang.text
 
 
+@pytest.mark.run(order=3)
 @with_wait
 def test_about_modal(driver, wait):
     about = driver.find_element_by_partial_link_text('About')
@@ -57,6 +60,7 @@ def test_about_modal(driver, wait):
     modal.find_element_by_class_name("modal-close").click()
 
 
+@pytest.mark.run(order=4)
 @with_wait
 def test_user_register(driver, wait):
     global USER
@@ -80,6 +84,7 @@ def test_user_register(driver, wait):
         pytest.fail('Failed to register.')
 
 
+@pytest.mark.run(order=5)
 @with_wait
 def test_user_login(driver, wait):
     login = driver.find_elements_by_class_name('user-form')[1]
@@ -96,6 +101,7 @@ def test_user_login(driver, wait):
         pytest.fail('Failed to login.')
 
 
+@pytest.mark.run(order=6)
 @with_wait
 def test_help_modal(driver, wait):
     navbar = driver.find_element_by_tag_name('nav')
@@ -115,6 +121,7 @@ def test_help_modal(driver, wait):
     modal.find_element_by_class_name("modal-close").click()
 
 
+@pytest.mark.run(order=7)
 @with_wait
 def test_user_dropdown(driver, wait):
     menu_options = get_user_dropdown_options(driver)
@@ -136,6 +143,7 @@ def test_user_dropdown(driver, wait):
         assert field.find_element_by_class_name('secondary-content').text in USER.values()
 
 
+@pytest.mark.run(order=8)
 @with_wait
 def test_editing_profile(driver, wait):
     modal = driver.find_element_by_id('user-info')
@@ -160,6 +168,7 @@ def test_editing_profile(driver, wait):
     modal.find_element_by_class_name("modal-close").click()
 
 
+@pytest.mark.run(order=9)
 @with_wait
 def test_logout(driver, wait):
     logout = get_user_dropdown_options(driver)[2]
@@ -175,11 +184,13 @@ def test_logout(driver, wait):
         pytest.fail('Failed to log out.')
 
 
+@pytest.mark.run(order=10)
 @with_wait
 def test_login_with_new_password(driver, wait):
     test_user_login(driver)
 
 
+@pytest.mark.run(order=11)
 @with_wait
 def test_deleting_a_user(driver, wait):
     edit_profile = get_user_dropdown_options(driver)[0]
@@ -229,6 +240,7 @@ def test_deleting_a_user(driver, wait):
         pytest.fail('Probably some internal server error.')
 
 
+@pytest.mark.run(order=12)
 @with_wait
 def test_admin_panel(driver, wait):
     # first lets register a user
