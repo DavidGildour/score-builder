@@ -228,6 +228,23 @@ def test_clearing_the_score(driver):
     assert get_number_of_notes(staff) == 2
 
 
+@pytest.mark.run(order=11)
+def test_adding_notes_with_specific_duration(driver):
+    driver.find_element_by_name('clearVoices').click()
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    before = get_number_of_notes(staff)
+
+    for _ in range(5):
+        # we dont want wholenotes tbh, hence [1:]
+        duration = random.choice(driver.find_elements_by_css_selector('input[name="duration"] ~ span')[1:])
+        duration.click()
+        add_random_note(staff, driver)
+        ActionChains(driver).send_keys(Keys.TAB).perform()
+
+    after = get_number_of_notes(staff)
+    assert before < after
+
+
 @pytest.mark.last
 @with_wait
 def test_deleting_a_score(driver, wait):
