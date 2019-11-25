@@ -73,7 +73,7 @@ def test_changing_score_name(driver, wait):
     )
 
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=4)
 def test_adding_eightnotes(driver):
     staff = driver.find_element_by_tag_name('svg')
     notes_before = get_number_of_notes(staff)
@@ -85,7 +85,7 @@ def test_adding_eightnotes(driver):
     assert notes_after - notes_before == 7 # not eight, since we're replacing the first pause with the note
 
 
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=3)
 @with_wait
 def test_adding_and_removing_voices(driver, wait):
     assert get_number_of_voices(driver) == 2
@@ -112,6 +112,21 @@ def test_adding_and_removing_voices(driver, wait):
     driver.find_element_by_name('removeVoice').click()
 
     assert get_number_of_voices(driver) == 2
+
+    driver.find_element_by_name('removeVoice').click()
+    driver.find_element_by_name('removeVoice').click()
+    wait.until(
+        EC.text_to_be_present_in_element((By.CLASS_NAME, 'info-box'), 'Minimum one voice required.')
+    )
+
+    for _ in range(4):
+        driver.find_element_by_name('addVoice').click()
+
+    wait.until(
+        EC.text_to_be_present_in_element((By.CLASS_NAME, 'info-box'), 'Maximum of four voices reached.')
+    )
+    driver.find_element_by_name('removeVoice').click()
+    driver.find_element_by_name('removeVoice').click()
 
 
 @pytest.mark.run(order=5)
@@ -142,7 +157,69 @@ def test_changing_note_pitch(driver):
         assert (sorted(after_positions) == sorted(before_positions)) != check_if_this_changes_the_pitch(transposition)
 
 
-@pytest.mark.second_to_last
+@pytest.mark.run(order=6)
+def test_changing_clef(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    clef_select = driver.find_element_by_name('clef')
+    clef_select.click()
+    which = random.randrange(1, 11)
+    if which == 4: which += 1 # percussion clef doesnt change anything
+    clef_select.find_elements_by_tag_name('li')[which].click()
+
+    after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    assert sorted(after_positions) != sorted(before_positions)
+
+
+@pytest.mark.run(order=7)
+def test_changing_key(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    key_select = driver.find_element_by_name('keySig')
+    key_select.click()
+    which = random.randrange(1, 8) * -1 if random.random() > 0.5 else 1
+    key_select.find_elements_by_tag_name('li')[7 + which].click()
+
+    after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    assert sorted(after_positions) != sorted(before_positions)
+
+
+@pytest.mark.run(order=8)
+def test_changing_time_signature(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    before = get_number_of_notes(staff)
+
+    beats_type = driver.find_element_by_name('beatsType')
+    beats_type.click()
+    beats_type.find_elements_by_tag_name('li')[random.choice([0, 2, 3, 4])].click()
+
+    after = get_number_of_notes(staff)
+
+    assert before != after
+
+    beats_type.click()
+    beats_type.find_elements_by_tag_name('li')[1].click()
+
+
+@pytest.mark.run(order=10)
+def test_adding_random_notes(driver):
+    staff = driver.find_element_by_tag_name('svg')
+    before = get_number_of_notes(staff)
+
+    add_random_note = driver.find_element_by_name('addRandomNote')
+    for _ in range(5):
+        add_random_note.click()
+
+    after = get_number_of_notes(staff)
+
+    assert before < after
+
+
+@pytest.mark.run(order=9)
 def test_clearing_the_score(driver):
     staff = driver.find_element_by_tag_name('svg')
 
