@@ -80,11 +80,9 @@ def test_adding_eightnotes(driver):
 @with_wait
 @pytest.mark.order4
 def test_adding_and_removing_voices(driver, wait):
-    import time
     assert get_number_of_voices(driver) == 2
 
     driver.find_element_by_name('addVoice').click()
-    time.sleep(5)
 
     assert get_number_of_voices(driver) == 3
 

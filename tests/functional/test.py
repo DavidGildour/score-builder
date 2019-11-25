@@ -177,7 +177,7 @@ def test_logout(driver, wait):
 
 @with_wait
 def test_login_with_new_password(driver, wait):
-    test_user_login(driver, wait)
+    test_user_login(driver)
 
 
 @with_wait
@@ -232,7 +232,7 @@ def test_deleting_a_user(driver, wait):
 @with_wait
 def test_admin_panel(driver, wait):
     # first lets register a user
-    test_user_register(driver, wait)
+    test_user_register(driver)
     # lets login as an admin
     login = driver.find_elements_by_class_name('user-form')[1]
 
