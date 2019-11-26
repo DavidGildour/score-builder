@@ -1,4 +1,6 @@
 import random
+import datetime
+import inspect
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -9,8 +11,13 @@ from selenium.webdriver.common.by import By
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
-USER = {}
 
+def log(*messages):
+    with open('log.txt', 'a') as f:
+        for msg in messages:
+            f.write(
+                f"\n{datetime.datetime.now()}::{inspect.stack()[1].function} >> {msg}"
+            )
 
 def generate_random_string(length: int = 10) -> str:
     return ''.join([random.choice(ALPHABET) for _ in range(length)])
@@ -62,8 +69,11 @@ def open_scores_modal(driver, wait):
 
 
 def add_random_note(staff, driver):
-    x_offset = staff.get_property('width')['animVal']['value'] - 60
-    y_offset = random.randrange(88, 128)
+    right_bar = staff.find_elements_by_tag_name('rect')[1].location['x']
+    x_offset = right_bar - staff.location['x'] - 5
+    top_line = staff.find_elements_by_tag_name('path')[0].location['y'] - staff.location['y']
+    bottom_line = staff.find_elements_by_tag_name('path')[4].location['y'] - staff.location['y']
+    y_offset = random.randrange(top_line, bottom_line)
     ActionChains(driver).move_to_element_with_offset(staff, x_offset, y_offset).click().perform()
 
 
