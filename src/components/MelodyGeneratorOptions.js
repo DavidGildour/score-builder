@@ -93,7 +93,7 @@ export default class extends React.Component {
                 </div>
             </div>
             <div className="row">
-                <button className="waves-effect waves-light btn fill" type="submit">
+                <button name="generate" className="waves-effect waves-light btn fill" type="submit">
                     {this.props.lang.generate}<i className="material-icons right">cached</i>
                 </button>
             </div>
