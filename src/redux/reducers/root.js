@@ -112,6 +112,21 @@ const rootReducer = (state = preloadedState, action) => {
                 })
             }
         }
+        case 'REMOVE_MEASURE_FROM_STAVE': {
+            const { staveId } = action.payload;
+            return {
+                ...state,
+                staves: state.staves.map((stave, index) => {
+                    if (index.toString() === staveId) {
+                        return {
+                            ...stave,
+                            measures: stave.measures.slice(0, stave.measures.length - 1)
+                        }
+                    }
+                    return stave;
+                })
+            }
+        }
         default: return state;
     }
 };

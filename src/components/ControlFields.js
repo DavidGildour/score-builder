@@ -126,10 +126,19 @@ export const NoteDuration = (props) => (
     </div>
 );
 
-export const AddMeasure = (props) => (
-    <button name="addMeasure" className="btn top-margin fill" onClick={props.onClick}>
-        {props.text}<i className="material-icons right">add</i>
-    </button>
+export const AddRemoveMeasure = (props) => (
+    <div className="row">
+        <div className="col s9">
+            <button name="addMeasure" className="btn top-margin fill" onClick={props.add}>
+                {props.text}<i className="material-icons right">add</i>
+            </button>
+        </div>
+        <div className="col s3">
+            <button name="removeMeasure" className="btn top-margin fill" onClick={props.remove}>
+                <i className="material-icons right">remove</i>
+            </button>
+        </div>
+    </div>
 );
 
 export const AddRandomNote = (props) => (

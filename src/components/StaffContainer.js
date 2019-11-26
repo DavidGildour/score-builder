@@ -8,10 +8,11 @@ import { setStaveField,
         addVoiceToStave,
         deleteVoiceFromStave,
         updateNoteInStave,
-        addMeasureToStave } from '../redux/actions';
+        addMeasureToStave,
+        removeMeasureFromStave } from '../redux/actions';
 import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST } from '../redux/actionTypes';
 import Staff from './Staff';
-import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddMeasure } from './ControlFields';
+import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddRemoveMeasure } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
 import SaveScore from './SaveScore';
@@ -36,6 +37,7 @@ const mapDispatchToProps = {
     deleteVoiceFromStave,
     updateNoteInStave,
     addMeasureToStave,
+    removeMeasureFromStave
 };
 
 class StaffContainer extends React.PureComponent {
@@ -623,6 +625,15 @@ class StaffContainer extends React.PureComponent {
         this.props.updateChange();
     }
 
+    removeMeasure = () => {
+        if (this.state.stave.measures.length == 1) {
+            toastMessage("At least one measure required.");
+            return;
+        }
+        this.props.removeMeasureFromStave({ staveId: this.state.id })
+        this.props.updateChange();
+    }
+
     handleClick = (e) => {
         e.preventDefault();
         if (!this.state.currentMeasure) return;
@@ -1040,15 +1051,15 @@ class StaffContainer extends React.PureComponent {
                     <div className="col s3">
                         <KeyOptions lang={this.props.lang.options.key} keySig={this.state.stave.keySig} onChange={this.storeChange} />
                     </div>
-                    <div className="col s4">
+                    <div className="col s3">
                         <TimeSigOptions
                                 lang={this.props.lang.options.time}
                                 beatsNum={this.state.stave.beatsNum}
                                 beatsType={this.state.stave.beatsType}
                                 onChange={this.timeChangeHandler} />
                     </div>
-                    <div className="col s2">
-                        <AddMeasure text={this.props.lang.options.measure} onClick={this.addMeasure}/>
+                    <div className="col s3">
+                        <AddRemoveMeasure text={this.props.lang.options.measure} add={this.addMeasure} remove={this.removeMeasure} />
                     </div>
                 </div>
                 <div className="divider"></div>

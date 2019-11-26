@@ -16,7 +16,8 @@ import {
     ADD_VOICE_TO_MEASURE,
     ADD_VOICE_TO_STAVE, 
     REMOVE_VOICE_FROM_STAVE,
-    LOAD_SCORE
+    LOAD_SCORE,
+    REMOVE_MEASURE_FROM_STAVE
 } from './actionTypes';
 
 export const loadScore = score => ({
@@ -153,5 +154,12 @@ export const addMeasureToStave = ({ staveId, voicesNum }) => ({
     payload: {
         staveId,
         voicesNum,
+    }
+});
+
+export const removeMeasureFromStave = ({ staveId }) => ({
+    type: REMOVE_MEASURE_FROM_STAVE,
+    payload: {
+        staveId
     }
 });
