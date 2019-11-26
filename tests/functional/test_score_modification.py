@@ -234,7 +234,7 @@ def test_adding_notes_with_specific_duration(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     before = get_number_of_notes(staff)
 
-    for _ in range(5):
+    for _ in range(10):
         # we dont want wholenotes tbh, hence [1:]
         duration = random.choice(driver.find_elements_by_css_selector('input[name="duration"] ~ span')[1:])
         duration.click()
@@ -244,6 +244,37 @@ def test_adding_notes_with_specific_duration(driver):
     after = get_number_of_notes(staff)
     assert before < after
 
+
+@pytest.mark.run(order=12)
+def test_removing_notes(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    voice_select = driver.find_element_by_css_selector('#voices .select-wrapper')
+    ActionChains(driver)\
+        .move_to_element(voice_select).click()\
+        .move_to_element(voice_select.find_element_by_css_selector('li:nth-of-type(1)')).click()\
+        .perform()
+
+    # test deleting last note
+    driver.find_element_by_name('removeNote').click()
+
+    after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
+
+    assert before_positions != after_positions
+
+    # test deleting a selected note by hand
+    note_before = staff.find_element_by_class_name('vf-note')
+    before_location = tuple(note_before.location.values())
+    ActionChains(driver)\
+        .move_to_element(note_before)\
+        .click()\
+        .send_keys(Keys.DELETE)\
+        .perform()
+    note_after = staff.find_element_by_class_name('vf-note')
+    after_location = tuple(note_after.location.values())
+
+    assert note_before != note_after and before_location == after_location
 
 @pytest.mark.last
 @with_wait
