@@ -73,7 +73,7 @@ export const KeyOptions = (props) => (
 );
 
 export const NoteDuration = (props) => (
-    <div className="row">
+    <div className="row" id="note-duration">
         <div className="col s2 center-align">
             <div className="switch">
                 <label>

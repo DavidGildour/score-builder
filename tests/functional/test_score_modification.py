@@ -241,7 +241,18 @@ def test_adding_notes_with_specific_duration(driver):
         # we dont want wholenotes tbh, hence [1:]
         duration = random.choice(driver.find_elements_by_css_selector('input[name="duration"] ~ span')[1:])
         duration.click()
+        dotted, rest = driver.find_elements_by_css_selector('#note-duration input[type="checkbox"] ~ span')[1:]
+        is_dotted = random.random() > 0.75
+        is_rest = random.random() > 0.9
+        if is_dotted:
+            dotted.click()
+        if is_rest:
+            rest.click()
         add_random_note(staff, driver)
+        if is_dotted:
+            dotted.click()
+        if is_rest:
+            rest.click()
         ActionChains(driver).send_keys(Keys.TAB).perform()
 
     after = get_number_of_notes(staff)
@@ -291,6 +302,19 @@ def test_adding_measures(driver):
     barlines_after = len(staff.find_elements_by_tag_name('rect'))
 
     assert barlines_after - barlines_before == measures_to_add * 2
+
+
+@pytest.mark.run(order=14)
+def test_removing_measures(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    barlines_before = len(staff.find_elements_by_tag_name('rect'))
+
+    remove_measure = driver.find_element_by_name('removeMeasure')
+    remove_measure.click()
+
+    barlines_after = len(staff.find_elements_by_tag_name('rect'))
+
+    assert barlines_before - barlines_after == 2
 
 
 @pytest.mark.last
