@@ -58,6 +58,7 @@ def get_number_of_notes(staff):
 
 def open_scores_modal(driver, wait):
     user_menu = driver.find_element_by_id('user-opt')
+    driver.execute_script('window.scrollTo(0, 0);')
     ActionChains(driver).move_by_offset(1, 1).move_to_element(user_menu).perform()
     dropdown = wait.until(
         EC.element_to_be_clickable((By.ID, 'user-dropdown'))

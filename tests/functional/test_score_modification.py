@@ -325,6 +325,18 @@ def test_removing_measures(driver):
     assert len(staff.find_elements_by_tag_name('rect')) == 3
 
 
+@pytest.mark.run(order=15)
+def test_generating_random_melody(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    driver.find_element_by_name('clearVoices').click()
+    before = len(staff.find_elements_by_css_selector('g.vf-note'))
+
+    driver.find_element_by_name('generate').click()
+    after = len(staff.find_elements_by_css_selector('g.vf-note'))
+
+    assert before < after
+
+
 @pytest.mark.last
 @with_wait
 def test_deleting_a_score(driver, wait):
