@@ -3,6 +3,7 @@ import random
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
@@ -307,14 +308,21 @@ def test_adding_measures(driver):
 @pytest.mark.run(order=14)
 def test_removing_measures(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
-    barlines_before = len(staff.find_elements_by_tag_name('rect'))
+
+    def infobox_located():
+        try:
+            driver.find_element_by_class_name('info-box')
+            return True
+        except NoSuchElementException:
+            return False
 
     remove_measure = driver.find_element_by_name('removeMeasure')
-    remove_measure.click()
+    while not infobox_located():
+        remove_measure.click()
 
-    barlines_after = len(staff.find_elements_by_tag_name('rect'))
+    assert driver.find_element_by_class_name('info-box').text.startswith('At least one measure required.')
 
-    assert barlines_before - barlines_after == 2
+    assert len(staff.find_elements_by_tag_name('rect')) == 3
 
 
 @pytest.mark.last
