@@ -12,7 +12,8 @@ from .utils import (
     get_number_of_voices,
     open_scores_modal,
     add_random_note,
-    check_if_this_changes_the_pitch
+    check_if_this_changes_the_pitch,
+    log
 )
 
 
@@ -82,7 +83,7 @@ def test_adding_eightnotes(driver):
         add_random_note(staff, driver)
 
     notes_after = get_number_of_notes(staff)
-    assert notes_after - notes_before == 7 # not eight, since we're replacing the first pause with the note
+    assert notes_after - notes_before == 7  # not eight, since we're replacing the first pause with the note
 
 
 @pytest.mark.run(order=3)
@@ -153,8 +154,10 @@ def test_changing_note_pitch(driver):
         after_notes = staff.find_elements_by_class_name('vf-note')
         after_positions = [tuple(note.location.values()) for note in after_notes]
 
-        # this checks if the positions should change (the second part) and then checks if they actually changed
-        assert (sorted(after_positions) == sorted(before_positions)) != check_if_this_changes_the_pitch(transposition)
+        # TODO find what's causing this test to fail once in a while; specifically the statement False != False
+        log(f"{transposition} > {check_if_this_changes_the_pitch(transposition)}"
+            f" > {sorted(after_positions) == sorted(before_positions)}")
+        assert (after_positions == before_positions) != check_if_this_changes_the_pitch(transposition)
 
 
 @pytest.mark.run(order=6)
@@ -165,7 +168,7 @@ def test_changing_clef(driver):
     clef_select = driver.find_element_by_name('clef')
     clef_select.click()
     which = random.randrange(1, 11)
-    if which == 4: which += 1 # percussion clef doesnt change anything
+    if which == 4: which += 1  # percussion clef doesnt change anything
     clef_select.find_elements_by_tag_name('li')[which].click()
 
     after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
@@ -210,9 +213,9 @@ def test_adding_random_notes(driver):
     staff = driver.find_element_by_tag_name('svg')
     before = get_number_of_notes(staff)
 
-    add_random_note = driver.find_element_by_name('addRandomNote')
+    add_random = driver.find_element_by_name('addRandomNote')
     for _ in range(5):
-        add_random_note.click()
+        add_random.click()
 
     after = get_number_of_notes(staff)
 
@@ -265,16 +268,30 @@ def test_removing_notes(driver):
 
     # test deleting a selected note by hand
     note_before = staff.find_element_by_class_name('vf-note')
-    before_location = tuple(note_before.location.values())
     ActionChains(driver)\
         .move_to_element(note_before)\
         .click()\
         .send_keys(Keys.DELETE)\
         .perform()
     note_after = staff.find_element_by_class_name('vf-note')
-    after_location = tuple(note_after.location.values())
 
-    assert note_before != note_after and before_location == after_location
+    assert note_before != note_after
+
+
+@pytest.mark.run(order=13)
+def test_adding_measures(driver):
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    barlines_before = len(staff.find_elements_by_tag_name('rect'))
+
+    measures_to_add = random.randint(2, 6)
+    add_measure = driver.find_element_by_name('addMeasure')
+    for _ in range(measures_to_add):
+        add_measure.click()
+
+    barlines_after = len(staff.find_elements_by_tag_name('rect'))
+
+    assert barlines_after - barlines_before == measures_to_add * 2
+
 
 @pytest.mark.last
 @with_wait

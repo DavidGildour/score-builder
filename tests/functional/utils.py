@@ -13,11 +13,12 @@ ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
 
 def log(*messages):
-    with open('log.txt', 'a') as f:
+    with open('test.log', 'a') as f:
         for msg in messages:
             f.write(
                 f"\n{datetime.datetime.now()}::{inspect.stack()[1].function} >> {msg}"
             )
+
 
 def generate_random_string(length: int = 10) -> str:
     return ''.join([random.choice(ALPHABET) for _ in range(length)])

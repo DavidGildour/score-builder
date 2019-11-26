@@ -1,5 +1,5 @@
 /venv
-geckodriver.log
+**.log
 **/__pycache__
 /.pytest_cache
 !requirements.txt
