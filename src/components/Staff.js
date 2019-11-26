@@ -174,9 +174,11 @@ export default class Staff extends React.Component {
     }
 
     componentDidUpdate(nextProps) {
-        this.renderStaff();
+        if (JSON.stringify(this.props.stave) !== JSON.stringify(nextProps.stave) || this.props.activeVoice !== nextProps.activeVoice || this.props.selectedNote !== nextProps.selectedNote || this.props.bpm !== nextProps.bpm) {
+            this.renderStaff();
+        }
         if (nextProps.stave.measures.length !== this.props.stave.measures.length) {
-            this.props.getBarLines(document.getElementById(`stave${this.staveId}`).childNodes[0]);
+            this.props.getBarLines(document.querySelector(`#stave${this.staveId} svg`));
         }
     }
 
