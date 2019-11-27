@@ -21,7 +21,7 @@ export default class Staff extends React.Component {
         'b': 7.5,
     }
 
-    static maxMeasuresInRow = 4;
+    static maxMeasuresInRow = 3;
 
     mapNote = (note) => {
         const key = this.props.stave.keySig;
@@ -87,10 +87,6 @@ export default class Staff extends React.Component {
         const accidentalType = Object.values(keyMap)[0] || null;
         const keyOffset = accidentalNum * Staff.accidentalWidth[accidentalType];
 
-        const context = this.renderer.getContext();
-        context.clear();
-        // context.scale(0.8, 0.8); // may consider scaling the stave when the window gets too small
-
         // neatly rendering the stave based on the width of the renderer's div
         const divWidth = this.ref.current.getBoundingClientRect().width;
         const maxStaffWidth = divWidth * (9/10); // = 90% of the div width
@@ -99,6 +95,10 @@ export default class Staff extends React.Component {
         let measuresNum = this.props.stave.measures.length;
         const rows = Math.ceil(measuresNum / Staff.maxMeasuresInRow);
         this.renderer.resize(divWidth, 200 * rows);
+        const context = this.renderer.getContext();
+        context.clear();
+        // context.scale(0.8, 0.8); // may consider scaling the stave when the window gets too small
+
 
         let staveYOffset = 50; // initial Y offset
         let lastMeasureRightX;
@@ -119,7 +119,7 @@ export default class Staff extends React.Component {
             } else {
                 if (!(parseInt(measure.id, 10) % Staff.maxMeasuresInRow)) {
                     lastMeasureRightX = staveXOffset;
-                    measuresNum -= 4;
+                    measuresNum -= Staff.maxMeasuresInRow;
                     staveYOffset += 200;
                 }
                 measureWidthInCurrentRow = Math.max(maxStaffWidth / measuresNum, maxStaffWidth / Staff.maxMeasuresInRow);
