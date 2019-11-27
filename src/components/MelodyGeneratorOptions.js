@@ -3,7 +3,7 @@ import { noteToDuration } from './mappings/durationMappings'
 
 
 const NoteSelection = (props) => (
-    <div className="input-field">
+    <div className="input-field" name={props.name + "Dropdown"}>
         <select name={props.name} value={props.value} onChange={props.handleChange}>
             {Object.entries(props.lang.noteNames)
                 .sort((a, b) => noteToDuration[a[0]] < noteToDuration[b[0]])
@@ -14,7 +14,7 @@ const NoteSelection = (props) => (
 )
 
 const IntervalSelection = (props) => (
-    <div className="input-field">
+    <div className="input-field" name="intervalDropdown">
         <select  name="interval" value={props.value} onChange={props.handleChange}>
             <option value="1 2">{props.lang.intervals.m2}</option>
             <option value="2 2">{props.lang.intervals.M2}</option>
