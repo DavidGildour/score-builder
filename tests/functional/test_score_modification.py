@@ -132,6 +132,7 @@ def test_adding_and_removing_voices(driver, wait):
 def test_changing_note_pitch(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     keys = [Keys.PAGE_UP, Keys.PAGE_DOWN, Keys.ARROW_UP, Keys.ARROW_DOWN]
+    driver.execute_script('window.scrollTo(0, 0);')
     for _ in range(5):
         before_notes = staff.find_elements_by_class_name('vf-note')
         before_positions = [tuple(note.location.values()) for note in before_notes]
@@ -319,41 +320,55 @@ def test_removing_measures(driver):
 @pytest.mark.run(order=15)
 def test_editing_a_note(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
+    mode_switch = driver.find_element_by_css_selector('#note-duration .switch label')
     driver.find_element_by_name('clearVoices').click()
-    driver.find_element_by_css_selector('#note-duration .switch label').click()
+    mode_switch.click()
 
     assert any(info_box.text.startswith('Select a note to edit first.')\
                for info_box in driver.find_elements_by_class_name('info-box'))
 
     add_random_note(staff, driver)
     notes_before = len(staff.find_elements_by_css_selector('g.vf-note'))
-
-    driver.find_element_by_css_selector('#note-duration .switch label').click()
-
+    mode_switch.click()
     add_random_note(staff, driver)
     notes_after = len(staff.find_elements_by_css_selector('g.vf-note'))
 
     assert notes_before == notes_after, "Edit mode should disable adding new notes"
 
+    dotted, rest = driver.find_elements_by_css_selector('#note-duration input[type="checkbox"] ~ span')[1:]
     note_before = staff.find_element_by_css_selector('g.vf-note')
-    driver.find_elements_by_css_selector('#note-duration input[type="checkbox"] ~ span')[2].click()
-
+    rest.click()
     note_after = staff.find_element_by_css_selector('g.vf-note')
 
     assert note_before != note_after, "Making a rest didn't work."
-    note_before = note_after
 
-    driver.find_elements_by_css_selector('#note-duration input[type="checkbox"] ~ span')[1].click()
+    note_before = note_after
+    rest.click()
+    note_after = staff.find_element_by_css_selector('g.vf-note')
+
+    assert note_before != note_after, "Making not a rest didn't work."
+
+    note_before = note_after
+    dotted.click()
     note_after = staff.find_element_by_css_selector('g.vf-note')
 
     assert note_before != note_after, "Making a dotted note didn't work."
-    note_before = note_after
 
-    duration = random.choice(driver.find_elements_by_css_selector('input[name="duration"]:not(:checked) ~ span'))
-    duration.click()
+    note_before = note_after
+    dotted.click()
     note_after = staff.find_element_by_css_selector('g.vf-note')
 
-    assert note_before != note_after, "Changing a note's duration didn't work."
+    assert note_before != note_after, "Making not a dotted note didn't work."
+
+    for _ in range(5):
+        note_before = note_after
+        duration = random.choice(driver.find_elements_by_css_selector('input[name="duration"]:not(:checked) ~ span'))
+        duration.click()
+        note_after = staff.find_element_by_css_selector('g.vf-note')
+
+        assert note_before != note_after, "Changing a note's duration didn't work."
+
+    mode_switch.click()
 
 
 @pytest.mark.run(order=16)
