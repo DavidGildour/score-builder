@@ -23,6 +23,21 @@ export default (state = {}, action) => {
                 }),
             };
         }
+        case 'CHANGE_DURATION': {
+            const { duration } = action.payload;
+            let newModifiers;
+            if (duration.includes('d')) {
+                newModifiers = state.modifiers.map(mod => mod.includes('.') ? mod : mod + '.');
+            } else {
+                newModifiers = state.modifiers.map(mod => mod.replace('.', ''));
+            }
+            return {
+                ...state,
+                duration: duration,
+                modifiers: newModifiers,
+                persistent: true,
+            }
+        }
         case 'MAKE_REST': {
             return {
                 ...state,
@@ -31,7 +46,6 @@ export default (state = {}, action) => {
             }
         }
         case 'MAKE_NOT_REST': {
-            console.log('make not rest');
             return {
                 ...state,
                 duration: state.duration.replace('r', ''),

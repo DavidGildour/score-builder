@@ -10,7 +10,7 @@ import { setStaveField,
         updateNoteInStave,
         addMeasureToStave,
         removeMeasureFromStave } from '../redux/actions';
-import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST } from '../redux/actionTypes';
+import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST, CHANGE_DURATION } from '../redux/actionTypes';
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddRemoveMeasure } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
@@ -55,19 +55,17 @@ class StaffContainer extends React.PureComponent {
         bpm: 80,
     };
 
-    getRidOfRests = (measureId, voice) => {
+    getRidOfRests = (measureId, voice, safetyIndex = NaN) => {
         const notes = voice.notes;
         const revNotes = notes.slice().reverse();
 
         let duration = 0;
-        if (!revNotes[0].persistent) { // if the last note is persistent - return, cause there's no room for another
-            for (const n of revNotes) {
-                if (n.persistent) { // break the loop when hitting persistent note
-                    break;
-                }
-                duration += noteToDuration[n.duration.replace('r', '')];
-                this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), measureId: measureId, staveId: this.state.id, voiceId: voice.id }); // actually remove the note from store
+        for (const n of revNotes) {
+            if (n.persistent || notes.indexOf(n) === safetyIndex) { // break the loop when hitting persistent note
+                break;
             }
+            duration += noteToDuration[n.duration.replace('r', '')];
+            this.props.deleteNoteFromStave({ noteId: notes.indexOf(n), measureId: measureId, staveId: this.state.id, voiceId: voice.id }); // actually remove the note from store
         }
         return duration;
     }
@@ -105,10 +103,7 @@ class StaffContainer extends React.PureComponent {
         for (const note of voice.notes) {
             voiceDuration += noteToDuration[note.duration.replace('r', '')];
         }
-        if (voiceDuration !== expectedDuration) {
-            return expectedDuration - voiceDuration;
-        }
-        return 0;
+        return expectedDuration - voiceDuration;
     }
 
     voiceIsNotEmpty = (voiceId) => {
@@ -626,7 +621,7 @@ class StaffContainer extends React.PureComponent {
     }
 
     removeMeasure = () => {
-        if (this.state.stave.measures.length == 1) {
+        if (this.state.stave.measures.length === 1) {
             toastMessage("At least one measure required.");
             return;
         }
@@ -819,7 +814,9 @@ class StaffContainer extends React.PureComponent {
     }
 
     selectedNoteChange = (event) => {
-        const { name } = event.target;
+        const { name, checked } = event.target;
+        const selected = this.state.selectedNote;
+        const duration = selected.duration;
         
         switch (name) {
             case 'editMode' : {
@@ -827,37 +824,54 @@ class StaffContainer extends React.PureComponent {
                 return;
             }
             case 'restMode': {
-                const selected = this.state.selectedNote;
-                const duration = selected.duration;
-                const isRest = duration.includes('r');
-                if (!isRest) {
-                    this.props.updateNoteInStave({ 
-                        staveId: this.state.id,
-                        measureId: selected.measureId,
-                        voiceId: selected.voiceId,
-                        noteId: selected.noteId,
-                        update: {
-                            type: MAKE_REST,
-                            payload: {},
-                        }
-                    })
-                } else {
-                    this.props.updateNoteInStave({ 
-                        staveId: this.state.id,
-                        measureId: selected.measureId,
-                        voiceId: selected.voiceId,
-                        noteId: selected.noteId,
-                        update: {
-                            type: MAKE_NOT_REST,
-                            payload: {},
-                        }
-                    })
-                }
+                this.props.updateNoteInStave({ 
+                    staveId: this.state.id,
+                    measureId: selected.measureId,
+                    voiceId: selected.voiceId,
+                    noteId: selected.noteId,
+                    update: {
+                        type: !checked ? MAKE_NOT_REST : MAKE_REST,
+                        payload: {},
+                    }
+                })
                 this.props.updateChange();
                 this.setState(state => ({
                     selectedNote: {
                         ...state.selectedNote,
-                        duration: isRest ? duration.replace('r', '') : duration + 'r',
+                        duration: !checked ? duration.replace('r', '') : duration + 'r',
+                    }
+                }));
+                return;
+            }
+            case 'dotted': {
+                const newDuration = checked ? duration.replace(/([^r]*)(r?)/, '$1d$2') : duration.replace('d', '');
+                let durationLeft = this.getRidOfRests(
+                    selected.measureId,
+                    this.state.stave.measures[selected.measureId].voices[selected.voiceId],
+                    parseInt(selected.noteId)
+                );
+                const dotDuration = (noteToDuration[duration.replace('d', '').replace('r', '')] / 2) * (checked ? -1 : 1);
+                if (durationLeft + dotDuration < 0) {
+                    toastMessage("Not enough duration left in the measure.");
+                    this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft);
+                    return;
+                }
+                this.props.updateNoteInStave({ 
+                    staveId: this.state.id,
+                    measureId: selected.measureId,
+                    voiceId: selected.voiceId,
+                    noteId: selected.noteId,
+                    update: {
+                        type: CHANGE_DURATION,
+                        payload: { duration: newDuration },
+                    }
+                })
+                this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft + dotDuration);
+                this.props.updateChange();
+                this.setState(state => ({
+                    selectedNote: {
+                        ...state.selectedNote,
+                        duration: newDuration,
                     }
                 }))
                 return;
@@ -979,6 +993,12 @@ class StaffContainer extends React.PureComponent {
             timeOpened: props.scoreLoadedTime
         }
     }
+
+    // componentDidUpate(_, prevState) {
+    //     if (JSON.stringify(this.state.selectedNote) !== JSON.stringify(prevState.state.selectedNote)) {
+    //         this.props.
+    //     }
+    // }
 
     componentDidMount(){
         // materialize-css javascript initialization
