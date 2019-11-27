@@ -14,7 +14,8 @@ from .utils import (
     open_scores_modal,
     add_random_note,
     check_if_this_changes_the_pitch,
-    log
+    log,
+    choose_from_dropdown
 )
 
 
@@ -97,11 +98,7 @@ def test_adding_and_removing_voices(driver, wait):
     assert get_number_of_voices(driver) == 3
 
     staff = driver.find_element_by_css_selector('#stave0 svg')
-    voice_select = driver.find_element_by_css_selector('#voices .select-wrapper')
-    ActionChains(driver)\
-        .move_to_element(voice_select).click()\
-        .move_to_element(voice_select.find_element_by_css_selector('li:nth-of-type(3)')).click()\
-        .perform()
+    choose_from_dropdown(driver, '#voices .select-wrapper', 2)
     add_random_note(staff, driver)
 
     driver.find_element_by_name('removeVoice').click()
@@ -166,11 +163,10 @@ def test_changing_clef(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
 
-    clef_select = driver.find_element_by_name('clef')
-    clef_select.click()
+
     which = random.randrange(1, 11)
     if which == 4: which += 1  # percussion clef doesnt change anything
-    clef_select.find_elements_by_tag_name('li')[which].click()
+    choose_from_dropdown(driver, 'div[name="clef"]', which)
 
     after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
 
@@ -182,10 +178,8 @@ def test_changing_key(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
 
-    key_select = driver.find_element_by_name('keySig')
-    key_select.click()
     which = random.randrange(1, 8) * -1 if random.random() > 0.5 else 1
-    key_select.find_elements_by_tag_name('li')[7 + which].click()
+    choose_from_dropdown(driver, 'div[name="keySig"]', 7 + which)
 
     after_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
 
@@ -197,16 +191,13 @@ def test_changing_time_signature(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     before = get_number_of_notes(staff)
 
-    beats_type = driver.find_element_by_name('beatsType')
-    beats_type.click()
-    beats_type.find_elements_by_tag_name('li')[random.choice([0, 2, 3, 4])].click()
+    choose_from_dropdown(driver, 'div[name="beatsType"]', random.choice([0, 2, 3, 4]))
 
     after = get_number_of_notes(staff)
 
     assert before != after
 
-    beats_type.click()
-    beats_type.find_elements_by_tag_name('li')[1].click()
+    choose_from_dropdown(driver, 'div[name="beatsType"]', 1)
 
 
 @pytest.mark.run(order=10)
@@ -330,6 +321,15 @@ def test_generating_random_melody(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     driver.find_element_by_name('clearVoices').click()
     before = len(staff.find_elements_by_css_selector('g.vf-note'))
+
+    choose_from_dropdown(driver, 'div[name="shortNoteDropdown"]', random.randrange(6, 13))
+    choose_from_dropdown(driver, 'div[name="longNoteDropdown"]', random.randrange(0, 7))
+    choose_from_dropdown(driver, 'div[name="intervalDropdown"]', random.randrange(0, 11))
+
+    if random.random() > 0.5:
+        ActionChains(driver).move_to_element(driver.find_element_by_name('allowRests')).click().perform()
+    if random.random() > 0.5:
+        ActionChains(driver).move_to_element(driver.find_element_by_name('diatonic')).click().perform()
 
     driver.find_element_by_name('generate').click()
     after = len(staff.find_elements_by_css_selector('g.vf-note'))

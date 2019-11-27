@@ -12,6 +12,15 @@ from selenium.webdriver.common.by import By
 ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
 
 
+def choose_from_dropdown(driver, dropdown_selector, choice):
+    dropdown = driver.find_element_by_css_selector(dropdown_selector)
+    x, y = dropdown.location.values()
+    driver.execute_script(f'window.scrollTo({x}, {y});')
+    ActionChains(driver).move_to_element(dropdown).click().perform()
+    options = dropdown.find_elements_by_tag_name('li')
+    options[choice].click()
+
+
 def log(*messages):
     with open('test.log', 'a') as f:
         for msg in messages:
