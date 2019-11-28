@@ -372,9 +372,41 @@ def test_editing_a_note(driver):
 
 
 @pytest.mark.run(order=16)
-def test_generating_random_melody(driver):
+def test_adding_notes_in_remote_keys(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     driver.find_element_by_name('clearVoices').click()
+
+    # making sure it only adds a simple eightnote
+    driver.find_elements_by_css_selector('input[name="duration"] ~ span')[3].click()
+    checkboxes = driver.find_elements_by_css_selector('#note-duration input[type="checkbox"]:checked ~ span')
+    for checkbox in checkboxes:
+        checkbox.click()
+    # Cb major
+    choose_from_dropdown(driver, 'div[name="keySig"]', 0)
+    add_random_note(staff, driver)
+    modifiers = staff.find_element_by_css_selector('g.vf-stavenote .vf-modifiers')
+
+    assert modifiers.get_property('childElementCount') == 0
+
+    # C major
+    choose_from_dropdown(driver, 'div[name="keySig"]', 7)
+    modifiers = staff.find_element_by_css_selector('g.vf-stavenote .vf-modifiers')
+
+    assert modifiers.get_property('childElementCount') == 1
+
+    # C# major
+    driver.find_element_by_name('removeNote').click()
+    choose_from_dropdown(driver, 'div[name="keySig"]', 7)
+    add_random_note(staff, driver)
+    modifiers = staff.find_element_by_css_selector('g.vf-stavenote .vf-modifiers')
+
+    assert modifiers.get_property('childElementCount') == 0
+
+
+@pytest.mark.run(order=17)
+def test_generating_random_melody(driver):
+    driver.find_element_by_name('clearVoices').click()
+    staff = driver.find_element_by_css_selector('#stave0 svg')
     before = len(staff.find_elements_by_css_selector('g.vf-note'))
 
     choose_from_dropdown(driver, 'div[name="shortNoteDropdown"]', random.randrange(6, 13))
@@ -387,6 +419,7 @@ def test_generating_random_melody(driver):
         ActionChains(driver).move_to_element(driver.find_element_by_name('diatonic')).click().perform()
 
     driver.find_element_by_name('generate').click()
+    staff = driver.find_element_by_css_selector('#stave0 svg')
     after = len(staff.find_elements_by_css_selector('g.vf-note'))
 
     assert before < after
