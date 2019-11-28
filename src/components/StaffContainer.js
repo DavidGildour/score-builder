@@ -10,7 +10,7 @@ import { setStaveField,
         updateNoteInStave,
         addMeasureToStave,
         removeMeasureFromStave } from '../redux/actions';
-import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST, CHANGE_DURATION } from '../redux/actionTypes';
+import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST, CHANGE_DURATION, ADD_TONE } from '../redux/actionTypes';
 
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddRemoveMeasure } from './ControlFields';
@@ -608,33 +608,44 @@ class StaffContainer extends React.PureComponent {
         if (!this.state.currentMeasure) return;
         const curY = e.pageY;
         const curX = e.pageX;
-        let selectedNote = null;
-        const notePositions = this.getNotePositions(this.state.currentMeasure);
-        // eslint-disable-next-line
-        notePositions.forEach( (v, voiceId) => v.forEach( (n, noteId) => {
-            if(curX >= (n.left   + window.scrollX)
-            && curX <= (n.right  + window.scrollX)
-            && curY >= (n.top    + window.scrollY)
-            && curY <= (n.bottom + window.scrollY)) {
-                selectedNote = {
-                    voiceId: voiceId.toString(),
-                    noteId: noteId.toString(),
+        const notePositions = this.getNotePositions(this.state.currentMeasure)[this.state.currentVoice];
+        let [noteSegment, noteId] = [null, null];
+        for (const [nId, n] of notePositions.entries()) {
+            if (curX >= (n.left   + window.scrollX) &&
+                curX <= (n.right  + window.scrollX)) {
+                [noteSegment, noteId] = [n, nId];
+                break;
+            }
+        }
+
+        if (noteSegment) {
+            if (curY >= (noteSegment.top + window.scrollY) && curY <= (noteSegment.bottom + window.scrollY)) {
+                this.setState({
+                    selectedNote: {
+                        voiceId: this.state.currentVoice,
+                        noteId: noteId.toString(),
+                        measureId: this.state.currentMeasure,
+                        duration: this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice].notes[noteId].duration
+                    }
+                })
+            } else {
+                console.log("lets expand this note: ", noteSegment);
+                const note = this.getNoteFromMousePos(curY);
+                this.props.updateNoteInStave({
+                    staveId: this.state.id,
                     measureId: this.state.currentMeasure,
-                    duration: this.state.stave.measures[this.state.currentMeasure].voices[voiceId].notes[noteId].duration };
+                    voiceId: this.state.currentVoice,
+                    noteId: noteId.toString(),
+                    update: {
+                        type: ADD_TONE,
+                        payload: {
+                            pitch: note
+                        }
+                    }
+                })
             }
-        }));
-        if (selectedNote) {
-            this.setState({
-                selectedNote: selectedNote,
-                currentVoice: selectedNote.voiceId,
-            })
         } else if (!this.state.editMode) {
-            let note = this.getNoteFromMousePos(curY);
-            const symbol = note.split('/')[0];
-            const symbolNeedsAccidental = keyMapping[this.state.stave.keySig][symbol];
-            if (symbolNeedsAccidental) {
-                note = note.replace(/[A-G]/, symbol + symbolNeedsAccidental);
-            }
+            const note = this.getNoteFromMousePos(curY);
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
             durationLeft = this.addNote(durationLeft, note);
@@ -645,17 +656,26 @@ class StaffContainer extends React.PureComponent {
     getNoteFromMousePos = (y) => {
         const lines = this.state.lines;
         const curYRelativeToClef = y % 200;
-        if      (curYRelativeToClef <=lines[0].relTop)                                             return clefMapping[this.state.stave.clef][0];
-        else if (curYRelativeToClef > lines[0].relTop    && curYRelativeToClef <= lines[0].relBot) return clefMapping[this.state.stave.clef][1];
-        else if (curYRelativeToClef > lines[0].relBot    && curYRelativeToClef <= lines[1].relTop) return clefMapping[this.state.stave.clef][2];
-        else if (curYRelativeToClef > lines[1].relTop    && curYRelativeToClef <= lines[1].relBot) return clefMapping[this.state.stave.clef][3];
-        else if (curYRelativeToClef > lines[1].relBot    && curYRelativeToClef <= lines[2].relTop) return clefMapping[this.state.stave.clef][4];
-        else if (curYRelativeToClef > lines[2].relTop    && curYRelativeToClef <= lines[2].relBot) return clefMapping[this.state.stave.clef][5];
-        else if (curYRelativeToClef > lines[2].relBot    && curYRelativeToClef <= lines[3].relTop) return clefMapping[this.state.stave.clef][6];
-        else if (curYRelativeToClef > lines[3].relTop    && curYRelativeToClef <= lines[3].relBot) return clefMapping[this.state.stave.clef][7];
-        else if (curYRelativeToClef > lines[3].relBot    && curYRelativeToClef <= lines[4].relTop) return clefMapping[this.state.stave.clef][8];
-        else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) return clefMapping[this.state.stave.clef][9];
-        else if (curYRelativeToClef > lines[4].relBot)                                             return clefMapping[this.state.stave.clef][10];
+
+        let note;
+        if      (curYRelativeToClef <=lines[0].relTop)                                             note = clefMapping[this.state.stave.clef][0];
+        else if (curYRelativeToClef > lines[0].relTop    && curYRelativeToClef <= lines[0].relBot) note = clefMapping[this.state.stave.clef][1];
+        else if (curYRelativeToClef > lines[0].relBot    && curYRelativeToClef <= lines[1].relTop) note = clefMapping[this.state.stave.clef][2];
+        else if (curYRelativeToClef > lines[1].relTop    && curYRelativeToClef <= lines[1].relBot) note = clefMapping[this.state.stave.clef][3];
+        else if (curYRelativeToClef > lines[1].relBot    && curYRelativeToClef <= lines[2].relTop) note = clefMapping[this.state.stave.clef][4];
+        else if (curYRelativeToClef > lines[2].relTop    && curYRelativeToClef <= lines[2].relBot) note = clefMapping[this.state.stave.clef][5];
+        else if (curYRelativeToClef > lines[2].relBot    && curYRelativeToClef <= lines[3].relTop) note = clefMapping[this.state.stave.clef][6];
+        else if (curYRelativeToClef > lines[3].relTop    && curYRelativeToClef <= lines[3].relBot) note = clefMapping[this.state.stave.clef][7];
+        else if (curYRelativeToClef > lines[3].relBot    && curYRelativeToClef <= lines[4].relTop) note = clefMapping[this.state.stave.clef][8];
+        else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) note = clefMapping[this.state.stave.clef][9];
+        else                                                                                       note = clefMapping[this.state.stave.clef][10];
+
+        const symbol = note.split('/')[0];
+        const symbolNeedsAccidental = keyMapping[this.state.stave.keySig][symbol];
+        if (symbolNeedsAccidental) {
+            return note.replace(/[A-G]/, symbol + symbolNeedsAccidental);
+        }
+        return note;
     }
 
     handleMouseMove = (e) => {

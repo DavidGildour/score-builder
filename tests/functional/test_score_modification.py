@@ -134,12 +134,12 @@ def test_changing_note_pitch(driver):
     keys = [Keys.PAGE_UP, Keys.PAGE_DOWN, Keys.ARROW_UP, Keys.ARROW_DOWN]
     driver.execute_script('window.scrollTo(0, 0);')
     for _ in range(5):
-        before_notes = staff.find_elements_by_class_name('vf-note')
+        before_notes = staff.find_elements_by_class_name('vf-note')[:8]
         before_positions = [tuple(note.location.values()) for note in before_notes]
         note = random.choice(before_notes)
 
         # sanity check
-        assert before_notes == staff.find_elements_by_class_name('vf-note')
+        assert before_notes == staff.find_elements_by_class_name('vf-note')[:8]
 
         # generating a random set of 6 keys to press; it's even to allow for the situation where the keys lead to the
         # same note it started with (eg. up a half-step, down a half-step)
@@ -150,7 +150,7 @@ def test_changing_note_pitch(driver):
             .send_keys(*transposition)\
             .perform()
 
-        after_notes = staff.find_elements_by_class_name('vf-note')
+        after_notes = staff.find_elements_by_class_name('vf-note')[:8]
         after_positions = [tuple(note.location.values()) for note in after_notes]
 
         # TODO find what's causing this test to fail once in a while; specifically the statement False != False

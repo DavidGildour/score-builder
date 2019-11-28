@@ -38,6 +38,19 @@ export default (state = {}, action) => {
                 persistent: true,
             }
         }
+        case 'ADD_TONE': {
+            const { pitch } = action.payload;
+            const newKeys = state.keys.concat([pitch]);
+            let mandatoryMods = '';
+            if (state.modifiers[0].includes('.')) mandatoryMods += '.';
+            const accidentals = pitch.match(/[#b]+/);
+            const newModifiers = state.modifiers.concat(accidentals ? [mandatoryMods + accidentals[0]] : [mandatoryMods]);
+            return {
+                ...state,
+                keys: newKeys,
+                modifiers: newModifiers
+            }
+        }
         case 'MAKE_REST': {
             return {
                 ...state,
