@@ -422,7 +422,7 @@ class StaffContainer extends React.PureComponent {
                             newAcc = '';
                         } else {
                             newSymbol = oldSymbol;
-                            newAcc = '#'; 
+                            newAcc = '#';
                         }
                     }
                     if (oldIndex === 6 && !['Bb', 'Bbb'].includes(oldKey)) newOctave = +oldOctave + 1;
@@ -463,7 +463,7 @@ class StaffContainer extends React.PureComponent {
                             newAcc = '';
                         } else {
                             newSymbol = oldSymbol;
-                            newAcc = 'b'; 
+                            newAcc = 'b';
                         }
                     }
                     if (oldIndex === 0 && !['C#', 'C##'].includes(oldKey)) newOctave = +oldOctave - 1;
@@ -980,12 +980,17 @@ class StaffContainer extends React.PureComponent {
 
     static getDerivedStateFromProps = (props, state) => {
         let selectedNote;
-        if (props.scoreLoadedTime !== state.timeOpened) selectedNote = null;
+        let editMode = state.editMode;
+        if (props.scoreLoadedTime !== state.timeOpened) {
+            selectedNote = null;
+            editMode = false;
+        }
         else selectedNote = state.selectedNote;
         return {
             stave: props.staves[state.id],
             selectedNote: selectedNote,
-            timeOpened: props.scoreLoadedTime
+            timeOpened: props.scoreLoadedTime,
+            editMode: editMode,
         }
     }
 
