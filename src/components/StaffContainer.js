@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import M from 'materialize-css/dist/js/materialize.min';
+
 import { setStaveField,
         addNoteToStave,
         deleteNoteFromStave,
@@ -10,20 +11,25 @@ import { setStaveField,
         addMeasureToStave,
         removeMeasureFromStave } from '../redux/actions';
 import { MAKE_NOT_REST, CHANGE_PITCH, MAKE_REST, CHANGE_DURATION } from '../redux/actionTypes';
+
 import Staff from './Staff';
 import { ClefOptions, TimeSigOptions, KeyOptions, AddRandomNote, RemoveNote, NoteDuration, Voices, AddRemoveVoice, AddRemoveMeasure } from './ControlFields';
 import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
 import SaveScore from './SaveScore';
 import toastMessage from '../utils/toast';
+
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
 import { noteMapping } from './mappings/noteMappings';
 import keyMapping from './mappings/keyMappings';
+
 const getRandInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
 const mapStateToProps = state => ({
     staves: state.staves,
 });
+
 const mapDispatchToProps = {
     setStaveField,
     addNoteToStave,
@@ -34,6 +40,7 @@ const mapDispatchToProps = {
     addMeasureToStave,
     removeMeasureFromStave
 };
+
 class StaffContainer extends React.PureComponent {
     state = {
         restMode: false,
@@ -48,6 +55,7 @@ class StaffContainer extends React.PureComponent {
         duration: '8',
         bpm: 80,
     };
+
     getRidOfRests = (measureId, voice, safetyIndex = NaN) => {
         const notes = voice.notes;
         const revNotes = notes.slice().reverse();
@@ -61,6 +69,7 @@ class StaffContainer extends React.PureComponent {
         }
         return duration;
     }
+
     populateVoiceWithRests = (measureId, voiceId, lackingDuration) => {
         const lineMapping = clefMapping[this.state.stave.clef];
         const restPlacement = {
@@ -87,6 +96,7 @@ class StaffContainer extends React.PureComponent {
             }
         }
     }
+
     voiceDurationIsValid = (voice, beatsNum, beatsType) => {
         const expectedDuration = beatsNum * (1 / beatsType);
         let voiceDuration = 0;
@@ -95,6 +105,7 @@ class StaffContainer extends React.PureComponent {
         }
         return expectedDuration - voiceDuration;
     }
+
     voiceIsNotEmpty = (voiceId) => {
         for (const measure of this.state.stave.measures) {
             for (const note of measure.voices[voiceId].notes) {
@@ -103,6 +114,7 @@ class StaffContainer extends React.PureComponent {
         }
         return false;
     }
+
     cutMeasures = (voiceId, lackingDuration) => {
         let remainingDuration = lackingDuration;
         for (let j = 0; j < this.state.stave.measures.length; j++) {
@@ -119,6 +131,7 @@ class StaffContainer extends React.PureComponent {
             editMode: false // quick fix
         })
     }
+
     timeChangeHandler = (event) => {
         const { name, value } = event.target;
         if (value === '' || value < 1 || value > 32) {
@@ -145,6 +158,7 @@ class StaffContainer extends React.PureComponent {
             [name]: value,
         });
     }
+
     getLastNoteInAVoice = (voice) => {
         const notes = voice.notes.slice();
         const revNotes = notes.slice().reverse();
@@ -153,6 +167,7 @@ class StaffContainer extends React.PureComponent {
         }
         return -1;
     }
+
     getLatestAvailableMeasure = () => {
         for (const measure of this.state.stave.measures) {
             for (const note of measure.voices[this.state.currentVoice].notes) {
@@ -161,15 +176,18 @@ class StaffContainer extends React.PureComponent {
         }
         return null;
     }
+
     addNote = (durationLeft, note) => {
         let availableDuration = durationLeft;
         const declaredDuration = this.state.duration + (this.state.dotted ? 'd' : '');
         if (availableDuration >= noteToDuration[declaredDuration]) {
+            const modifiers = [note.match(/[A-G]([#b]*)\//)[1]];
+            if (declaredDuration.includes('d')) modifiers[0] += '.';
             const newNote = {
                 clef: this.state.stave.clef,
                 keys: [note],
                 duration: this.state.restMode ? declaredDuration + 'r' : declaredDuration,
-                modifiers: [(declaredDuration.includes('d') ? '.' : '')],
+                modifiers: modifiers,
                 persistent: true,
             }
             availableDuration -= noteToDuration[newNote.duration.replace('r', '')];
@@ -189,6 +207,7 @@ class StaffContainer extends React.PureComponent {
         }
         return availableDuration;
     }
+
     handleRandomNote = () => {
         const measure = this.getLatestAvailableMeasure();
         if (!measure) return;
@@ -209,6 +228,7 @@ class StaffContainer extends React.PureComponent {
         }));
         this.props.updateChange();
     }
+
     getAvailableNotes = (interval, declaredNote, diatonic) => {
         const [ chromaSteps, scaleSteps ] = interval.split(' ').map( e => parseInt(e, 10));
         const mapping = keyMapping[this.state.stave.keySig];
@@ -265,6 +285,7 @@ class StaffContainer extends React.PureComponent {
         const maxIndex = availableNotes.indexOf(maxNote) === -1 ? availableNotes.length - 1 : availableNotes.indexOf(maxNote);
         return availableNotes.filter((note, i) => note !== centerNote && i <= maxIndex && i >= minIndex);
     }
+
     addRandomNote = (
         availableDuration,
         durToNote = durationToNote,
@@ -318,6 +339,7 @@ class StaffContainer extends React.PureComponent {
         };
         return { duration: duration, notePitches: [''] };
     }
+
     removeLastNote = (_e) => {
         let lastNonEmptyMeasureId = this.state.stave.measures.length - 1;
         let note = null;
@@ -339,6 +361,7 @@ class StaffContainer extends React.PureComponent {
         this.populateVoiceWithRests(lastNonEmptyMeasureId.toString(), this.state.currentVoice, duration);
         this.props.updateChange();
     }
+
     makeNoteARest = (note) => {
         this.props.updateNoteInStave({
             staveId: this.state.id,
@@ -351,16 +374,16 @@ class StaffContainer extends React.PureComponent {
             }
         })
     }
+
     transposeNote = (transposition) => {
+        let keys = [];
         const selected = this.state.selectedNote;
         if (!selected) return;
         const note = this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes[selected.noteId];
-        let keys = [];
         for (const key of note.keys) {
             if (transposition[0] === 'o') {
                 keys.push(key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1)));
-            }
-            if (transposition[0] === 's') {
+            } else if (transposition[0] === 's') {
                 const [ , oldKey, oldOctave] = key.match(/(.+)\/(\d)/);
                 const oldSymbol = oldKey[0];
                 const oldAcc = oldKey.match(/[#b]+/);
@@ -394,10 +417,16 @@ class StaffContainer extends React.PureComponent {
                                 newAcc = '#';
                         }
                     } else {
-                        newSymbol = isDiatonic ? noteMapping[(oldIndex + 1) % 7] : oldSymbol;
-                        newAcc = isDiatonic ? '' : '#';
+                        if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== '#') {
+                            newSymbol = noteMapping[(oldIndex + 1) % 7];
+                            newAcc = '';
+                        } else {
+                            newSymbol = oldSymbol;
+                            newAcc = '#'; 
+                        }
                     }
                     if (oldIndex === 6 && !['Bb', 'Bbb'].includes(oldKey)) newOctave = +oldOctave + 1;
+                    if (keyMapping[this.state.stave.keySig].B === '#' && oldKey === 'B') newOctave -= 1;
                 } else {
                     const isDiatonic = ['C','F'].includes(oldSymbol.toUpperCase());
                     if (oldAcc) {
@@ -429,10 +458,16 @@ class StaffContainer extends React.PureComponent {
                                 newAcc = 'b';
                         }
                     } else {
-                        newSymbol = isDiatonic ? noteMapping[oldIndex === 0 ? 6 : oldIndex - 1] : oldSymbol;
-                        newAcc = isDiatonic ? '' : 'b';
+                        if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== 'b') {
+                            newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                            newAcc = '';
+                        } else {
+                            newSymbol = oldSymbol;
+                            newAcc = 'b'; 
+                        }
                     }
                     if (oldIndex === 0 && !['C#', 'C##'].includes(oldKey)) newOctave = +oldOctave - 1;
+                    if (keyMapping[this.state.stave.keySig].C === 'b' && oldKey === 'C') newOctave += 1;
                 }
                 console.log("new: ", newSymbol, newAcc, newOctave || oldOctave);
                 keys.push(`${newSymbol + newAcc}/${newOctave || oldOctave}`);
@@ -440,18 +475,19 @@ class StaffContainer extends React.PureComponent {
         }
         this.props.updateChange();
         this.props.updateNoteInStave({
-                                        staveId: this.state.id,
-                                        measureId: selected.measureId,
-                                        voiceId: selected.voiceId,
-                                        noteId: selected.noteId,
-                                        update: {
-                                            type: CHANGE_PITCH,
-                                            payload: {
-                                                keys: keys || note.keys,
-                                            }
-                                        }
-                                    });
+            staveId: this.state.id,
+            measureId: selected.measureId,
+            voiceId: selected.voiceId,
+            noteId: selected.noteId,
+            update: {
+                type: CHANGE_PITCH,
+                payload: {
+                    keys: keys || note.keys,
+                }
+            }
+        });
     }
+
     addVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 4) {
             toastMessage(this.props.lang.options.errors.maxVoices);
@@ -464,11 +500,13 @@ class StaffContainer extends React.PureComponent {
         }
         this.props.updateChange();
     }
+
     removeVoice = (e) => {
         if (this.state.stave.measures[0].voices.length === 1) {
             toastMessage(this.props.lang.options.errors.minVoices);
             return;
         }
+
         const voiceId = (this.state.stave.measures[0].voices.length-1).toString();
         if (this.voiceIsNotEmpty(voiceId)) {
             toastMessage(this.props.lang.options.errors.voiceNotEmpty);
@@ -485,6 +523,7 @@ class StaffContainer extends React.PureComponent {
                             : state.selectedNote),                    // if it was a part of a different voice though - we can keep it
         }));
     }
+
     clearVoices = (_e) => {
         const voiceNum = this.state.stave.measures[0].voices.length;
         for (const voice of this.state.stave.measures[0].voices) {
@@ -502,6 +541,7 @@ class StaffContainer extends React.PureComponent {
             editMode: false,
         })
     }
+
     generateMelody = (options) => {
         console.log(options);
         for (const measure of this.state.stave.measures) {
@@ -545,6 +585,7 @@ class StaffContainer extends React.PureComponent {
         }
         this.props.updateChange();
     }
+
     addMeasure = () => {
         this.props.addMeasureToStave({ staveId: this.state.id, voicesNum: this.state.stave.measures[0].voices.length });
         for (let i = 0; i < this.state.stave.measures[0].voices.length; i++) {
@@ -552,6 +593,7 @@ class StaffContainer extends React.PureComponent {
         }
         this.props.updateChange();
     }
+
     removeMeasure = () => {
         if (this.state.stave.measures.length === 1) {
             toastMessage("At least one measure required.");
@@ -560,6 +602,7 @@ class StaffContainer extends React.PureComponent {
         this.props.removeMeasureFromStave({ staveId: this.state.id })
         this.props.updateChange();
     }
+
     handleClick = (e) => {
         e.preventDefault();
         if (!this.state.currentMeasure) return;
@@ -586,13 +629,19 @@ class StaffContainer extends React.PureComponent {
                 currentVoice: selectedNote.voiceId,
             })
         } else if (!this.state.editMode) {
-            const note = this.getNoteFromMousePos(curY);
+            let note = this.getNoteFromMousePos(curY);
+            const symbol = note.split('/')[0];
+            const symbolNeedsAccidental = keyMapping[this.state.stave.keySig][symbol];
+            if (symbolNeedsAccidental) {
+                note = note.replace(/[A-G]/, symbol + symbolNeedsAccidental);
+            }
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
             let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
             durationLeft = this.addNote(durationLeft, note);
             this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
         };
     }
+
     getNoteFromMousePos = (y) => {
         const lines = this.state.lines;
         const curYRelativeToClef = y % 200;
@@ -608,6 +657,7 @@ class StaffContainer extends React.PureComponent {
         else if (curYRelativeToClef > lines[4].relTop    && curYRelativeToClef <= lines[4].relBot) return clefMapping[this.state.stave.clef][9];
         else if (curYRelativeToClef > lines[4].relBot)                                             return clefMapping[this.state.stave.clef][10];
     }
+
     handleMouseMove = (e) => {
         const lines = this.state.lines;
         const curY = e.pageY;
@@ -627,6 +677,7 @@ class StaffContainer extends React.PureComponent {
             currentMeasure: currentMeasure,
         })
     }
+
     setNextNote = (selected) => {
         let nextMeasureId;
         let nextNoteId;
@@ -651,6 +702,7 @@ class StaffContainer extends React.PureComponent {
             }
         })
     }
+
     setPreviousNote = (selected) => {
         let nextMeasureId;
         let nextNoteId;
@@ -680,6 +732,7 @@ class StaffContainer extends React.PureComponent {
             }
         })
     }
+
     handleKeyPress = (e) => {
         e.preventDefault();
         const { key, shiftKey } = e;
@@ -728,6 +781,7 @@ class StaffContainer extends React.PureComponent {
             this.innerStateChange({ target: { name: 'editMode', type: 'checkbox'}});
         }
     }
+
     selectedNoteChange = (event) => {
         const { name, checked } = event.target;
         const selected = this.state.selectedNote;
@@ -828,6 +882,7 @@ class StaffContainer extends React.PureComponent {
         default: return;
         }
     }
+
     innerStateChange = (event) => {
         const { name, value, type } = event.target;
         if (type === 'checkbox') {
@@ -855,12 +910,14 @@ class StaffContainer extends React.PureComponent {
             });
         }
     }
+
     storeChange = (event) => {
         this.innerStateChange(event);
         this.props.updateChange();
         const { name, value } = event.target;
         this.props.setStaveField({ id: this.state.id, field: name, value: value });
     }
+
     getBarLines = (svg, lines = this.state.lines) => {
         this.setState({
             measureBarLines: [...svg.getElementsByTagName('rect')]
@@ -880,6 +937,7 @@ class StaffContainer extends React.PureComponent {
                 .sort((a, b) => (a.y) - (b.y)),
         });
     }
+
     getNotePositions = (measureId) => {
         const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
         const voices = this.state.stave.measures[measureId].voices;
@@ -910,6 +968,7 @@ class StaffContainer extends React.PureComponent {
         }
         return notePositions;
     }
+
     getLastNote = () => {
         let lastNote = null;
         for (const note of this.state.stave.measures[0].voices[this.state.currentVoice].notes) {
@@ -918,6 +977,7 @@ class StaffContainer extends React.PureComponent {
         }
         return lastNote;
     }
+
     static getDerivedStateFromProps = (props, state) => {
         let selectedNote;
         if (props.scoreLoadedTime !== state.timeOpened) selectedNote = null;
@@ -928,11 +988,7 @@ class StaffContainer extends React.PureComponent {
             timeOpened: props.scoreLoadedTime
         }
     }
-    // componentDidUpate(_, prevState) {
-    //     if (JSON.stringify(this.state.selectedNote) !== JSON.stringify(prevState.state.selectedNote)) {
-    //         this.props.
-    //     }
-    // }
+
     componentDidMount(){
         // materialize-css javascript initialization
         M.FormSelect.init(document.querySelectorAll('select'));
@@ -954,12 +1010,14 @@ class StaffContainer extends React.PureComponent {
             lines: lines,
         });
     }
+
     render() {
         let currentNote;
         const selectedNote = this.state.selectedNote;
         selectedNote ? currentNote = this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div onKeyDown={this.handleKeyPress}>
+                {/* <div style={{ position: 'absolute', top: '50%', left: '10px' }}>{currentNote ? currentNote.keys : null}</div> */}
                 <div>
                     <NoteDuration
                         editMode={this.state.editMode}
@@ -1045,6 +1103,7 @@ class StaffContainer extends React.PureComponent {
         );
     }
 }
+
 export default connect(
     mapStateToProps,
     mapDispatchToProps,
