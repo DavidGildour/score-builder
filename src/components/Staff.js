@@ -24,6 +24,15 @@ export default class Staff extends React.Component {
     static maxMeasuresInRow = 3;
 
     mapNote = (note) => {
+        if (note.duration.includes('r')) {
+            const staveNote = new VF.StaveNote({
+                ...note,
+                keys: note.keys.slice(0, 1)
+            });
+            if (note.modifiers[0].includes('.')) staveNote.addDot(0);
+            return staveNote;
+        }
+
         const key = this.props.stave.keySig;
         const mods = note.modifiers.slice();
         const mapping = keyMapping[key];
@@ -48,13 +57,9 @@ export default class Staff extends React.Component {
         if (mods.length > 0) {
             for (const [i, mod] of mods.entries()) {
                 // applying according modifiers
-                if (note.duration.includes('r')) { // rests do not need accidentals
-                    if (mod.includes('.')) staveNote.addDot(i);
-                } else {
-                    if (mod === '.') staveNote.addDot(i);
-                    else if (mod.includes('.')) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', ''))).addDot(i);
-                    else if (mod) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', '')));
-                }
+                if (mod === '.') staveNote.addDot(i);
+                else if (mod.includes('.')) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', ''))).addDot(i);
+                else if (mod) staveNote.addAccidental(i, new VF.Accidental(mod.replace('.', '')));
             }
         }
         return staveNote;

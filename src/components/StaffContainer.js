@@ -1042,7 +1042,7 @@ class StaffContainer extends React.PureComponent {
         selectedNote ? currentNote = this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
         return (
             <div onKeyDown={this.handleKeyPress}>
-                {/* <div style={{ position: 'absolute', top: '50%', left: '10px' }}>{currentNote ? currentNote.keys : null}</div> */}
+                <div style={{ position: 'absolute', top: '50%', left: '10px' }}>{currentNote ? currentNote.keys.join(' ') : null}</div>
                 <div>
                     <NoteDuration
                         editMode={this.state.editMode}
