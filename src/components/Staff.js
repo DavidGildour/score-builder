@@ -75,6 +75,7 @@ export default class Staff extends React.Component {
                 const newNote = this.mapNote(note);
                 if (selected && voice.id === selected.voiceId && i.toString() === selected.noteId && measure.id === selected.measureId) {
                     newNote.setStyle({fillStyle: '#f00', strokeStyle: '#f00'});
+                    if (selected.noteHead < note.keys.length) newNote.setKeyStyle(selected.noteHead, {fillStyle: '#c00', strokeStyle: '#c00'});
                 } else if (voice.id === this.props.activeVoice) {
                     newNote.setStyle(colorMapping[voice.id]);
                 }

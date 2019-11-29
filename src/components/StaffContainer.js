@@ -198,6 +198,7 @@ class StaffContainer extends React.PureComponent {
             this.setState((state) => ({
                 selectedNote: {
                     noteId: actualIndex.toString(),
+                    noteHead: 0,
                     voiceId: state.currentVoice,
                     measureId: state.currentMeasure,
                     duration: newNote.duration,
@@ -603,6 +604,8 @@ class StaffContainer extends React.PureComponent {
         this.props.updateChange();
     }
 
+    getNoteHeads = (noteElement) => Array.from(noteElement.getElementsByClassName('vf-notehead')).map(e => e.getBoundingClientRect());
+
     handleClick = (e) => {
         e.preventDefault();
         if (!this.state.currentMeasure) return;
@@ -611,39 +614,61 @@ class StaffContainer extends React.PureComponent {
         const notePositions = this.getNotePositions(this.state.currentMeasure)[this.state.currentVoice];
         let [noteSegment, noteId] = [null, null];
         for (const [nId, n] of notePositions.entries()) {
-            if (curX >= (n.left   + window.scrollX) &&
-                curX <= (n.right  + window.scrollX)) {
+            if (curX >= (n.position.left   + window.scrollX) &&
+                curX <= (n.position.right  + window.scrollX)) {
                 [noteSegment, noteId] = [n, nId];
                 break;
             }
         }
 
         if (noteSegment) {
-            if (curY >= (noteSegment.top + window.scrollY) && curY <= (noteSegment.bottom + window.scrollY)) {
-                this.setState({
-                    selectedNote: {
-                        voiceId: this.state.currentVoice,
-                        noteId: noteId.toString(),
-                        measureId: this.state.currentMeasure,
-                        duration: this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice].notes[noteId].duration
-                    }
-                })
-            } else {
-                console.log("lets expand this note: ", noteSegment);
-                const note = this.getNoteFromMousePos(curY);
-                this.props.updateNoteInStave({
-                    staveId: this.state.id,
-                    measureId: this.state.currentMeasure,
-                    voiceId: this.state.currentVoice,
-                    noteId: noteId.toString(),
-                    update: {
-                        type: ADD_TONE,
-                        payload: {
-                            pitch: note
+            const noteHeads = this.getNoteHeads(noteSegment.element);
+            let selectedNoteHead;
+            console.log(noteHeads);
+            for (const [i, noteHead] of noteHeads.entries()) {
+                if (curY >= (noteHead.top + window.scrollY) && curY <= (noteHead.bottom + window.scrollY)) {
+                    this.setState({
+                        selectedNote: {
+                            voiceId: this.state.currentVoice,
+                            noteId: noteId.toString(),
+                            noteHead: i,
+                            measureId: this.state.currentMeasure,
+                            duration: this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice].notes[noteId].duration
                         }
-                    }
-                })
+                    });
+                    return;
+                }
+                if (i === this.state.selectedNote.noteHead) selectedNoteHead = noteHead;
             }
+            const note = this.getNoteFromMousePos(curY);
+            this.props.updateNoteInStave({
+                staveId: this.state.id,
+                measureId: this.state.currentMeasure,
+                voiceId: this.state.currentVoice,
+                noteId: noteId.toString(),
+                update: {
+                    type: ADD_TONE,
+                    payload: {
+                        pitch: note
+                    }
+                }
+            });
+            let newNoteHead;
+            if (selectedNoteHead && this.state.selectedNote.noteId === noteId.toString()) {
+                newNoteHead = curY < selectedNoteHead.top ?
+                    this.state.selectedNote.noteHead + 1 :
+                    this.state.selectedNote.noteHead;
+            } else {
+                // TODO: find an elegant way of determining the noteHead id upon adding a notehead to the other than selected note
+                newNoteHead = 0;
+            }
+            this.setState((state) => ({
+                selectedNote: {
+                    ...state.selectedNote,
+                    noteId: noteId.toString(),
+                    noteHead: newNoteHead,
+                }
+            }));
         } else if (!this.state.editMode) {
             const note = this.getNoteFromMousePos(curY);
             const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
@@ -919,6 +944,7 @@ class StaffContainer extends React.PureComponent {
                 selectedNote: {
                     voiceId: value,
                     noteId: '0',
+                    noteHead: 0,
                     measureId: '0',
                     duration: this.state.stave.measures[0].voices[value].notes[0].duration,
                 },
@@ -959,21 +985,24 @@ class StaffContainer extends React.PureComponent {
     }
 
     getNotePositions = (measureId) => {
-        const staveSVG = document.getElementById(`stave${this.state.id}`).childNodes[0];
+        const staveSVG = document.querySelector(`#stave${this.state.id} svg`);
         const voices = this.state.stave.measures[measureId].voices;
         const currentMeasureBarLines = { left: this.state.measureBarLines[2*measureId], right: this.state.measureBarLines[2*measureId + 1] };
         const notes = [...staveSVG.getElementsByClassName('vf-stavenote')]
-            .map(e => e.getElementsByClassName("vf-notehead")[0].getBoundingClientRect())
+            .map(e => ({
+                position: e.getBoundingClientRect(),
+                element: e
+            }))
             // taking into account only notes in currently viewed measure
-            .filter(e => e.left >= currentMeasureBarLines.left.x
-                      && e.right <= currentMeasureBarLines.right.x
-                      && e.top + window.scrollY >= currentMeasureBarLines.left.top - 50
-                      && e.bottom + window.scrollY <= currentMeasureBarLines.left.bottom + 50
-            );
-        let notePositions = [];
+            .filter(e => (
+                e.position.left >= currentMeasureBarLines.left.x &&
+                e.position.right <= currentMeasureBarLines.right.x &&
+                e.position.top + window.scrollY >= currentMeasureBarLines.left.top - 50 &&
+                e.position.bottom + window.scrollY <= currentMeasureBarLines.left.bottom + 50
+            ));
+        let notePositions = [[]];
         let voiceId = 0;
         let noteId = 0;
-        notePositions.push([]);
         for (const n of notes) {
             let voice = voices[voiceId];
             let len = voice.notes.length;
