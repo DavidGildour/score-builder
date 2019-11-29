@@ -26,3 +26,4 @@ export const MAKE_REST = 'MAKE_REST';
 export const MAKE_NOT_REST = 'MAKE_NOT_REST';
 export const CHANGE_DURATION = 'CHANGE_DURATION';
 export const ADD_TONE = 'ADD_TONE';
+export const REMOVE_TONE = 'REMOVE_TONE';

@@ -18,6 +18,7 @@ import MelodyGenerator from './MelodyGeneratorOptions';
 import MidiPlayer from './MidiPlayer';
 import SaveScore from './SaveScore';
 import toastMessage from '../utils/toast';
+import sortNotes from '../utils/noteSorter';
 
 import { noteToDuration, durationToNote } from './mappings/durationMappings';
 import { clefMapping } from './mappings/clefMappings';
@@ -363,117 +364,141 @@ class StaffContainer extends React.PureComponent {
         this.props.updateChange();
     }
 
-    makeNoteARest = (note) => {
-        this.props.updateNoteInStave({
-            staveId: this.state.id,
-            measureId: note.measureId,
-            voiceId: note.voiceId,
-            noteId: note.noteId,
-            update: {
-                type: MAKE_REST,
-                payload: {},
-            }
-        })
+    getNote(note) {
+        return this.state.stave.measures[note.measureId].voices[note.voiceId].notes[note.noteId]
+    }
+
+    handleDelete = (note) => {
+        const consideredNote = this.getNote(note);
+        if (consideredNote.keys.length > 1) {
+            this.props.updateNoteInStave({
+                ...note,
+                staveId: this.state.id,
+                update: {
+                    type: 'REMOVE_TONE',
+                    payload: { noteHead: note.noteHead }
+                }
+            })
+            this.setState(state => ({ selectedNote: {
+                ...state.selectedNote,
+                noteHead: Math.min(consideredNote.keys.length - 2, state.selectedNote.noteHead),
+                }
+            }))
+        } else {
+            this.props.updateNoteInStave({
+                staveId: this.state.id,
+                measureId: note.measureId,
+                voiceId: note.voiceId,
+                noteId: note.noteId,
+                update: {
+                    type: MAKE_REST,
+                    payload: {},
+                }
+            })
+            this.setState(state => ({ selectedNote: {
+                ...state.selectedNote,
+                duration: state.selectedNote.duration + 'r',
+                }
+            }))
+        }
     }
 
     transposeNote = (transposition) => {
-        let keys = [];
         const selected = this.state.selectedNote;
         if (!selected) return;
-        const note = this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes[selected.noteId];
-        for (const key of note.keys) {
-            if (transposition[0] === 'o') {
-                keys.push(key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1)));
-            } else if (transposition[0] === 's') {
-                const [ , oldKey, oldOctave] = key.match(/(.+)\/(\d)/);
-                const oldSymbol = oldKey[0];
-                const oldAcc = oldKey.match(/[#b]+/);
-                const oldIndex = noteMapping.indexOf(oldSymbol.toUpperCase());
-                let newSymbol;
-                let newAcc;
-                let newOctave;
-                console.log("old: ", oldSymbol, oldAcc, oldOctave, oldIndex);
-                if (transposition[1] === 'u') {
-                    const isDiatonic = ['B','E'].includes(oldSymbol.toUpperCase());
-                    if (oldAcc) {
-                        switch (oldAcc[0]) {
-                            case '##':
-                                newSymbol = noteMapping[(oldIndex + (isDiatonic ? 2 : 1)) % 7];
-                                newAcc = isDiatonic ? '' : '#';
-                                break;
-                            case '#':
-                                newSymbol = noteMapping[(oldIndex + 1) % 7];
-                                newAcc = isDiatonic ? '#' : '';
-                                break;
-                            case 'bb':
-                                newSymbol = oldSymbol;
-                                newAcc = 'b';
-                                break;
-                            case 'b':
-                                newSymbol = oldSymbol;
-                                newAcc = '';
-                                break;
-                            default:
-                                newSymbol = noteMapping[(oldIndex + 1) % 7];
-                                newAcc = '#';
-                        }
-                    } else {
-                        if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== '#') {
+        const note = this.getNote(selected);
+        const keys = note.keys.slice();
+        const key = keys[selected.noteHead];
+        if (transposition[0] === 'o') {
+            keys[selected.noteHead] = key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1));
+        } else if (transposition[0] === 's') {
+            const [ , oldKey, oldOctave] = key.match(/(.+)\/(\d)/);
+            const oldSymbol = oldKey[0];
+            const oldAcc = oldKey.match(/[#b]+/);
+            const oldIndex = noteMapping.indexOf(oldSymbol.toUpperCase());
+            let newSymbol;
+            let newAcc;
+            let newOctave;
+            if (transposition[1] === 'u') {
+                const isDiatonic = ['B','E'].includes(oldSymbol.toUpperCase());
+                if (oldAcc) {
+                    switch (oldAcc[0]) {
+                        case '##':
+                            newSymbol = noteMapping[(oldIndex + (isDiatonic ? 2 : 1)) % 7];
+                            newAcc = isDiatonic ? '' : '#';
+                            break;
+                        case '#':
                             newSymbol = noteMapping[(oldIndex + 1) % 7];
-                            newAcc = '';
-                        } else {
-                            newSymbol = oldSymbol;
-                            newAcc = '#';
-                        }
-                    }
-                    if (oldIndex === 6 && !['Bb', 'Bbb'].includes(oldKey)) newOctave = +oldOctave + 1;
-                    if (keyMapping[this.state.stave.keySig].B === '#' && oldKey === 'B') newOctave -= 1;
-                } else {
-                    const isDiatonic = ['C','F'].includes(oldSymbol.toUpperCase());
-                    if (oldAcc) {
-                        switch (oldAcc[0]) {
-                            case '##':
-                                newSymbol = oldSymbol;
-                                newAcc = '#';
-                                break;
-                            case '#':
-                                newSymbol = oldSymbol;
-                                newAcc = '';
-                                break;
-                            case 'bb':
-                                let newIndex;
-                                if (oldIndex === 0) {
-                                    newIndex = isDiatonic ? 5 : 6;
-                                }  else if (oldIndex === 1) {
-                                    newIndex = isDiatonic ? 6 : 0;
-                                } else newIndex = oldIndex - (isDiatonic ? 2 : 1);
-                                newSymbol = noteMapping[newIndex];
-                                newAcc = isDiatonic ? '' : 'b';
-                                break;
-                            case 'b':
-                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
-                                newAcc = isDiatonic ? 'b' : '';
-                                break;
-                            default:
-                                newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
-                                newAcc = 'b';
-                        }
-                    } else {
-                        if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== 'b') {
-                            newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
-                            newAcc = '';
-                        } else {
+                            newAcc = isDiatonic ? '#' : '';
+                            break;
+                        case 'bb':
                             newSymbol = oldSymbol;
                             newAcc = 'b';
-                        }
+                            break;
+                        case 'b':
+                            newSymbol = oldSymbol;
+                            newAcc = '';
+                            break;
+                        default:
+                            newSymbol = noteMapping[(oldIndex + 1) % 7];
+                            newAcc = '#';
                     }
-                    if (oldIndex === 0 && !['C#', 'C##'].includes(oldKey)) newOctave = +oldOctave - 1;
-                    if (keyMapping[this.state.stave.keySig].C === 'b' && oldKey === 'C') newOctave += 1;
+                } else {
+                    if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== '#') {
+                        newSymbol = noteMapping[(oldIndex + 1) % 7];
+                        newAcc = '';
+                    } else {
+                        newSymbol = oldSymbol;
+                        newAcc = '#';
+                    }
                 }
-                console.log("new: ", newSymbol, newAcc, newOctave || oldOctave);
-                keys.push(`${newSymbol + newAcc}/${newOctave || oldOctave}`);
+                if (oldIndex === 6 && !['Bb', 'Bbb'].includes(oldKey)) newOctave = +oldOctave + 1;
+                if (keyMapping[this.state.stave.keySig].B === '#' && oldKey === 'B') newOctave -= 1;
+            } else {
+                const isDiatonic = ['C','F'].includes(oldSymbol.toUpperCase());
+                if (oldAcc) {
+                    switch (oldAcc[0]) {
+                        case '##':
+                            newSymbol = oldSymbol;
+                            newAcc = '#';
+                            break;
+                        case '#':
+                            newSymbol = oldSymbol;
+                            newAcc = '';
+                            break;
+                        case 'bb':
+                            let newIndex;
+                            if (oldIndex === 0) {
+                                newIndex = isDiatonic ? 5 : 6;
+                            }  else if (oldIndex === 1) {
+                                newIndex = isDiatonic ? 6 : 0;
+                            } else newIndex = oldIndex - (isDiatonic ? 2 : 1);
+                            newSymbol = noteMapping[newIndex];
+                            newAcc = isDiatonic ? '' : 'b';
+                            break;
+                        case 'b':
+                            newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                            newAcc = isDiatonic ? 'b' : '';
+                            break;
+                        default:
+                            newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                            newAcc = 'b';
+                    }
+                } else {
+                    if (isDiatonic && keyMapping[this.state.stave.keySig][oldSymbol] !== 'b') {
+                        newSymbol = noteMapping[oldIndex === 0 ? 6 : oldIndex - 1];
+                        newAcc = '';
+                    } else {
+                        newSymbol = oldSymbol;
+                        newAcc = 'b';
+                    }
+                }
+                if (oldIndex === 0 && !['C#', 'C##'].includes(oldKey)) newOctave = +oldOctave - 1;
+                if (keyMapping[this.state.stave.keySig].C === 'b' && oldKey === 'C') newOctave += 1;
             }
+            keys[selected.noteHead] = `${newSymbol + newAcc}/${newOctave || oldOctave}`;
         }
+        const newKeys = sortNotes(keys);
         this.props.updateChange();
         this.props.updateNoteInStave({
             staveId: this.state.id,
@@ -483,13 +508,13 @@ class StaffContainer extends React.PureComponent {
             update: {
                 type: CHANGE_PITCH,
                 payload: {
-                    keys: keys || note.keys,
+                    keys: newKeys || note.keys,
                 }
             }
         });
     }
 
-    addVoice = (e) => {
+    addVoice = () => {
         if (this.state.stave.measures[0].voices.length === 4) {
             toastMessage(this.props.lang.options.errors.maxVoices);
             return;
@@ -502,7 +527,7 @@ class StaffContainer extends React.PureComponent {
         this.props.updateChange();
     }
 
-    removeVoice = (e) => {
+    removeVoice = () => {
         if (this.state.stave.measures[0].voices.length === 1) {
             toastMessage(this.props.lang.options.errors.minVoices);
             return;
@@ -613,18 +638,22 @@ class StaffContainer extends React.PureComponent {
         const curX = e.pageX;
         const notePositions = this.getNotePositions(this.state.currentMeasure)[this.state.currentVoice];
         let [noteSegment, noteId] = [null, null];
+        let consideredNote;
         for (const [nId, n] of notePositions.entries()) {
             if (curX >= (n.position.left   + window.scrollX) &&
                 curX <= (n.position.right  + window.scrollX)) {
                 [noteSegment, noteId] = [n, nId];
+                consideredNote = this.getNote({
+                    ...this.state.selectedNote,
+                    noteId: nId
+                });
                 break;
             }
         }
 
-        if (noteSegment) {
+        const note = this.getNoteFromMousePos(curY);
+        if (noteSegment && consideredNote.persistent && !consideredNote.duration.includes('r')) {
             const noteHeads = this.getNoteHeads(noteSegment.element);
-            let selectedNoteHead;
-            console.log(noteHeads);
             for (const [i, noteHead] of noteHeads.entries()) {
                 if (curY >= (noteHead.top + window.scrollY) && curY <= (noteHead.bottom + window.scrollY)) {
                     this.setState({
@@ -638,9 +667,7 @@ class StaffContainer extends React.PureComponent {
                     });
                     return;
                 }
-                if (i === this.state.selectedNote.noteHead) selectedNoteHead = noteHead;
             }
-            const note = this.getNoteFromMousePos(curY);
             this.props.updateNoteInStave({
                 staveId: this.state.id,
                 measureId: this.state.currentMeasure,
@@ -653,15 +680,7 @@ class StaffContainer extends React.PureComponent {
                     }
                 }
             });
-            let newNoteHead;
-            if (selectedNoteHead && this.state.selectedNote.noteId === noteId.toString()) {
-                newNoteHead = curY < selectedNoteHead.top ?
-                    this.state.selectedNote.noteHead + 1 :
-                    this.state.selectedNote.noteHead;
-            } else {
-                // TODO: find an elegant way of determining the noteHead id upon adding a notehead to the other than selected note
-                newNoteHead = 0;
-            }
+            const newNoteHead = sortNotes(consideredNote.keys.concat([note])).indexOf(note);
             this.setState((state) => ({
                 selectedNote: {
                     ...state.selectedNote,
@@ -670,11 +689,35 @@ class StaffContainer extends React.PureComponent {
                 }
             }));
         } else if (!this.state.editMode) {
-            const note = this.getNoteFromMousePos(curY);
-            const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
-            let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
-            durationLeft = this.addNote(durationLeft, note);
-            this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
+            if (consideredNote && consideredNote.persistent) {
+                this.props.updateNoteInStave({
+                    staveId: this.state.id,
+                    measureId: this.state.currentMeasure,
+                    voiceId: this.state.currentVoice,
+                    noteId: noteId.toString(),
+                    update: {
+                        type: MAKE_NOT_REST,
+                        payload: {}
+                    }
+                });
+                this.props.updateNoteInStave({
+                    staveId: this.state.id,
+                    measureId: this.state.currentMeasure,
+                    voiceId: this.state.currentVoice,
+                    noteId: noteId.toString(),
+                    update: {
+                        type: CHANGE_PITCH,
+                        payload: {
+                            keys: [note]
+                        }
+                    }
+                });
+            } else {
+                const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
+                let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
+                durationLeft = this.addNote(durationLeft, note);
+                this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
+            }
         };
     }
 
@@ -743,6 +786,7 @@ class StaffContainer extends React.PureComponent {
                 measureId: nextMeasureId,
                 voiceId: selected.voiceId,
                 noteId: nextNoteId,
+                noteHead: 0,
                 duration: this.state.stave.measures[nextMeasureId].voices[selected.voiceId].notes[nextNoteId].duration,
             }
         })
@@ -773,6 +817,7 @@ class StaffContainer extends React.PureComponent {
                 measureId: nextMeasureId,
                 voiceId: selected.voiceId,
                 noteId: nextNoteId,
+                noteHead: 0,
                 duration: this.state.stave.measures[nextMeasureId].voices[selected.voiceId].notes[nextNoteId].duration,
             }
         })
@@ -813,12 +858,7 @@ class StaffContainer extends React.PureComponent {
         } else if (key === 'Delete') {
             if (this.state.selectedNote && !this.state.selectedNote.duration.includes('r')) {
                 this.props.updateChange();
-                this.makeNoteARest(this.state.selectedNote);
-                this.setState(state => ({ selectedNote: {
-                    ...state.selectedNote,
-                    duration: state.selectedNote.duration + 'r',
-                    }
-                }))
+                this.handleDelete(this.state.selectedNote);
             }
         } else if (key === 'Escape') {
             this.setState({ selectedNote: null, editMode: false });
@@ -1068,7 +1108,7 @@ class StaffContainer extends React.PureComponent {
     render() {
         let currentNote;
         const selectedNote = this.state.selectedNote;
-        selectedNote ? currentNote = this.state.stave.measures[selectedNote.measureId].voices[selectedNote.voiceId].notes[selectedNote.noteId] : currentNote = null;
+        selectedNote ? currentNote = this.getNote(selectedNote) : currentNote = null;
         return (
             <div onKeyDown={this.handleKeyPress}>
                 <div style={{ position: 'absolute', top: '50%', left: '10px' }}>{currentNote ? currentNote.keys.join(' ') : null}</div>

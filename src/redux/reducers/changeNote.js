@@ -1,5 +1,5 @@
 /* eslint-disable object-shorthand */
-import noteOrder from '../../components/mappings/noteOrderMapping';
+import sortNotes from '../../utils/noteSorter';
 
 export default (state = {}, action) => {
     switch (action.type) {
@@ -17,6 +17,7 @@ export default (state = {}, action) => {
             return {
                 ...state,
                 keys: keys,
+                persistent: true,
                 modifiers: state.modifiers.map((e, i) => {
                     const newAcc = keys[i].match(/[#b]+/);
                     const oldAcc = e.match(/[#b]+/);
@@ -42,21 +43,21 @@ export default (state = {}, action) => {
         }
         case 'ADD_TONE': {
             const { pitch } = action.payload;
-            const newKeys = state.keys.concat([pitch])
-                .sort((note1, note2) => {
-                    const _pitch1 = note1.match(/(.*)\//)[1];
-                    const _pitch2 = note2.match(/(.*)\//)[1];
-                    return noteOrder[_pitch1] - noteOrder[_pitch2];
-                })
-                .sort((note1, note2) => {
-                    const octave1 = note1.match(/\d/)[0];
-                    const octave2 = note2.match(/\d/)[0];
-                    return octave1 - octave2;
-                });
+            const newKeys = sortNotes(state.keys.concat([pitch]));
             let mandatoryMods = '';
             if (state.modifiers[0].includes('.')) mandatoryMods += '.';
             const accidentals = pitch.match(/[#b]+/);
             const newModifiers = state.modifiers.concat(accidentals ? [mandatoryMods + accidentals[0]] : [mandatoryMods]);
+            return {
+                ...state,
+                keys: newKeys,
+                modifiers: newModifiers
+            }
+        }
+        case 'REMOVE_TONE': {
+            const { noteHead } = action.payload;
+            const newKeys = state.keys.filter((_, index) => index !== noteHead);
+            const newModifiers = state.modifiers.filter((_, index) => index !== noteHead);
             return {
                 ...state,
                 keys: newKeys,
