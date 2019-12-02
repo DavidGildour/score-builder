@@ -44,10 +44,12 @@ export default (state = {}, action) => {
         case 'ADD_TONE': {
             const { pitch } = action.payload;
             const newKeys = sortNotes(state.keys.concat([pitch]));
-            let mandatoryMods = '';
-            if (state.modifiers[0].includes('.')) mandatoryMods += '.';
-            const accidentals = pitch.match(/[#b]+/);
-            const newModifiers = state.modifiers.concat(accidentals ? [mandatoryMods + accidentals[0]] : [mandatoryMods]);
+            let mandatoryMods = state.modifiers[0].includes('.') ? '.' : '';
+            const newModifiers = [];
+            for (const key of newKeys) {
+                const accidentals = key.match(/[#b]+/);
+                newModifiers.push(accidentals ? mandatoryMods + accidentals[0] : mandatoryMods);
+            }
             return {
                 ...state,
                 keys: newKeys,
