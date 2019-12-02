@@ -770,61 +770,40 @@ class StaffContainer extends React.PureComponent {
         })
     }
 
-    setNextNote = (selected) => {
-        let nextMeasureId;
-        let nextNoteId;
-        if (this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes.length === (+selected.noteId + 1)) {
-            if (this.state.stave.measures.length === (+selected.measureId + 1)) {
-                nextMeasureId = selected.measureId;
-                nextNoteId = selected.noteId;
-            } else {
-                nextMeasureId = (+selected.measureId + 1).toString();
-                nextNoteId = '0';
-            }
-        } else {
-            nextMeasureId = selected.measureId;
-            nextNoteId = (+selected.noteId + 1).toString();
-        }
-        this.setState({
-            selectedNote: {
-                measureId: nextMeasureId,
-                voiceId: selected.voiceId,
-                noteId: nextNoteId,
-                noteHead: 0,
-                duration: this.state.stave.measures[nextMeasureId].voices[selected.voiceId].notes[nextNoteId].duration,
-            }
-        })
-    }
-
-    setPreviousNote = (selected) => {
+    setNote(which) {
+        const selected = this.state.selectedNote;
+        const next = which === 'next';
+        const maxMeasures = this.state.stave.measures.length - 1;
+        const maxNotes = this.state.stave.measures[selected.measureId].voices[selected.voiceId].notes.length - 1;
         let nextMeasureId;
         let nextNoteId;
         // check if there are any notes left in measure
-        if ((+selected.noteId - 1) < 0) {
+        if (+selected.noteId === (next ? maxNotes : 0)) {
             // if not, check if there are any measures left in stave
-            if ((+selected.measureId - 1) < 0) {
+            if (+selected.measureId === (next ? maxMeasures : 0)) {
                 // if not, nothing changes
-                nextMeasureId = selected.measureId;
-                nextNoteId = selected.noteId;
+                return;
             } else {
-                // if there are, switch to the previous measure's last note
-                nextMeasureId = (+selected.measureId - 1).toString();
-                nextNoteId = (this.state.stave.measures[+selected.measureId - 1].voices[selected.voiceId].notes.length - 1).toString();
+                // if there are, switch to the previous/next measure's last note
+                nextMeasureId = (+selected.measureId + (next ? 1 : -1)).toString();
+                nextNoteId = next ? '0' : (this.state.stave.measures[nextMeasureId].voices[selected.voiceId].notes.length - 1).toString();
             }
         } else {
-            // if there are, set selected note to the previous
+            // if there are, set selected note to the previous/next
             nextMeasureId = selected.measureId;
-            nextNoteId = (+selected.noteId - 1).toString();
+            nextNoteId = (+selected.noteId + (next ? 1 : -1)).toString();
         }
+        const nextNote = this.getNote({ measureId: nextMeasureId, voiceId: selected.voiceId, noteId: nextNoteId});
+        const nextNoteHead = Math.min(selected.noteHead, nextNote.keys.length-1);
         this.setState({
             selectedNote: {
                 measureId: nextMeasureId,
                 voiceId: selected.voiceId,
                 noteId: nextNoteId,
-                noteHead: 0,
+                noteHead: nextNoteHead,
                 duration: this.state.stave.measures[nextMeasureId].voices[selected.voiceId].notes[nextNoteId].duration,
             }
-        })
+        });
     }
 
     handleKeyPress = (e) => {
@@ -840,9 +819,9 @@ class StaffContainer extends React.PureComponent {
             case 'PageDown':
                 return this.transposeNote('od');
             case 'ArrowRight':
-                return this.state.selectedNote ? this.setNextNote(this.state.selectedNote) : null;
+                return this.state.selectedNote ? this.setNote('next') : null;
             case 'ArrowLeft':
-                return this.state.selectedNote ? this.setPreviousNote(this.state.selectedNote) : null;
+                return this.state.selectedNote ? this.setNote('prev') : null;
             case 'Tab':
                 return this.state.currentMeasure ?
                 this.setState(state => {
