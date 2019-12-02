@@ -644,15 +644,16 @@ class StaffContainer extends React.PureComponent {
                 curX <= (n.position.right  + window.scrollX)) {
                 [noteSegment, noteId] = [n, nId];
                 consideredNote = this.getNote({
-                    ...this.state.selectedNote,
-                    noteId: nId
+                    measureId: this.state.currentMeasure,
+                    voiceId: this.state.currentVoice,
+                    noteId: nId,
                 });
                 break;
             }
         }
 
         const note = this.getNoteFromMousePos(curY);
-        if (noteSegment && consideredNote.persistent && !consideredNote.duration.includes('r')) {
+        if (noteSegment) {
             const noteHeads = this.getNoteHeads(noteSegment.element);
             for (const [i, noteHead] of noteHeads.entries()) {
                 if (curY >= (noteHead.top + window.scrollY) && curY <= (noteHead.bottom + window.scrollY)) {
@@ -668,28 +669,8 @@ class StaffContainer extends React.PureComponent {
                     return;
                 }
             }
-            this.props.updateNoteInStave({
-                staveId: this.state.id,
-                measureId: this.state.currentMeasure,
-                voiceId: this.state.currentVoice,
-                noteId: noteId.toString(),
-                update: {
-                    type: ADD_TONE,
-                    payload: {
-                        pitch: note
-                    }
-                }
-            });
-            const newNoteHead = sortNotes(consideredNote.keys.concat([note])).indexOf(note);
-            this.setState((state) => ({
-                selectedNote: {
-                    ...state.selectedNote,
-                    noteId: noteId.toString(),
-                    noteHead: newNoteHead,
-                }
-            }));
-        } else if (!this.state.editMode) {
-            if (consideredNote && consideredNote.persistent) {
+            let newNoteHead;
+            if (consideredNote.duration.includes('r')) {
                 this.props.updateNoteInStave({
                     staveId: this.state.id,
                     measureId: this.state.currentMeasure,
@@ -713,11 +694,34 @@ class StaffContainer extends React.PureComponent {
                     }
                 });
             } else {
-                const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
-                let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
-                durationLeft = this.addNote(durationLeft, note);
-                this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
+                this.props.updateNoteInStave({
+                    staveId: this.state.id,
+                    measureId: this.state.currentMeasure,
+                    voiceId: this.state.currentVoice,
+                    noteId: noteId.toString(),
+                    update: {
+                        type: ADD_TONE,
+                        payload: {
+                            pitch: note
+                        }
+                    }
+                });
+                newNoteHead = sortNotes(consideredNote.keys.concat([note])).indexOf(note);
             }
+            this.setState({
+                selectedNote: {
+                    measureId: this.state.currentMeasure,
+                    voiceId: this.state.currentVoice,
+                    noteId: noteId.toString(),
+                    noteHead: newNoteHead || 0,
+                    duration: consideredNote.duration.replace('r', ''),
+                }
+            });
+        } else if (!this.state.editMode) {
+            const voice = this.state.stave.measures[this.state.currentMeasure].voices[this.state.currentVoice];
+            let durationLeft = this.getRidOfRests(this.state.currentMeasure, voice);
+            durationLeft = this.addNote(durationLeft, note);
+            this.populateVoiceWithRests(this.state.currentMeasure, voice.id, durationLeft);
         };
     }
 
@@ -826,44 +830,48 @@ class StaffContainer extends React.PureComponent {
     handleKeyPress = (e) => {
         e.preventDefault();
         const { key, shiftKey } = e;
-        if (key === 'ArrowUp') {
-            this.transposeNote('su');
-        } else if (key === 'ArrowDown') {
-            this.transposeNote('sd');
-        } else if (key === 'PageUp') {
-            this.transposeNote('ou');
-        } else if (key === 'PageDown') {
-            this.transposeNote('od');
-        } else if (key === 'ArrowRight') {
-            if (this.state.selectedNote) this.setNextNote(this.state.selectedNote);
-        } else if (key === 'ArrowLeft') {
-            if (this.state.selectedNote) this.setPreviousNote(this.state.selectedNote);
-        } else if (key === 'Tab') {
-            if (!this.state.currentMeasure) return;
-            this.setState(state => {
-                const nextVoice = shiftKey
-                    ? (state.currentVoice === '0'
-                        ? state.stave.measures[0].voices.length - 1
-                        : +state.currentVoice - 1)
-                    : ((+state.currentVoice + 1) % state.stave.measures[0].voices.length);
-                return {
-                    currentVoice: nextVoice.toString(),
-                    selectedNote: {
-                        voiceId: nextVoice.toString(),
-                        noteId: '0',
-                        measureId: state.currentMeasure,
-                        duration: state.stave.measures[state.currentMeasure].voices[nextVoice].notes[0].duration,
-                    }
-            }})
-        } else if (key === 'Delete') {
-            if (this.state.selectedNote && !this.state.selectedNote.duration.includes('r')) {
-                this.props.updateChange();
-                this.handleDelete(this.state.selectedNote);
-            }
-        } else if (key === 'Escape') {
-            this.setState({ selectedNote: null, editMode: false });
-        } else if (key === ' ') {
-            this.innerStateChange({ target: { name: 'editMode', type: 'checkbox'}});
+        switch (key) {
+            case 'ArrowUp':
+                return this.transposeNote('su');
+            case 'ArrowDown':
+                return this.transposeNote('sd');
+            case 'PageUp':
+                return this.transposeNote('ou');
+            case 'PageDown':
+                return this.transposeNote('od');
+            case 'ArrowRight':
+                return this.state.selectedNote ? this.setNextNote(this.state.selectedNote) : null;
+            case 'ArrowLeft':
+                return this.state.selectedNote ? this.setPreviousNote(this.state.selectedNote) : null;
+            case 'Tab':
+                return this.state.currentMeasure ?
+                this.setState(state => {
+                    const nextVoice = shiftKey
+                        ? (state.currentVoice === '0'
+                            ? state.stave.measures[0].voices.length - 1
+                            : +state.currentVoice - 1)
+                        : ((+state.currentVoice + 1) % state.stave.measures[0].voices.length);
+                    return {
+                        currentVoice: nextVoice.toString(),
+                        selectedNote: {
+                            voiceId: nextVoice.toString(),
+                            noteId: '0',
+                            measureId: state.currentMeasure,
+                            duration: state.stave.measures[state.currentMeasure].voices[nextVoice].notes[0].duration,
+                        }
+                }}) :
+                null;
+            case 'Delete':
+                if (this.state.selectedNote && !this.state.selectedNote.duration.includes('r')) {
+                    this.props.updateChange();
+                    this.handleDelete(this.state.selectedNote);
+                }
+                return;
+            case 'Escape':
+                return this.setState({ selectedNote: null, editMode: false });
+            case ' ':
+                return this.innerStateChange({ target: { name: 'editMode', type: 'checkbox'}});
+            default: return;
         }
     }
 
@@ -871,12 +879,11 @@ class StaffContainer extends React.PureComponent {
         const { name, checked } = event.target;
         const selected = this.state.selectedNote;
         const duration = selected.duration;
+        let newDuration, durationLeft;
         switch (name) {
-            case 'editMode' : {
-                this.setState({ editMode: false });
-                return;
-            }
-            case 'restMode': {
+            case 'editMode' :
+                return this.setState({ editMode: false });
+            case 'restMode':
                 this.props.updateNoteInStave({
                     staveId: this.state.id,
                     measureId: selected.measureId,
@@ -888,17 +895,15 @@ class StaffContainer extends React.PureComponent {
                     }
                 })
                 this.props.updateChange();
-                this.setState(state => ({
+                return this.setState(state => ({
                     selectedNote: {
                         ...state.selectedNote,
                         duration: !checked ? duration.replace('r', '') : duration + 'r',
                     }
                 }));
-                return;
-            }
-            case 'dotted': {
-                const newDuration = checked ? duration.replace(/([^r]*)(r?)/, '$1d$2') : duration.replace('d', '');
-                let durationLeft = this.getRidOfRests(
+            case 'dotted':
+                newDuration = checked ? duration.replace(/([^r]*)(r?)/, '$1d$2') : duration.replace('d', '');
+                durationLeft = this.getRidOfRests(
                     selected.measureId,
                     this.state.stave.measures[selected.measureId].voices[selected.voiceId],
                     parseInt(selected.noteId)
@@ -906,8 +911,7 @@ class StaffContainer extends React.PureComponent {
                 const dotDuration = (noteToDuration[duration.replace('d', '').replace('r', '')] / 2) * (checked ? -1 : 1);
                 if (durationLeft + dotDuration < 0) {
                     toastMessage("Not enough duration left in the measure.");
-                    this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft);
-                    return;
+                    return this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft);
                 }
                 this.props.updateNoteInStave({
                     staveId: this.state.id,
@@ -921,28 +925,25 @@ class StaffContainer extends React.PureComponent {
                 })
                 this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft + dotDuration);
                 this.props.updateChange();
-                this.setState(state => ({
+                return this.setState(state => ({
                     selectedNote: {
                         ...state.selectedNote,
                         duration: newDuration,
                     }
                 }))
-                return;
-            }
-            case 'duration': {
+            case 'duration':
                 const { value } = event.target;
-                const newDuration = duration.replace(/[^dr]*/, value);
+                newDuration = duration.replace(/[^dr]*/, value);
                 const newDurationValue = noteToDuration[newDuration.replace('r', '')];
                 const durationValue = noteToDuration[duration.replace('r', '')];
-                let durationLeft = this.getRidOfRests(
+                durationLeft = this.getRidOfRests(
                     selected.measureId,
                     this.state.stave.measures[selected.measureId].voices[selected.voiceId],
                     parseInt(selected.noteId)
                 );
                 if (newDurationValue - durationValue > durationLeft) {
                     toastMessage("Not enough duration left in the measure.");
-                    this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft);
-                    return;
+                    return this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft);
                 }
                 this.props.updateNoteInStave({
                     staveId: this.state.id,
@@ -956,15 +957,13 @@ class StaffContainer extends React.PureComponent {
                 });
                 this.populateVoiceWithRests(selected.measureId, selected.voiceId, durationLeft - (newDurationValue - durationValue));
                 this.props.updateChange();
-                this.setState(state => ({
+                return this.setState(state => ({
                     selectedNote: {
                         ...state.selectedNote,
                         duration: newDuration,
                     }
                 }))
-                return;
-            }
-        default: return;
+            default: return;
         }
     }
 
