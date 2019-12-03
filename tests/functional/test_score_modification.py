@@ -425,6 +425,44 @@ def test_generating_random_melody(driver):
     assert before < after
 
 
+@pytest.mark.run(order=18)
+def test_adding_a_chord(driver):
+    driver.find_element_by_name('clearVoices').click()
+    staff = driver.find_element_by_css_selector('#stave0 svg')
+    add_random_note(staff, driver)
+
+    note = staff.find_element_by_css_selector('g.vf-note')
+
+    assert len(note.find_elements_by_class_name('vf-notehead')) == 1
+
+    top_line = staff.find_elements_by_tag_name('path')[0].location['y'] - staff.location['y']
+    bottom_line = staff.find_elements_by_tag_name('path')[4].location['y'] - staff.location['y']
+    note_relative_x = (note.location['x'] + note.size['width'] / 2) - staff.location['x']
+    note_relative_top = note.find_element_by_class_name('vf-notehead').location['y'] - staff.location['y']
+    note_relative_bottom = note.location['y'] + note.size['height'] - staff.location['y']
+    log(note_relative_x, note_relative_top, note_relative_bottom, top_line, bottom_line)
+    log(staff.location)
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(
+            staff,
+            note_relative_x,
+            random.randrange(int(top_line) - 10, int(note_relative_top))
+        )\
+        .click()\
+        .move_to_element_with_offset(
+            staff,
+            note_relative_x,
+            random.randrange(int(note_relative_bottom), int(bottom_line) + 10)
+        )\
+        .click()\
+        .perform()
+
+    note = staff.find_element_by_css_selector('g.vf-note')
+
+    assert len(note.find_elements_by_class_name('vf-notehead')) == 3
+
+
 @pytest.mark.last
 @with_wait
 def test_deleting_a_score(driver, wait):

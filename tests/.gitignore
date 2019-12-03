@@ -1,5 +1,6 @@
 /venv
 **.log
+**.png
 **/__pycache__
 /.pytest_cache
 !requirements.txt
