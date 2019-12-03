@@ -106,3 +106,24 @@ nav {
     width: 50%;
     margin-left: 10px;
 }
+
+.vertical-separator {
+    width: 40px;
+}
+
+img.note {
+    height: 25px;
+}
+
+.vcenter {
+    display: flex;
+    justify-content: center;
+}
+
+input#w ~ span img.note {
+    height: 10px;
+}
+
+#note-duration label {
+    margin-right: 10px;
+}

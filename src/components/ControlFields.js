@@ -1,6 +1,8 @@
 import React from 'react';
 import M from 'materialize-css/dist/js/materialize.min';
 
+import { noteToDuration } from './mappings/durationMappings';
+
 export const ClefOptions = (props) => (
     <div className="input-field" name="clef">
         <select name="clef" value={props.clef} onChange={props.onChange}>
@@ -84,39 +86,17 @@ export const NoteDuration = (props) => (
                 </label>
             </div>
         </div>
-        <div className="col s10 center-align">
-            <label>
-                <input type="radio" name="duration" value="w" id="w" onChange={props.onChange} checked={props.duration === "w"} />
-                <span>{props.lang.noteNames.w}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="h" id="h" onChange={props.onChange} checked={props.duration === "h"} />
-                <span>{props.lang.noteNames.h}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="q" id="q" onChange={props.onChange} checked={props.duration === "q"} />
-                <span>{props.lang.noteNames.q}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="8" id="8" onChange={props.onChange} checked={props.duration === "8"} />
-                <span>{props.lang.noteNames['8']}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="16" id="16" onChange={props.onChange} checked={props.duration === "16"} />
-                <span>{props.lang.noteNames['16']}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="32" id="32" onChange={props.onChange} checked={props.duration === "32"} />
-                <span>{props.lang.noteNames['32']}&nbsp;&nbsp;&nbsp;</span>
-            </label>
-            <label>
-                <input type="radio" name="duration" value="64" id="64" onChange={props.onChange} checked={props.duration === "64"} />
-                <span>{props.lang.noteNames['64']}</span>
-            </label>
-            <br />
+        <div className="col s10 vcenter">
+            {Object.keys(props.lang.noteNames).filter(note => !note.includes('d')).sort((a, b) => noteToDuration[b] - noteToDuration[a]).map(note => (
+                <label key={note}>
+                    <input type="radio" name="duration" value={note} id={note} onChange={props.onChange} checked={props.duration === note} />
+                    <span><img alt={props.lang.noteNames[note]} className="note" src={`${process.env.PUBLIC_URL}/notes/${note}.svg`} /></span>
+                </label>
+            ))}
+            <span className="vertical-separator" />
             <label>
                 <input type="checkbox" name="dotted" id="dotted" onChange={props.onChange} checked={props.dotted} />
-                <span>{props.lang.noteModifiers.dot}&nbsp;&nbsp;&nbsp;</span>
+                <span>{props.lang.noteModifiers.dot}</span>
             </label>
             <label>
                 <input type="checkbox" name="restMode" id="rest" onChange={props.onChange} checked={props.restMode} />
