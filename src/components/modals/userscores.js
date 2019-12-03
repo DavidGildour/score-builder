@@ -109,7 +109,7 @@ export default class extends React.Component {
     </div>
     return (
       <div ref={this.state.ref} className="modal collapsible-list" id="scores">
-          {content}  
+          {content}
           <div className="modal-footer">
           <a href="#!" className="modal-close waves-effect waves-green btn-flat">Close</a>
         </div>

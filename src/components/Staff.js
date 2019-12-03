@@ -133,12 +133,12 @@ export default class Staff extends React.Component {
                 lastMeasureRightX += measureWidthInCurrentRow;
             }
             stave.setContext(context).draw()
-            
+
             const beamGroups = voices.map((voice, i) => VF.Beam.generateBeams(voice.getTickables(), {
                 groups: [new VF.Fraction(1, 4)],
                 stem_direction: 1 * Math.pow(-1, i),
             }));
-            
+
             if (measure.id === '0') {
                 // 35 px is here due to first measure having clef and time signature
                 this.formatter.joinVoices(voices).format(voices, measureWidthInCurrentRow - staveXOffset - keyOffset - 35);

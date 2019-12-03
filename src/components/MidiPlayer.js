@@ -78,7 +78,7 @@ export default class extends React.Component {
             }
             t = m_t;
         }
-        
+
     }
 
     playMetronomeAt = (when) => {
@@ -151,14 +151,14 @@ export default class extends React.Component {
         }
         this.forceUpdate();
     }
-    
+
     render = () => {
         return (
             <div>
                 <div className="row">
                     <div className="col s11">
                     <p className="range-field tooltipped" data-position="left" data-tooltip="Tempo">
-                        <input 
+                        <input
                             type="range"
                             style={{border: 'none'}}
                             id="tempo"
@@ -167,7 +167,7 @@ export default class extends React.Component {
                             max={this.state.maxBpm}
                             value={this.state.bpm}
                             onChange={this.handleChange} />
-                        <span 
+                        <span
                             hidden={this.tempoFactor ? false : true}
                             className="thumb active"
                             style={{

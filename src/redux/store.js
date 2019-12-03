@@ -29,7 +29,7 @@ export const preloadedState = {
                                 },
                             ],
                         },
-                        {       
+                        {
                             id: '1',
                             notes: [
                                 {

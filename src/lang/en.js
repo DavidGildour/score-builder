@@ -48,29 +48,29 @@ export default {
         helpContent: [
             `Click on the stave to add a note.`,
             `To change the duration and type of the note to be added choose one of the options above the stave.`,
-            `Click on the note to select it. 
-            Arrows up and down as well as 'PageUp' and 'PageDown' keys change the pitch of the selected note 
+            `Click on the note to select it.
+            Arrows up and down as well as 'PageUp' and 'PageDown' keys change the pitch of the selected note
             by a halfstep and octave accordingly. Arrows left and right change the selected note to its neighbour in a current voice.`,
             `To remove a note from the stave either press 'Remove Last Note' button, or press 'Delete' key to remove selected note.`,
-            `To change the current voice, either click on a note of that voice, select it from the dropdown list, 
+            `To change the current voice, either click on a note of that voice, select it from the dropdown list,
             or press 'Tab' ('Shift' + 'Tab') to switch to the next (previous) voice.
-            'Remove Voice' button removes the last added voice (however, only if that voice is empty). 
+            'Remove Voice' button removes the last added voice (however, only if that voice is empty).
             'Clear All' button removes every note from EVERY active voice. Use with caution!`,
             `To change the playback tempo use the slider beneath the stave. 'Metronome' checkbox toggles metronome playing alongside the track.`,
             `This app gives the option to randomly generate a melody in every voice in somewhat controlled way.
             'Allow Rests' checkbox determines whether the melody will include rests. 'Diatonic' checkbox determines whether the melody will include
             only notes from the current key (will be diatonic) or notes from the entire chromatic scale (will not be diatonic).
             'Shortest' and 'Longest note' dropdowns allow to set the shortest and longest available note duration in the melody, accordingly.
-            'Largest interval' dropdown serves as a control over the largest available interval between 
+            'Largest interval' dropdown serves as a control over the largest available interval between
             two neighbouring notes in a voice (melodic interval).
             This does not control the harmonic interval between voices.
-            Additionally the generated melody will not include notes higher than one line above the highest 
+            Additionally the generated melody will not include notes higher than one line above the highest
             and lower than one line beneath the lowest line in the current clef.`
         ],
         about: 'About',
         aboutContent: [
             `Welcome to Score Builder!`,
-            `Score Builder is a web application that enables for creating and editing musical notation on every device with web browser that 
+            `Score Builder is a web application that enables for creating and editing musical notation on every device with web browser that
             supports JavaScript.`,
             `Application interface is written entirely in React.js framework, version 16.8.6.
             It uses various other JavaScript and CSS libraries, such as:`,

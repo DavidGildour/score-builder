@@ -54,7 +54,7 @@ export default class extends React.Component {
         </a>
       </li>;
 
-    const helpButton = this.props.user ? 
+    const helpButton = this.props.user ?
       <a
         className="z-depth-0 btn-floating btn-medium pulse teal accent-4 modal-trigger tooltipped"
         data-position="right"
@@ -66,7 +66,7 @@ export default class extends React.Component {
     const addScoreButton = this.props.user ?
       <li><a href="#!" id="addscore"><i className="material-icons left">add</i>New score</a></li> :
       null;
-    
+
     let userList;
     if (this.props.user && this.props.user.role_id === 1) userList = <li><a href="#!" onClick={this.openUserList}>{this.props.lang.userlist.button}</a></li>;
     else userList = null;

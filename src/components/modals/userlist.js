@@ -23,7 +23,7 @@ export default class extends React.Component {
       let page = 1;
       while (users_total > 0) {
         const val = page;
-        const link = 
+        const link =
           <li id={'page' + val} key={page} className={val === 1 ? 'active teal lighten-2' : 'waves-effect'}>
             <a onClick={() => this.turnPage(val)} href="#!">{page++}</a>
           </li>;
@@ -93,7 +93,7 @@ export default class extends React.Component {
 
   render = () => {
     const users_total = this.state.users.length;
-    const list = users_total > 0 ? 
+    const list = users_total > 0 ?
       this.state.users
       .slice((this.state.page-1)*this.state.users_per_page, (this.state.page)*this.state.users_per_page)
       .map((user, i) => (
@@ -133,7 +133,7 @@ export default class extends React.Component {
             </table>
           </div>
         </li>
-      )) : 
+      )) :
       <span>No users to display. What are you doing here?</span>;
     const content = this.state.loaded ?
       <div className="modal-content">
@@ -154,7 +154,7 @@ export default class extends React.Component {
         </ul>
         {this.state.paginator}
       </div>
-      : 
+      :
       <div className="modal-content">
         <h4 className="center">{this.props.text.loading}...</h4>
         <div className="progress">

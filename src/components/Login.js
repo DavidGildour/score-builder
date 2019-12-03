@@ -34,7 +34,7 @@ export default class extends React.Component {
   }
 
   render = () => {
-    let button = this.state.processing ? 
+    let button = this.state.processing ?
       <div className="preloader-wrapper small active top-margin">
         <div className="spinner-layer spinner-green-only">
           <div className="circle-clipper left">

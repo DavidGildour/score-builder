@@ -45,7 +45,7 @@ export default class extends React.Component {
           </li>
           <li className="collection-item">
           <div id='password' className="custom-collapsible">
-            {this.props.text.password}: 
+            {this.props.text.password}:
             <span className="secondary-content" style={{cursor: 'pointer'}} onClick={() => this.toggleAnim('password')}>
               {this.props.text.change}<i className="material-icons right">create</i>
             </span>

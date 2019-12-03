@@ -29,7 +29,7 @@ export default class extends React.Component {
       toastMessage(this.state.isLogged ? "Logged in." : "Logged out.", 1000);
     }
   }
-  
+
   langChange = async (lang) => {
     if (this.state.user) {
       try {
@@ -134,7 +134,7 @@ export default class extends React.Component {
             />
           </Route>
           <Route exact path='/builder'>
-            {this.state.isLogged ? 
+            {this.state.isLogged ?
               <ScoreInterface
                 lang={language[this.state.lang]}
                 user={this.state.user}

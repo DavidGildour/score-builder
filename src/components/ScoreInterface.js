@@ -48,8 +48,8 @@ class ScoreInterface extends React.Component {
     const { password1, password2, old_password } = e.target;
     try {
       const json = await usersAPIClient.updateUser({
-        'old_password': old_password.value, 
-        'password1': password1.value, 
+        'old_password': old_password.value,
+        'password1': password1.value,
         'password2': password2.value
       })
       toastMessage(json.message);
@@ -140,11 +140,11 @@ class ScoreInterface extends React.Component {
     let userScoresModal;
 
     if (this.props.user) {
-      userInfoModal = 
+      userInfoModal =
         <UserInfoModal
           text={this.props.lang.navbar.forms}
           deleteMe={this.props.deleteMe}
-          editUser={this.changePassword} 
+          editUser={this.changePassword}
           user={this.props.user}
           close={this.props.lang.navbar.close}
         />
