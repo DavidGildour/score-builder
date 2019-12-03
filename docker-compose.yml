@@ -93,7 +93,6 @@ services:
     environment:
       POSTGRES_PASSWORD: ZCfbn72eGz^l4@E!VHBp#@OsC
       POSTGRES_DB: users_dev
-      PGDATA: "C:/Program Files/PostgreSQL/11/data"
 
     expose:
       - "5432"
