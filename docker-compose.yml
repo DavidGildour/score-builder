@@ -1,0 +1,110 @@
+version: '3'
+services:
+  # front-end app
+  front:
+    build: ./front
+    restart: always
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - './front:/app'
+      - '/app/node_modules'
+
+    depends_on:
+      - users
+
+    environment:
+      REACT_APP_USER_SERVICE: 'http://localhost:5000'
+      REACT_APP_SCORE_SERVICE: 'http://localhost:5002'
+      REACT_APP_NAMES_SERVICE: 'http://localhost:5003'
+      NODE_ENV: 'development'
+      CHOKIDAR_USEPOLLING: 'true'
+
+  # token dealer service
+  tokens:
+    build: ./tokens
+    restart: always
+    expose:
+      - "5001"
+
+    volumes:
+      - ./tokens:/app
+
+    environment:
+      FLASK_ENV: 'development'
+
+  # users service
+  users:
+    build: ./users
+    restart: always
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./users:/app
+
+    environment:
+      FLASK_ENV: 'development'
+      TOKEN_SERVICE: 'http://score-builder_tokens_1:5001'
+      FRONT_END: 'http://score-builder_front_1:3000'
+
+    depends_on:
+      - tokens
+      - users-db
+
+  # scores service
+  scores:
+    build: ./scores
+    restart: always
+    expose:
+      - "5002"
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./scores:/app
+
+    environment:
+      FLASK_ENV: 'development'
+
+    depends_on:
+      - scores-db
+
+  # name generator service
+  names:
+    build: ./name_gen
+    restart: always
+    expose:
+      - '5003'
+    ports:
+      - '5003:5003'
+    volumes:
+      - ./name_gen:/app
+
+    environment:
+      FLASK_ENV: 'development'
+
+  # postgres database for users service
+  users-db:
+    restart: always
+    image: postgres:alpine
+
+    environment:
+      POSTGRES_PASSWORD: ZCfbn72eGz^l4@E!VHBp#@OsC
+      POSTGRES_DB: users_dev
+
+    expose:
+      - "5432"
+
+  # postgres database for scores service
+  scores-db:
+    restart: always
+    image: postgres:alpine
+
+    environment:
+      POSTGRES_PASSWORD: ZCfbn72eGz^l4@E!VHBp#@OsC
+      POSTGRES_DB: scores_dev
+
+    expose:
+      - "5432"
