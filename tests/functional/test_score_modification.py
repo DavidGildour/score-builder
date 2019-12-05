@@ -15,7 +15,8 @@ from .utils import (
     add_random_note,
     check_if_this_changes_the_pitch,
     log,
-    choose_from_dropdown
+    choose_from_dropdown,
+    save_screenshot_on_fail
 )
 
 
@@ -129,6 +130,7 @@ def test_adding_and_removing_voices(driver, wait):
 
 
 @pytest.mark.run(order=5)
+@save_screenshot_on_fail
 def test_changing_note_pitch(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     keys = [Keys.PAGE_UP, Keys.PAGE_DOWN, Keys.ARROW_UP, Keys.ARROW_DOWN]
@@ -163,7 +165,6 @@ def test_changing_note_pitch(driver):
 def test_changing_clef(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     before_positions = [tuple(note.location.values()) for note in staff.find_elements_by_class_name('vf-note')]
-
 
     which = random.randrange(1, 11)
     if which == 4: which += 1  # percussion clef doesnt change anything
@@ -225,6 +226,7 @@ def test_clearing_the_score(driver):
 
 
 @pytest.mark.run(order=11)
+@save_screenshot_on_fail
 def test_adding_notes_with_specific_duration(driver):
     driver.find_element_by_name('clearVoices').click()
     staff = driver.find_element_by_css_selector('#stave0 svg')
@@ -298,6 +300,7 @@ def test_adding_measures(driver):
 
 
 @pytest.mark.run(order=14)
+@save_screenshot_on_fail
 def test_removing_measures(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
 
@@ -318,13 +321,14 @@ def test_removing_measures(driver):
 
 
 @pytest.mark.run(order=15)
+@save_screenshot_on_fail
 def test_editing_a_note(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     mode_switch = driver.find_element_by_css_selector('#note-duration .switch label')
     driver.find_element_by_name('clearVoices').click()
     mode_switch.click()
 
-    assert any(info_box.text.startswith('Select a note to edit first.')\
+    assert any(info_box.text.startswith('Select a note to edit first.')
                for info_box in driver.find_elements_by_class_name('info-box'))
 
     add_random_note(staff, driver)
@@ -372,6 +376,7 @@ def test_editing_a_note(driver):
 
 
 @pytest.mark.run(order=16)
+@save_screenshot_on_fail
 def test_adding_notes_in_remote_keys(driver):
     staff = driver.find_element_by_css_selector('#stave0 svg')
     driver.find_element_by_name('clearVoices').click()
@@ -404,6 +409,7 @@ def test_adding_notes_in_remote_keys(driver):
 
 
 @pytest.mark.run(order=17)
+@save_screenshot_on_fail
 def test_generating_random_melody(driver):
     driver.find_element_by_name('clearVoices').click()
     staff = driver.find_element_by_css_selector('#stave0 svg')
@@ -426,6 +432,7 @@ def test_generating_random_melody(driver):
 
 
 @pytest.mark.run(order=18)
+@save_screenshot_on_fail
 def test_adding_a_chord(driver):
     driver.find_element_by_name('clearVoices').click()
     staff = driver.find_element_by_css_selector('#stave0 svg')

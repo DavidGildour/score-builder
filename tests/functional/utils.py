@@ -1,15 +1,48 @@
 import random
 import datetime
 import inspect
+import os
+
+from functools import wraps
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import *
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789'
+NOTABLE_EXCEPTIONS = (
+    NoSuchElementException,
+    TimeoutException,
+    ElementNotInteractableException,
+    ElementClickInterceptedException,
+    ElementNotSelectableException,
+    ElementNotVisibleException,
+    AssertionError
+)
+
+
+def save_screenshot_on_fail(test):
+    def wrapper(driver, *args):
+        try:
+            test(driver, *args)
+        except NOTABLE_EXCEPTIONS as e:
+            if not os.path.exists('./screenshots/'):
+                os.mkdir('./screenshots/')
+            time = str(datetime.datetime.now())[:16].replace(" ", "_").replace(":", ".")
+            filename = os.path.join(
+                os.path.abspath('.'),
+                'screenshots',
+                f"{time}.png"
+            )
+            driver\
+                .find_element_by_tag_name('body')\
+                .screenshot(filename)
+            raise e
+    return wrapper
 
 
 def choose_from_dropdown(driver, dropdown_selector, choice):

@@ -82,7 +82,7 @@ class StaffContainer extends React.PureComponent {
       3: lineMapping[2*Math.floor(lineMapping.length/4)]
     }
     let remainingDuration = lackingDuration;
-    while (remainingDuration !== 0) {
+    while (remainingDuration) {
       for (const duration of Object.keys(durationToNote).sort((a, b) => b - a)) {
         if (duration <= remainingDuration) {
           remainingDuration -= duration;
@@ -412,7 +412,13 @@ class StaffContainer extends React.PureComponent {
     const keys = note.keys.slice();
     const key = keys[selected.noteHead];
     if (transposition[0] === 'o') {
-      keys[selected.noteHead] = key.replace(/\d/, match => + match + (transposition[1] === 'u' ? 1 : -1));
+      keys[selected.noteHead] = key.replace(/\d/, match => {
+        let newOctave;
+        if (match === "9" && transposition[1] === 'u') newOctave = 9;
+        else if (match === "1" && transposition[1] === 'd') newOctave = 1;
+        else newOctave = + match + (transposition[1] === 'u' ? 1 : -1);
+        return newOctave;
+      });
     } else if (transposition[0] === 's') {
       const [ , oldKey, oldOctave] = key.match(/(.+)\/(\d)/);
       const oldSymbol = oldKey[0];
