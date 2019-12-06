@@ -117,13 +117,21 @@ class ScoreInterface extends React.Component {
   componentDidMount = async () => {
     M.Modal.init(document.querySelectorAll('#main .modal:not(#scores)'));
     document.querySelector('#addscore').addEventListener('click', this.newScore)
-    const score = await scoresAPIClient.getLatestScore(this.props.user.id);
-    if (score) {
-      this.loadScore(score);
-    } else {
-      this.newScore();
+    try {
+      const score = await scoresAPIClient.getLatestScore(this.props.user.id);
+      if (score) {
+        this.loadScore(score);
+      } else {
+        this.newScore();
+      }
+    } catch (err) {
+      toastMessage(err.message);
     }
     if (this._isMounted()) this.setState({ loaded: true});
+  }
+
+  componentWillUnmount = () => {
+    this.props.loadScore();
   }
 
   _isMounted = () => this.state.elemRef.current !== null;
