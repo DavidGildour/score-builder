@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import M from 'materialize-css/dist/js/materialize.min';
 
 import { noteToDuration } from './mappings/durationMappings';
@@ -133,26 +133,24 @@ export const RemoveNote = (props) => (
     </button>
 );
 
-export class Voices extends React.Component {
-    componentDidUpdate = (prevProps) => {
-        if (prevProps.voices.length !== this.props.voices.length) {
-            M.FormSelect.init(document.querySelector('#voices select'));
-        }
-    }
+export const Voices = (props) => {
+    useEffect(() => {
+        M.FormSelect.init(document.querySelector('#voices select'));
+    });
 
-    render = () => (
+    return (
         <div className="input-field" id="voices">
-            <select name="currentVoice" value={this.props.currentVoice} onChange={this.props.onChange}>
-            {this.props.voices.map((voice) => (
+            <select name="currentVoice" value={props.currentVoice} onChange={props.onChange}>
+            {props.voices.map((voice) => (
                 <option key={voice.id} value={voice.id}>
-                    {this.props.lang.mapping[voice.id]}
+                    {props.lang.mapping[voice.id]}
                 </option>
             ))}
             </select>
-            <label>{this.props.lang.label}</label>
+            <label>{props.lang.label}</label>
         </div>
     )
-};
+}
 
 export const AddRemoveVoice = (props) => (
     <div className="row top-margin">
